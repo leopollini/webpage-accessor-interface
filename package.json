@@ -30,13 +30,11 @@
 	],
 	"license": "ISC",
 	"devDependencies": {
-		"electron": "^37.2.5",
+		"electron": "^37.4.0",
 		"electron-builder": "^26.0.12",
-		"electron-squirrel-startup": "^1.0.1",
 		"fs": "^0.0.1-security",
-		"rpmbuild": "^0.0.23"
+		"chalk": "^4.1.2"
 	},
 	"dependencies": {
-		"chalk": "^4.1.2"
 	}
 }
