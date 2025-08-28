@@ -16,6 +16,7 @@
 	"build": {
 		"appId": "Webpage_Accessor",
 		"productName": "Webpage_Accessor",
+		"asar": false,
 		"linux": {
 			"target": [
 				"deb"
