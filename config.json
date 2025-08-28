@@ -37,6 +37,7 @@
 		{
 			"enabled": true,
 			"remap_to_pointeraction": true,
+			"disable_keyboard": true,
 			"actions":
 			{
 				"enlarged_doubleclick":

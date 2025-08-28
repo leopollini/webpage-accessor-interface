@@ -33,15 +33,20 @@ class DoubleClick extends require('../lib/BaseModule')
                          break ;
                     }
                  break ;
+                case 'gestureTapDown' :
+                    this.looseDoubleClickCheck(input, event);
+                 break ;
             }
         });
-        // if (BLOCK_KEYBOARD)
-        // {
-        //     tab.webContents.on('before-input-event', (event, input) => {
-        //         if (input.type === 'char' || input.type === 'rawKeyDown' || input.type === 'keyUp')
-        //             event.preventDefault();
-        //     });
-        // }
+
+        if (this.__conf.disable_keyboard == true)
+        {
+            this.log("disabling keyboard");
+            this.tab.webContents.on("before-input-event", (event, input) => {
+                if (input.type === 'keyDown' || input.type === 'keyUp')
+                    event.preventDefault();
+            });
+        }
     }
     
     async looseDoubleClickCheck(input, event)

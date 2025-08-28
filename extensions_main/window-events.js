@@ -11,6 +11,8 @@ class WindowSetup extends require('../lib/BaseModule')
 	// Setup code here. This function is called in BaseModule's constructor.
 	setup()
 	{
+		this.requireDataConf();
+
         this.window.on('resize', () => {
 			if (this.window.isFullScreen()) return ;
             this.tab.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
@@ -31,6 +33,8 @@ class WindowSetup extends require('../lib/BaseModule')
 		globalShortcut.register('d', () => {
 			this.tab.webContents.toggleDevTools();
 		});
+
+		if (this.__data.fullscreen == true) this.window.setFullScreen(true);
 	}
 
 	logWindowDimensions(operation = '')

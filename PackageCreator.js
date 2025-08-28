@@ -1,7 +1,7 @@
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const { EXT_CONFIGS_DIR } = require('./lib/Constants');
+const { EXT_CONFIGS_DIR, DATA_CONF_PATH } = require('./lib/Constants');
 
 class PackageCreator
 {
@@ -20,7 +20,7 @@ class PackageCreator
 
 		this.createConfigurations();
 
-		try { fs.writeFileSync(path.joinAppData('data.json'), JSON.stringify({...this.conf.default_data, is_configured: false}, null, 2)); }
+		try { fs.writeFileSync(path.joinAppData(DATA_CONF_PATH), JSON.stringify({...this.conf.default_data, is_configured: false}, null, 2)); }
 		catch (e) { console.log('Could not create data.json file:', e); }
 		// this.conf.is_configured = true;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
@@ -40,8 +40,6 @@ class PackageCreator
 	}
 	createConfigurations()
 	{
-		this.conf_files_dir = this.conf.configuration.conf_files_dir;
-		Reflect.deleteProperty(this.conf.configuration, 'conf_files_dir');
 		Object.entries(this.conf.configuration).forEach(([name, conf]) => {
 			this.loadConfiguration(conf, name);
 		});

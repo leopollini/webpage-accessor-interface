@@ -1,9 +1,0 @@
-{
-  "enabled": true,
-  "remap_to_pointeraction": true,
-  "doubleclick_sqr_radius": 1600,
-  "doubleclick_max_delay": 500,
-  "APIevents": {
-    "dblclick": {}
-  }
-}

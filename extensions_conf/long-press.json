@@ -1,9 +1,0 @@
-{
-  "enabled": true,
-  "remap_to_pointeraction": true,
-  "time_delay": 500,
-  "APIevents": {
-    "pointerdown": {},
-    "contextmenu": {}
-  }
-}
