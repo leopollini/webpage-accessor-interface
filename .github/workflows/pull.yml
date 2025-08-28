@@ -1,0 +1,27 @@
+name: Download and Install Artifact
+
+on: []
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install libs
+        run: |
+          npm install
+  install:
+    runs-on: ubuntu-latest
+    needs: build   # waits until build job is done
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build
+          path: ./artifact
+
+      - name: Install .deb package
+        run: |
+          sudo dpkg -i ./artifact/Webpage_Accessor*.deb || sudo apt-get install -f -y

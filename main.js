@@ -24,12 +24,13 @@ async function createMainWindow()
 	// During first execution create all config files
 	app.conf = {};
 	app.data = {};
-	// try {app.conf = JSON.parse(fs.readFileSync(pc.CONF_FILE_PATH));}
-	// catch {console.log('Could not load config file');}
+
+	
+	// if (!app.data.is_configured) 
+		try {new pc()} catch (e) {console.log("### CONFIGURATION FAILED:", e, "###")};
+
 	try {app.data = JSON.parse(fs.readFileSync(DATA_FILE_PATH));}
 	catch {console.log('Could not load data file'); } // new pc(); return ;}
-	
-	if (!app.data.is_configured) try {new pc()} catch (e) {console.log("### CONFIGURATION FAILED:", e, "###")};
 
 	const {height, width} = screen.getPrimaryDisplay().workAreaSize;
 	app.displaySize = {height: height, width: width}
