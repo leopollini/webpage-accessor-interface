@@ -35,5 +35,8 @@
 		"electron-squirrel-startup": "^1.0.1",
 		"fs": "^0.0.1-security",
 		"rpmbuild": "^0.0.23"
+	},
+	"dependencies": {
+		"chalk": "^4.1.2"
 	}
 }
