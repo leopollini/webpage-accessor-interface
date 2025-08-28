@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const chalk = require('chalk');
+const kleur = require('kleur');
 
 
 class PackageCreator
@@ -36,21 +36,21 @@ class PackageCreator
 
 	loadConfiguration(conf, name, depth = 0)
 	{
-		if (Object.keys(conf).length == 0 || conf.enabled == false) return this.betterLog(depth, chalk.yellow('Ignoring'),'configuration of', chalk.grey(name));
-		this.betterLog(depth, 'Beginning configuration of', chalk.bold(chalk.blue(name)));
+		if (Object.keys(conf).length == 0 || conf.enabled == false) return this.betterLog(depth, kleur.yellow('Ignoring'),'configuration of', kleur.grey(name));
+		this.betterLog(depth, 'Beginning configuration of', kleur.bold(kleur.blue(name)));
 		let env = {...conf};
 		Reflect.deleteProperty(env, "actions");
 		Reflect.deleteProperty(env, "extension");
 		// only actions xor extension allowed, not both
 		if (conf.actions) this.loadActions(conf.actions, env, name, depth);
 		else if (conf.extension) this.loadExtension({...env, ...conf.extension}, name, depth);
-		console.log('|\t'.repeat(depth) + '|__' + chalk.green(' done'));
+		console.log('|\t'.repeat(depth) + '|__' + kleur.green(' done'));
 		
 	}
 
 	loadActions(actions, env, name, depth)
 	{
-		if (actions.enabled == false) return this.betterLog(depth, chalk.yellow('Ignoring'),'actions for', chalk.grey(name), 'because', chalk.red('disabled'));
+		if (actions.enabled == false) return this.betterLog(depth, kleur.yellow('Ignoring'),'actions for', kleur.grey(name), 'because', kleur.red('disabled'));
 		Object.entries(actions).forEach(([name, ext]) => {
 			this.loadExtension({...env, ...ext}, name, depth);
 		});
@@ -58,14 +58,14 @@ class PackageCreator
 	
 	loadExtension(ext, name, depth)
 	{
-		if (ext.enabled == false) return this.betterLog(depth + 1, chalk.yellow('Ignoring'),'extension', chalk.grey(name), 'because', chalk.red('disabled'));
+		if (ext.enabled == false) return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because', kleur.red('disabled'));
 		if (ext.actions)
 		{
 			this.loadConfiguration(ext, name, depth + 1);
 			return ;
 		}
-		if (!ext.extension) return this.betterLog(depth + 1, chalk.yellow('Ignoring'),'extension', chalk.grey(name), 'because configuration is', chalk.red('missing'));
-		this.betterLog(depth + 1, 'configuring', chalk.green(name));
+		if (!ext.extension) return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because configuration is', kleur.red('missing'));
+		this.betterLog(depth + 1, 'configuring', kleur.green(name));
 		const ext_name = ext.extension;
 		Reflect.deleteProperty(ext, 'extension');
 		fs.writeFileSync(path.join(__dirname, this.conf_files_dir, ext_name) + '.json', JSON.stringify(ext, null, 2));
