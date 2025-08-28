@@ -14,7 +14,7 @@ fs.readdirSync(LOAD_DIR).forEach(function (dir) {
 	}
 	catch (e)
 	{
-		console.log('Module', dir, 'not loaded:', e.message);
+		console.log('Module', dir, 'not loaded:', e);
 	}
 	if (Env.DEBUG_MODE)
 		console.log('preloaded', dir);

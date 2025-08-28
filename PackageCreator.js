@@ -1,15 +1,18 @@
-const path = require('path');
+const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-
+const { EXT_CONFIGS_DIR } = require('./lib/Constants');
 
 class PackageCreator
 {
 	static CONF_FILE_PATH = path.join(__dirname, 'config.json');
+	
 
 	constructor()
 	{
 		console.log("### CONFIGURING PACKAGE ###");
+
+		this.createAppDirectories();
 		try {this.conf = JSON.parse(fs.readFileSync(PackageCreator.CONF_FILE_PATH));}
 		catch (e) {return console.log('Could not load config file:', e);}
 
@@ -17,14 +20,24 @@ class PackageCreator
 
 		this.createConfigurations();
 
-		try { fs.writeFileSync(path.join(__dirname, 'data.json'), JSON.stringify({...conf.default_data, is_configured: false}, null, 2)); }
-		catch { console.log('Could not create data.json file'); }
+		try { fs.writeFileSync(path.joinAppData('data.json'), JSON.stringify({...this.conf.default_data, is_configured: false}, null, 2)); }
+		catch (e) { console.log('Could not create data.json file:', e); }
 		// this.conf.is_configured = true;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
 		console.log("### PACKAGE CONFIGURATION CONCLUDED ###");
 	}
 
-
+	createAppDirectories()
+	{
+		[EXT_CONFIGS_DIR].forEach(dir => {
+			dir = path.joinAppData(dir);
+			if (!fs.existsSync(dir))
+			{
+				console.log("@ Creating", dir);
+				fs.mkdirSync(dir, { recursive: true });
+			}
+		});
+	}
 	createConfigurations()
 	{
 		this.conf_files_dir = this.conf.configuration.conf_files_dir;
@@ -68,7 +81,7 @@ class PackageCreator
 		this.betterLog(depth + 1, 'configuring', kleur.green(name));
 		const ext_name = ext.extension;
 		Reflect.deleteProperty(ext, 'extension');
-		fs.writeFileSync(path.join(__dirname, this.conf_files_dir, ext_name) + '.json', JSON.stringify(ext, null, 2));
+		fs.writeFileSync(path.joinConfigDir(ext_name + '.json'), JSON.stringify(ext, null, 2));
 	}
 
 	betterLog(depth, ...msg)

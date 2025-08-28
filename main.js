@@ -1,12 +1,12 @@
 
-const path = require('path');
+const path = require('./lib/path2');
 const {app, WebContentsView, BaseWindow, screen } = require('electron');
 const url = require('url');
 const fs = require('fs');
 const Env = require('./env');
 const pc = require('./PackageCreator');
 
-const DATA_FILE_PATH = path.join(__dirname, 'data.json');
+const DATA_FILE_PATH = path.joinAppData('data.json');
 const LOAD_DIR = path.join(__dirname, 'extensions_main');
 const PAGE_URL = url.format({
 		pathname: path.join(__dirname, "index.html"),
@@ -25,8 +25,9 @@ async function createMainWindow()
 	// try {app.conf = JSON.parse(fs.readFileSync(pc.CONF_FILE_PATH));}
 	// catch {console.log('Could not load config file');}
 	try {app.data = JSON.parse(fs.readFileSync(DATA_FILE_PATH));}
-	catch {console.log('Could not load data file');}
-	if (!app.data.is_configured) new pc();
+	catch {console.log('Could not load data file'); } // new pc(); return ;}
+	
+	if (!app.data.is_configured) try {new pc()} catch (e) {console.log("### CONFIGURATION FAILED:", e, "###")};
 
 	const {height, width} = screen.getPrimaryDisplay().workAreaSize;
 	app.displaySize = {height: height, width: width}
@@ -64,13 +65,14 @@ async function createMainWindow()
 		try
 		{
 			const ModuleClass = require(fullpath);
+			
 			const t = new ModuleClass()
 			enabled_modules.push(t);
 			t.__start(mainWindow, mainTab);
 		}
 		catch (e)
 		{ 
-			console.log("Module not loaded:", e.message);
+			console.log("Module not loaded:", e);
 		}
 	});
 

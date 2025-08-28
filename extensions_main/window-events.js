@@ -1,5 +1,4 @@
 const { app, globalShortcut } = require('electron');
-const path = require('path')
 
 // Sample Module. Plase copy-paste this file into new module's main folder
 class WindowSetup extends require('../lib/BaseModule')

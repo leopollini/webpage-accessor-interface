@@ -1,5 +1,3 @@
-const path = require('path');
-
 // radial double-click
 class DoubleClick extends require('../lib/BaseModule')
 {

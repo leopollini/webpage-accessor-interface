@@ -25,7 +25,6 @@
 
 	"configuration":
 	{
-		"conf_files_dir": "extensions_conf",
 		"keyboard_config":
 		{
 			"enabled": false,

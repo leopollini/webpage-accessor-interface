@@ -1,6 +1,5 @@
 const { app, ipcMain } = require('electron');
 const fs = require('fs');
-const path = require('path')
 
 // Sample Module. Plase copy-paste this file into new module's main folder
 class ElectronAPI extends require('../lib/BaseModule')
