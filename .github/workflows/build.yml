@@ -18,6 +18,10 @@ jobs:
           npm run build
           
 
+      - name: Move artifact
+        run: |
+          mv dist/* output/
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
