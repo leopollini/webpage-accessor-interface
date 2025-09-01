@@ -47,7 +47,7 @@
 					"doubleclick_max_delay": 500,
 					"actions":
 					{
-						"lel": {"enabled": true, "extension": "double-click"}
+						"lel": {"enabled": true, "extension": "touch-utils"}
 					},
 					"APIevents": {"dblclick": {}}
 				},

@@ -8,29 +8,37 @@ const pc = require('./PackageCreator');
 const kleur = require('kleur');
 const { DATA_CONF_PATH } = require('./lib/Constants');
 
-const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH, 'data.json');
+const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const LOAD_DIR = path.join(__dirname, 'extensions_main');
-const PAGE_URL = url.format({
-		pathname: path.join(__dirname, "index.html"),
-		// pathname: path.join("reception.parchotels.it"),
-		// protocol: 'http'
-		protocol: 'file'
-	});
+let PAGE_URL = url.format({
+	pathname: path.join(__dirname, "index.html"),
+	// pathname: path.join("reception.parchotels.it"),
+	// protocol: 'http'
+	protocol: 'file'
+});
 
 const enabled_modules = [];
 
 async function createMainWindow()
 {
 	// During first execution create all config files
+	app.args = process.argv.slice(3);	
 	app.conf = {};
 	app.data = {};
-
 	
-	// if (!app.data.is_configured) 
-		try {new pc()} catch (e) {console.log("### CONFIGURATION FAILED:", e, "###")};
-
 	try {app.data = JSON.parse(fs.readFileSync(DATA_FILE_PATH));}
-	catch {console.log('Could not load data file'); } // new pc(); return ;}
+	catch {console.log('Main: could not load data file'); } // new pc(); return ;}
+	
+
+	if (!app.data.is_configured) 
+		try {new pc()}
+		catch (e) {console.log("FAILED:", e)}
+		finally {console.log("### CONFIGURATION FINISHED ###")};
+
+
+
+	if (Env.DEBUG_MODE && app.data && app.data.version)
+		console.log("### WELCOME TO VERSION", app.data.version, "###");
 
 	const {height, width} = screen.getPrimaryDisplay().workAreaSize;
 	app.displaySize = {height: height, width: width}
@@ -64,7 +72,7 @@ async function createMainWindow()
 		const fullpath = path.join(LOAD_DIR, ext);
 		
 		if (Env.DEBUG_MODE)
-			console.log("loading", ext);
+			console.log("loading", kleur.green(ext));
 		try
 		{
 			const ModuleClass = require(fullpath);

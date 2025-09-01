@@ -20,11 +20,11 @@ class PackageCreator
 
 		this.createConfigurations();
 
-		try { fs.writeFileSync(path.joinAppData(DATA_CONF_PATH), JSON.stringify({...this.conf.default_data, is_configured: false}, null, 2)); }
+		let data_file_content = {...this.conf.default_data, is_configured: false, ...this.conf.app_info}
+		try { fs.writeFileSync(path.joinAppData(DATA_CONF_PATH), JSON.stringify(data_file_content, null, 2)); }
 		catch (e) { console.log('Could not create data.json file:', e); }
 		// this.conf.is_configured = true;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
-		console.log("### PACKAGE CONFIGURATION CONCLUDED ###");
 	}
 
 	createAppDirectories()

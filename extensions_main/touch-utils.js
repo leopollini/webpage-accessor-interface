@@ -1,7 +1,9 @@
+const { app } = require("electron");
+
 // radial double-click
 class DoubleClick extends require('../lib/BaseModule')
 {
-    MODULE_NAME = "double-click"; // MUST be the same as file name (required to access conf file)
+    MODULE_NAME = "touch-utils"; // MUST be the same as file name (required to access conf file)
     
     lstLeftPress = 0;
     lstLeftPos = {x: 0, y:0};
@@ -39,9 +41,16 @@ class DoubleClick extends require('../lib/BaseModule')
             }
         });
 
+        if (this.__conf.remap_to_pointeraction == true)
+        {
+            this.warn("mapping touch inputs to mouse imputs");
+            app.commandLine.appendSwitch("touch-events", "disabled");
+            app.commandLine.appendSwitch("enable-pointer-events");
+        }
+
         if (this.__conf.disable_keyboard == true)
         {
-            this.log("disabling keyboard");
+            this.warn("disabling keyboard");
             this.tab.webContents.on("before-input-event", (event, input) => {
                 if (input.type === 'keyDown' || input.type === 'keyUp')
                     event.preventDefault();
