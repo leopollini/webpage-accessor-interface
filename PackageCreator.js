@@ -38,6 +38,7 @@ class PackageCreator
 			}
 		});
 	}
+	
 	createConfigurations()
 	{
 		Object.entries(this.conf.configuration).forEach(([name, conf]) => {
