@@ -2,5 +2,5 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
 	readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
-	getLocalKey: () => ipcRenderer.invoke('get-key')
+	getLocalKey: () => ipcRenderer.invoke('get-key'),
 });

@@ -16,6 +16,10 @@
         <text style="display:none" id="loltext2">this shows up on doubleclick event</text>
         <br>
         <text style="display:none" id="loltext3">this shows up on rightclick event</text>
+        <br>
+        <br>
+        <text style="display:none" id="termid_t">I am </text> <text style="display:none", id="termid"></text> <br>
+        <text style="display:none" id="termkey_t">My code is </text> <text style="display:none", id="termkey"></text>
     </body>
     <script>
         $(function () {
@@ -26,6 +30,28 @@
 
             $("#readfile").on('pointerdown', function () {
                 $("#loltext").show( );
+                if (window.electronAPI.getLocalKey)
+                {
+                    console.log("Calling local keys");
+                    let asd = window.electronAPI.getLocalKey().then(function (terminfo) {
+                        console.log("Got from electron:", terminfo);
+                        if (!terminfo || !terminfo.terminal_id || !terminfo.terminal_key)
+                        {
+                            $('#termid').show().text("no terminal info");
+                        }
+                        else
+                        {
+                            $("#termid_t").show();
+                            $("#termkey_t").show();
+                            $('#termid').show().text(terminfo.terminal_id);
+                            $('#termkey').show().text(terminfo.terminal_key);
+                        }
+                    });
+                }
+                else
+                {
+                    $('#termid').show().text("terminal info not accessible")
+                }
             })
 
             $("#readfile").on('contextmenu', function (e) {

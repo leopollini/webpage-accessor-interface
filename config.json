@@ -37,7 +37,9 @@
 		{
 			"enabled": true,
 			"remap_to_pointeraction": true,
-			"disable_keyboard": true,
+			"disable_physical_keyboard": true,
+			"disable_virtual_keyboard": false,
+			"one_button_at_a_time": true,
 			"actions":
 			{
 				"enlarged_doubleclick":
@@ -79,14 +81,21 @@
 				{
 					"extension": "window-events"
 				},
-				"startup_actions": {}
+				"startup_actions": {},
+				"keys-checker":
+				{
+					"enabled": true,
+					"extension": "keys-checker",
+					"terminal_id": 381273,
+					"terminal_key": "asdasdasd"
+				}
 			}
 		}
 	},
 
 	"default_data":
 	{
-		"fullscreen": true,
+		"fullscreen": false,
 		"autostart": true,
 		"autorestart": true,
 		"autoreload": false,
@@ -100,8 +109,6 @@
 				"is_main_page": true,
 				"require_private_window": true
 			}
-		],
-		"terminal_id": 381273,
-		"terminal_key": "asdasdasd"
+		]
 	}
 }

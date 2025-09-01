@@ -9,6 +9,10 @@ class DoubleClick extends require('../lib/BaseModule')
     lstLeftPos = {x: 0, y:0};
     lstRightPress = 0;
     lstRightPos = {x:0, y:0};
+
+    mouseHasLeft = true;
+
+    // lastInputEvent = null;
     
     //// Constructor trace, please leave commented, unless necessary.
     // constructor(window, tab) { super(window, tab); }
@@ -34,11 +38,19 @@ class DoubleClick extends require('../lib/BaseModule')
                             this.lstRightPos = {x: input.x, y: input.y};
                          break ;
                     }
+                    this.mouseHasLeft = false;
                  break ;
                 case 'touchStart' :
                     this.looseDoubleClickCheck(input, event);
                     this.lstLeftPress = Date.now();
                     this.lstLeftPos = {x: input.x, y: input.y};
+                    this.mouseHasLeft = false;
+                 break ;
+                case 'mouseMove':
+                    this.mouseHasLeft = false;
+                 break ;
+                case 'mouseLeave':
+                    this.mouseHasLeft = true;
                  break ;
             }
         });
@@ -50,12 +62,26 @@ class DoubleClick extends require('../lib/BaseModule')
             app.commandLine.appendSwitch("enable-pointer-events");
         }
 
-        if (this.__conf.disable_keyboard == true)
+        if (this.__conf.disable_physical_keyboard == true)
         {
-            this.warn("disabling keyboard");
+            this.warn("disabling physical keyboard");
             this.tab.webContents.on("before-input-event", (event, input) => {
-                if (input.type === 'keyDown' || input.type === 'keyUp')
+                if (!this.mouseHasLeft && input.type === 'keyDown' || input.type === 'keyUp')
+                {   
                     event.preventDefault();
+                    this.warn("prevented by physical secutiry");
+                }
+            });
+        }
+        if (this.__conf.disable_virtual_keyboard == true)
+        {
+            this.warn("disabling virtual keyboard");
+            this.tab.webContents.on("before-input-event", (event, input) => {
+                if (this.mouseHasLeft && input.type === 'keyDown' || input.type === 'keyUp')
+                {
+                    event.preventDefault();
+                    this.warn("prevented by virtual secutiry");
+                }
             });
         }
     }
