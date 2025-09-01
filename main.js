@@ -84,7 +84,6 @@ async function createMainWindow()
 
 	if (Env.DEBUG_MODE)
 	{
-		console.log('CHECKING ACTIVE MODULES:');
 		checkActiveModules();
 	}
 	// mainWindow.maximize();
@@ -93,9 +92,12 @@ async function createMainWindow()
 // Only main-side!!! Check app console for preload fails
 function checkActiveModules()
 {
+	console.log('CHECKING ACTIVE MODULES:');
 	enabled_modules.forEach(function (e) {
 		e.log(e.isActive());
 	});
 }
 
 app.on('ready', createMainWindow);
+
+module.exports = { checkActiveModules }

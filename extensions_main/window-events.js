@@ -1,4 +1,5 @@
 const { app, globalShortcut } = require('electron');
+const {checkActiveModules} = require('../main')
 
 // Sample Module. Plase copy-paste this file into new module's main folder
 class WindowSetup extends require('../lib/BaseModule')
@@ -32,6 +33,9 @@ class WindowSetup extends require('../lib/BaseModule')
 		});
 		globalShortcut.register('d', () => {
 			this.tab.webContents.toggleDevTools();
+		});
+		globalShortcut.register('c', () => {
+			checkActiveModules();
 		});
 
 		if (this.__data.fullscreen == true) this.window.setFullScreen(true);
