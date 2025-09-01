@@ -18,8 +18,7 @@
         <text style="display:none" id="loltext3">this shows up on rightclick event</text>
         <br>
         <br>
-        <text style="display:none" id="termid_t">I am </text> <text style="display:none", id="termid"></text> <br>
-        <text style="display:none" id="termkey_t">My code is </text> <text style="display:none", id="termkey"></text>
+        <text style="display:none" id="macid_t">I am </text> <text style="display:none", id="macid"></text> <br>
     </body>
     <script>
         $(function () {
@@ -35,22 +34,20 @@
                     console.log("Calling local keys");
                     let asd = window.electronAPI.getLocalKey().then(function (terminfo) {
                         console.log("Got from electron:", terminfo);
-                        if (!terminfo || !terminfo.terminal_id || !terminfo.terminal_key)
+                        if (!terminfo || !terminfo.machine_id)
                         {
-                            $('#termid').show().text("no terminal info");
+                            $('#macid').show().text("no terminal info");
                         }
                         else
                         {
-                            $("#termid_t").show();
-                            $("#termkey_t").show();
-                            $('#termid').show().text(terminfo.terminal_id);
-                            $('#termkey').show().text(terminfo.terminal_key);
+                            $("#macid_t").show();
+                            $('#macid').show().text(terminfo.machine_id);
                         }
                     });
                 }
                 else
                 {
-                    $('#termid').show().text("terminal info not accessible")
+                    $('#macid').show().text("terminal info not accessible")
                 }
             })
 

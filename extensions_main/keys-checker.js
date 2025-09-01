@@ -1,25 +1,31 @@
 const { ipcMain } = require('electron');
+const { machineIdSync } = require("node-machine-id");
 
 // Sample Module. Plase copy-paste this file into new module's main folder
 class LocalKeysCheck extends require('../lib/BaseModule')
 {
     MODULE_NAME = "keys-checker";
-    term_id;
-    term_key;
+    machine_id = null;
+    real_machine_id;
+    
 
     setup()
     {
         ipcMain.handle('get-key', async () => await this.getLocalKey());
-        this.term_id = this.__conf.terminal_id;
-        this.term_key = this.__conf.terminal_key;
-        this.log('Loaded local keys:', {key:this.term_key, id: this.term_id})
+
+        const id = machineIdSync();
+        this.real_machine_id = machineIdSync(false);
+
+        this.machine_id = this.__conf.custom_id || id;
+        
+        this.log('Loaded local id:', this.machine_id);
     }
 
     
 	async getLocalKey()
 	{
         this.log(this.tab.webContents.getURL(), 'is trying to access local keys info');
-		return {terminal_key: this.term_key, terminal_id: this.term_id};
+		return {machine_id: this.machine_id};
 	}
 }
 

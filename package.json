@@ -36,6 +36,7 @@
 	},
 	"dependencies": {
 		"fs": "^0.0.1-security",
-		"kleur": "^4.1.5"
+		"kleur": "^4.1.5",
+		"node-machine-id": "^1.1.12"
 	}
 }

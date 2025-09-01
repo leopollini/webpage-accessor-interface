@@ -86,8 +86,7 @@
 				{
 					"enabled": true,
 					"extension": "keys-checker",
-					"terminal_id": 381273,
-					"terminal_key": "asdasdasd"
+  					"custom_id": false
 				}
 			}
 		}
