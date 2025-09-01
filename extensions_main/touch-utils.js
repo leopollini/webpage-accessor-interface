@@ -35,8 +35,10 @@ class DoubleClick extends require('../lib/BaseModule')
                          break ;
                     }
                  break ;
-                case 'gestureTapDown' :
+                case 'touchStart' :
                     this.looseDoubleClickCheck(input, event);
+                    this.lstLeftPress = Date.now();
+                    this.lstLeftPos = {x: input.x, y: input.y};
                  break ;
             }
         });
