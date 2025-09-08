@@ -12,8 +12,6 @@ class WindowSetup extends require('../lib/BaseModule')
 	// Setup code here. This function is called in BaseModule's constructor.
 	setup()
 	{
-		this.requireDataConf();
-
         this.window.on('resize', () => {
 			if (this.window.isFullScreen()) return ;
             this.tab.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
@@ -27,18 +25,21 @@ class WindowSetup extends require('../lib/BaseModule')
             this.tab.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
 			this.logWindowDimensions('leave fullscreen');
         });
+	
+		if (this.__conf.enable_shortcuts == true)
+		{
+			globalShortcut.register('f', () => {
+				this.window.setFullScreen(!this.window.isFullScreen());
+			});
+			globalShortcut.register('d', () => {
+				this.tab.webContents.toggleDevTools();
+			});
+			globalShortcut.register('c', () => {
+				checkActiveModules();
+			});true
+		}
 
-		globalShortcut.register('f', () => {
-			this.window.setFullScreen(!this.window.isFullScreen());
-		});
-		globalShortcut.register('d', () => {
-			this.tab.webContents.toggleDevTools();
-		});
-		globalShortcut.register('c', () => {
-			checkActiveModules();
-		});
-
-		if (this.__data.fullscreen == true) this.window.setFullScreen(true);
+		if (this.getAppData().fullscreen == true) this.window.setFullScreen(true);
 	}
 
 	logWindowDimensions(operation = '')

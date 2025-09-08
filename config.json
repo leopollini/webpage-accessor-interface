@@ -8,7 +8,9 @@
 		},
 		"version": "0.0.1",
 		"autoupdate": false,
-		"electron_package": "package.json"
+		"electron_package": "package.json",
+		"app_name": "Webpage Accessor",
+		"app_executable": "webpage_accessor"
 	},
 
 	"log":
@@ -79,6 +81,8 @@
 				},
 				"extra_extensions":
 				{
+					"enable_shortcuts": true,
+					"hide_toolbar": true,
 					"extension": "window-events"
 				},
 				"startup_actions": {},
@@ -87,6 +91,11 @@
 					"enabled": true,
 					"extension": "keys-checker",
   					"custom_id": false
+				},
+				"autostart":
+				{
+					"desktop_filename": "webpage-accessor.desktop",
+					"extension": "autostart"
 				}
 			}
 		}
@@ -94,7 +103,7 @@
 
 	"default_data":
 	{
-		"fullscreen": false,
+		"fullscreen": true,
 		"autostart": true,
 		"autorestart": true,
 		"autoreload": false,

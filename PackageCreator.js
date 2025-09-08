@@ -1,20 +1,19 @@
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const { EXT_CONFIGS_DIR, DATA_CONF_PATH } = require('./lib/Constants');
+const { EXT_CONFIGS_DIR, DATA_CONF_PATH, LINUX_AUTOSTART_DIR } = require('./lib/Constants');
 
 class PackageCreator
 {
 	static CONF_FILE_PATH = path.join(__dirname, 'config.json');
 	
 
-	constructor()
+	constructor(conf)
 	{
 		console.log("### CONFIGURING PACKAGE ###");
 
 		this.createAppDirectories();
-		try {this.conf = JSON.parse(fs.readFileSync(PackageCreator.CONF_FILE_PATH));}
-		catch (e) {return console.log('Could not load config file:', e);}
+		this.conf = conf;
 
 		// console.log(conf);
 
@@ -29,7 +28,7 @@ class PackageCreator
 
 	createAppDirectories()
 	{
-		[EXT_CONFIGS_DIR].forEach(dir => {
+		[EXT_CONFIGS_DIR, LINUX_AUTOSTART_DIR].forEach(dir => {
 			dir = path.joinAppData(dir);
 			if (!fs.existsSync(dir))
 			{

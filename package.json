@@ -1,5 +1,5 @@
 {
-	"name": "Webpage_Accessor",
+	"name": "webpage_accessor",
 	"version": "1.0.0",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
@@ -14,8 +14,8 @@
 		"build": "electron-builder --publish=never"
 	},
 	"build": {
-		"appId": "Webpage_Accessor",
-		"productName": "Webpage_Accessor",
+		"appId": "webpage_accessor",
+		"productName": "webpage_accessor",
 		"asar": false,
 		"linux": {
 			"target": [
