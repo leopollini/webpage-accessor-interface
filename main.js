@@ -7,6 +7,7 @@ const Env = require('./env');
 const pc = require('./PackageCreator');
 const kleur = require('kleur');
 const { DATA_CONF_PATH } = require('./lib/Constants');
+const os = require('os');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const LOAD_DIR = path.join(__dirname, 'extensions_main');
@@ -18,6 +19,8 @@ const PAGE_URL = url.format({
 });
 
 const enabled_modules = [];
+
+console.log("I AMS", os.platform(), ", AN", os.arch());
 
 // During first execution create all config files
 app.args = process.argv.slice(3);	

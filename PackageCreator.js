@@ -28,13 +28,24 @@ class PackageCreator
 
 	createAppDirectories()
 	{
-		[EXT_CONFIGS_DIR, LINUX_AUTOSTART_DIR].forEach(dir => {
+		// Inside AppData
+		[EXT_CONFIGS_DIR].forEach(dir => {
 			dir = path.joinAppData(dir);
 			if (!fs.existsSync(dir))
 			{
-				console.log("@ Creating", dir);
 				fs.mkdirSync(dir, { recursive: true });
 			}
+			console.log("@ Created", dir);
+		});
+
+		// Not inside AppData
+		[LINUX_AUTOSTART_DIR].forEach(dir => {
+			dir = path.join(dir);
+			if (!fs.existsSync(dir))
+			{
+				fs.mkdirSync(dir, { recursive: true });
+			}
+			console.log("@ Created", dir);
 		});
 	}
 	
