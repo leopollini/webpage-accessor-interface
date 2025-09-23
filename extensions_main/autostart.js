@@ -10,9 +10,8 @@ class Autostarter extends require('../lib/BaseModule')
 {
     MODULE_NAME = "autostart";
 
-    setup()
+    setup_linux()
     {
-        // LINUX SETUP]
         this.log("setting autostart to", this.getAppData().autostart);
         if (this.getAppData().autostart == true)
         {
@@ -27,6 +26,14 @@ Exec=` + this.getAppConfig().app_info.app_executable;
             fs.writeFileSync(desktop_file_dir, file_content);
             this.log("desktop file created");
         }
+    }
+
+    setup_windows()
+    {
+        if (this.getAppData().autostart == true)
+            app.setLoginItemSettings({
+                openAtLogin: true    
+            })
     }
 }
 

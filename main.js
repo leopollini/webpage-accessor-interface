@@ -8,6 +8,7 @@ const pc = require('./PackageCreator');
 const kleur = require('kleur');
 const { DATA_CONF_PATH } = require('./lib/Constants');
 const os = require('os');
+const BaseModule = require('./lib/BaseModule');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const LOAD_DIR = path.join(__dirname, 'extensions_main');
@@ -82,7 +83,7 @@ async function createMainWindow()
 		try
 		{
 			const ModuleClass = require(fullpath);
-			if (typeof(ModuleClass) !== typeof(function () {})) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
+			if (typeof(ModuleClass) !== typeof(function () {}) || Object.getPrototypeOf(ModuleClass) !== BaseModule) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
 			const t = new ModuleClass()
 			enabled_modules.push(t);
 			t.__start(mainWindow, mainTab);
@@ -91,6 +92,9 @@ async function createMainWindow()
 		{ 
 			console.log("Module not loaded:", e);
 		}
+	});
+	enabled_modules.forEach(function (module) {
+		if (module.isActive()) module.__late_start();
 	});
 
 
