@@ -5,13 +5,10 @@ const url = require('url');
 const fs = require('fs');
 const Env = require('./env');
 const pc = require('./PackageCreator');
-const kleur = require('kleur');
 const { DATA_CONF_PATH } = require('./lib/Constants');
 const os = require('os');
-const BaseModule = require('./lib/BaseModule');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
-const LOAD_DIR = path.join(__dirname, 'extensions_main');
 const PAGE_URL = url.format({
 	pathname: path.join(__dirname, "index.html"),
 	// pathname: path.join("reception.parchotels.it"),
@@ -19,7 +16,6 @@ const PAGE_URL = url.format({
 	protocol: 'file'
 });
 
-const enabled_modules = [];
 
 console.log("I AMS", os.platform(), ", AN", os.arch());
 
@@ -27,6 +23,7 @@ console.log("I AMS", os.platform(), ", AN", os.arch());
 app.args = process.argv.slice(3);	
 app.conf = {};
 app.data = {};
+app.enabled_modules = [];
 
 // loads data file, if present
 if (fs.existsSync(DATA_FILE_PATH))
@@ -59,7 +56,7 @@ async function createMainWindow()
 	});
 	const mainTab = new WebContentsView({
 		webPreferences: {
-			preload: path.join(__dirname, 'preload.js'), // Secure bridge
+			preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
 			contextIsolation: true,
 			nodeIntegration: false,
 			sandbox: false
@@ -72,31 +69,7 @@ async function createMainWindow()
 
 	mainTab.webContents.loadURL(PAGE_URL);
 
-
-	// Loads all active modules preload
-	fs.readdirSync(LOAD_DIR).forEach(function (ext)
-	{
-		const fullpath = path.join(LOAD_DIR, ext);
-		
-		if (Env.DEBUG_MODE)
-			console.log("loading", kleur.green(ext));
-		try
-		{
-			const ModuleClass = require(fullpath);
-			if (typeof(ModuleClass) !== typeof(function () {}) || Object.getPrototypeOf(ModuleClass) !== BaseModule) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
-			const t = new ModuleClass()
-			enabled_modules.push(t);
-			t.__start(mainWindow, mainTab);
-		}
-		catch (e)
-		{ 
-			console.log("Module not loaded:", e);
-		}
-	});
-	enabled_modules.forEach(function (module) {
-		if (module.isActive()) module.__late_start();
-	});
-
+	require('./extensions/loader').load(app.enabled_modules, mainWindow, mainTab);
 
 	mainTab.webContents.toggleDevTools();
 
@@ -111,7 +84,7 @@ async function createMainWindow()
 function checkActiveModules()
 {
 	console.log('CHECKING ACTIVE MODULES:');
-	enabled_modules.forEach(function (e) {
+	app.enabled_modules.forEach(function (e) {
 		e.log(e.isActive());
 	});
 }

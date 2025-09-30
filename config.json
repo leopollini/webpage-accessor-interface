@@ -54,13 +54,6 @@
 						"lel": {"enabled": true, "extension": "touch-utils"}
 					},
 					"APIevents": {"dblclick": {}}
-				},
-				"long_press":
-				{
-					"enabled": true,
-					"time_delay": 500,
-					"extension": "long-press",
-					"APIevents": {"pointerdown": {}, "contextmenu": {}}
 				}
 			}
 		},
@@ -96,6 +89,11 @@
 				{
 					"desktop_filename": "webpage-accessor.desktop",
 					"extension": "autostart"
+				},
+				"splashscreen":
+				{
+					"enabled": true,
+					"extension": "splashscreen"
 				}
 			}
 		}

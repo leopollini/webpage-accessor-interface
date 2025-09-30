@@ -1,8 +1,8 @@
 const { app, globalShortcut } = require('electron');
-const {checkActiveModules} = require('../main')
+const {checkActiveModules} = require('../../main')
 
 // Sample Module. Plase copy-paste this file into new module's main folder
-class WindowSetup extends require('../lib/BaseModule')
+class WindowSetup extends require('../../lib/BaseModule')
 {
 	MODULE_NAME = "window-events";    // MUST be the same as file name (required to access conf file)
 
@@ -28,15 +28,21 @@ class WindowSetup extends require('../lib/BaseModule')
 	
 		if (this.__conf.enable_shortcuts == true)
 		{
-			globalShortcut.register('f', () => {
+			globalShortcut.register('ctrl+f', () => {
 				this.window.setFullScreen(!this.window.isFullScreen());
 			});
-			globalShortcut.register('d', () => {
+			globalShortcut.register('ctrl+d', () => {
 				this.tab.webContents.toggleDevTools();
 			});
-			globalShortcut.register('c', () => {
+			globalShortcut.register('ctrl+c', () => {
 				checkActiveModules();
-			});true
+			});
+			globalShortcut.register('ctrl+w', () => {
+				this.window.close();
+			});
+			globalShortcut.register('esc', () => {
+				this.window.close();
+			});
 		}
 
 		if (this.getAppData().fullscreen == true) this.window.setFullScreen(true);

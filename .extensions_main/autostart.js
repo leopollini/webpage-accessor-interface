@@ -1,12 +1,12 @@
 const fs = require('fs');
-const path = require('../lib/path2');
+const path = require('../../lib/path2');
 const { notStrictEqual } = require('assert');
 const { LINUX_AUTOSTART_DIR } = require('../lib/Constants')
 
 // WARNING: THIS SCRIPT WILL CHANGE THE MACHINE'S STARTUP BEHAVIOUR.
 // TO DISABLE REMOVE .desktop FILE
 // WILL TAKE EFFECT ONLY ON BUILD MODE, NOT ON DEV MODE
-class Autostarter extends require('../lib/BaseModule')
+class Autostarter extends require('../../lib/BaseModule')
 {
     MODULE_NAME = "autostart";
 
