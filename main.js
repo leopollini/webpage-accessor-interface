@@ -10,12 +10,11 @@ const os = require('os');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const PAGE_URL = url.format({
-	pathname: path.join(__dirname, "index.html"),
-	// pathname: path.join("reception.parchotels.it"),
-	// protocol: 'http'
-	protocol: 'file'
+	// pathname: path.join(__dirname, "index.html"),
+	pathname: path.join("streaming-community.pro"),
+	protocol: 'https'
+	// protocol: 'file'
 });
-
 
 console.log("I AMS", os.platform(), ", AN", os.arch());
 
@@ -69,7 +68,7 @@ async function createMainWindow()
 
 	mainTab.webContents.loadURL(PAGE_URL);
 
-	require('./extensions/loader').load(app.enabled_modules, mainWindow, mainTab);
+	require('./extensions/loader').load(app.enabled_modules, mainWindow, mainTab, app.data);
 
 	mainTab.webContents.toggleDevTools();
 
@@ -88,6 +87,13 @@ function checkActiveModules()
 		e.log(e.isActive());
 	});
 }
+
+app.on('browser-window-created', (event, window) => {
+  console.log('New window created:', window.id);
+  window.close();
+  // You can check window count here
+});
+
 
 app.on('ready', createMainWindow);
 

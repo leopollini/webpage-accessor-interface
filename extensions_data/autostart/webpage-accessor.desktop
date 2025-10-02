@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=webpage-accessor
+Name=webpage_accessor
 Comment=webpage accessor autostart script
 Type=Application
-Exec=webpage-accessor
+Exec=webpage_accessor

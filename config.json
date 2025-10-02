@@ -39,7 +39,7 @@
 		{
 			"enabled": true,
 			"remap_to_pointeraction": true,
-			"disable_physical_keyboard": true,
+			"disable_physical_keyboard": false,
 			"disable_virtual_keyboard": false,
 			"one_button_at_a_time": true,
 			"actions":
@@ -87,7 +87,7 @@
 				},
 				"autostart":
 				{
-					"desktop_filename": "webpage-accessor.desktop",
+					"desktop_filename": "webpage_accessor.desktop",
 					"extension": "autostart"
 				},
 				"splashscreen":

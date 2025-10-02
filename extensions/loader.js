@@ -9,7 +9,8 @@ const EXT_LOAD_DIR = __dirname;
 
 class Loader2
 {
-    static load(enabled_modules, mainWindow, mainTab) {
+    // 'data' shoud be app.data
+    static load(enabled_modules, mainWindow, mainTab, data) {
         fs.readdirSync(EXT_LOAD_DIR).forEach(function (ext)
         {
             const main = path.join(EXT_LOAD_DIR, ext, 'main.js');
@@ -25,7 +26,7 @@ class Loader2
                 if (typeof(ModuleClass) !== typeof(function () {}) || Object.getPrototypeOf(ModuleClass) !== BaseModule) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
                 const t = new ModuleClass()
                 enabled_modules.push(t);
-                t.__start(mainWindow, mainTab);
+                t.__start(mainWindow, mainTab, data);
             }
             catch (e)
             { 
