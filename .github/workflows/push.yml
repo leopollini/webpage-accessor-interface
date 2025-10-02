@@ -43,7 +43,7 @@ jobs:
 
           # Copy build output (adjust folder name if needed)
           rm -rf *
-          cp -r ../$(basename $GITHUB_WORKSPACE)/dist/* .
+          cp ../$(basename $GITHUB_WORKSPACE)/dist/* .
 
           # Commit and push
           git add .
