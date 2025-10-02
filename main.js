@@ -3,17 +3,18 @@ const path = require('./lib/path2');
 const {app, WebContentsView, BaseWindow, screen } = require('electron');
 const url = require('url');
 const fs = require('fs');
+const os = require('os');
 const Env = require('./env');
 const pc = require('./PackageCreator');
 const { DATA_CONF_PATH } = require('./lib/Constants');
-const os = require('os');
+const TabsManager = require('./lib/TabsManager');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const PAGE_URL = url.format({
-	// pathname: path.join(__dirname, "index.html"),
-	pathname: path.join("streaming-community.pro"),
-	protocol: 'https'
-	// protocol: 'file'
+	pathname: path.join(__dirname, "index.html"),
+	// pathname: path.join("streaming-community.pro"),
+	// protocol: 'https'
+	protocol: 'file'
 });
 
 console.log("I AMS", os.platform(), ", AN", os.arch());
@@ -53,6 +54,7 @@ async function createMainWindow()
 		fullscreenable: true,
 		autoHideMenuBar: true
 	});
+	TabsManager.setup(mainWindow);
 	const mainTab = new WebContentsView({
 		webPreferences: {
 			preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
@@ -61,16 +63,13 @@ async function createMainWindow()
 			sandbox: false
 		}});
 
-
-	mainWindow.contentView.addChildView(mainTab);
-
 	mainTab.setBounds({x: 0, y: 0  , height: mainWindow.getContentBounds().height, width: mainWindow.getContentBounds().width});
 
 	mainTab.webContents.loadURL(PAGE_URL);
 
-	require('./extensions/loader').load(app.enabled_modules, mainWindow, mainTab, app.data);
+	TabsManager.setNewTab(mainTab, 'main');
 
-	mainTab.webContents.toggleDevTools();
+	app.enabled_modules = require('./extensions/loader').load(mainWindow, mainTab, app.data);
 
 	if (Env.DEBUG_MODE)
 	{

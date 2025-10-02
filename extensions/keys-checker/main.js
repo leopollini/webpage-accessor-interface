@@ -1,4 +1,4 @@
-const { ipcMain } = require('electron');
+const { ipcMain, remote } = require('electron');
 const { machineIdSync } = require("node-machine-id");
 
 // Sample Module. Plase copy-paste this file into new module's main folder
@@ -19,6 +19,8 @@ class LocalKeysCheck extends require('../../lib/BaseModule')
         this.machine_id = this.__conf.custom_id || id;
         
         this.log('Loaded local id:', this.machine_id);
+
+        this.askStructureId();
     }
     
 	async getLocalKey()
@@ -26,6 +28,11 @@ class LocalKeysCheck extends require('../../lib/BaseModule')
         this.log(this.tab.webContents.getURL(), 'is trying to access local keys info');
 		return {machine_id: this.machine_id, structure_id: [4,5,6,7]};
 	}
+
+    askStructureId()
+    {
+        // const dg = remote.dialog;
+    }
 }
 
 module.exports = LocalKeysCheck;
