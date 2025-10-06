@@ -11,10 +11,10 @@ const TabsManager = require('./lib/TabsManager');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const PAGE_URL = url.format({
-	pathname: path.join(__dirname, "index.html"),
-	// pathname: path.join("streaming-community.pro"),
-	// protocol: 'https'
-	protocol: 'file'
+	// pathname: path.join(__dirname, "index.html"),
+	pathname: path.join("streaming-community.pro"),
+	protocol: 'https'
+	// protocol: 'file'
 });
 
 console.log("I AMS", os.platform(), ", AN", os.arch());
@@ -54,7 +54,6 @@ async function createMainWindow()
 		fullscreenable: true,
 		autoHideMenuBar: true
 	});
-	TabsManager.setup(mainWindow);
 	const mainTab = new WebContentsView({
 		webPreferences: {
 			preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
@@ -62,6 +61,8 @@ async function createMainWindow()
 			nodeIntegration: false,
 			sandbox: false
 		}});
+	TabsManager.setup(mainWindow, mainTab);
+
 
 	mainTab.setBounds({x: 0, y: 0  , height: mainWindow.getContentBounds().height, width: mainWindow.getContentBounds().width});
 

@@ -40,9 +40,9 @@ class WindowSetup extends require('../../lib/BaseModule')
 			globalShortcut.register('ctrl+w', () => {
 				this.window.close();
 			});
-			globalShortcut.register('esc', () => {
-				this.window.close();
-			});
+			// globalShortcut.register('esc', () => {
+			// 	this.window.close();
+			// });
 		}
 
 		if (this.getAppData().fullscreen == true) this.window.setFullScreen(true);

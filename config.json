@@ -102,8 +102,8 @@
 	"default_data":
 	{
 		"fullscreen": true,
-		"autostart": true,
-		"autorestart": true,
+		"autostart": false,
+		"autorestart": false,
 		"autoreload": false,
 		"only_one_webpage": true,
 		"allow_navigation": true,

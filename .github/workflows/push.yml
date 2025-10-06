@@ -34,7 +34,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           # save artifact inside virutal machine
-          cp -r dist ../$(basename $GITHUB_WORKSPACE)/dist/*
+          # cp -r dist ../$(basename $GITHUB_WORKSPACE)/dist/*
+          git stash push -m "lel" dist
           
 
           # Create or switch to artifacts branch
@@ -43,9 +44,10 @@ jobs:
 
           # Copy build output (adjust folder name if needed)
           rm -rf *
-          cp ../$(basename $GITHUB_WORKSPACE)/dist/* .
+          git stash pop
+          # cp ../$(basename $GITHUB_WORKSPACE)/dist/* .
 
           # Commit and push
-          git add .
+          git add dist
           git commit -m "Artifact from PR #${{ github.event.pull_request.number }}"
           git push origin artifacts --force
