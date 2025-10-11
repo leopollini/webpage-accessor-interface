@@ -19,15 +19,15 @@ class Splashscreen extends require('../../lib/BaseModule')
 
         // this.window.contentView.addChildView(this.splash);
     
-        this.splash.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
+        // this.splash.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
     
-        this.splash.webContents.loadURL("https://google.com");
+        // this.splash.webContents.loadURL("https://google.com");
 
-        const mainTab = TabsManager.activeTabName;
+        // const mainTab = TabsManager.activeTabName;
 
-        TabsManager.setNewTab(this.splash, "splash");
+        // TabsManager.setNewTab(this.splash, "splash");
 
-        setTimeout(TabsManager.setTab, 5000, mainTab);
+        // setTimeout(TabsManager.setTab, 5000, mainTab);
     }
 } 
 

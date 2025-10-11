@@ -35,6 +35,7 @@
 		"electron-builder": "^26.0.12"
 	},
 	"dependencies": {
+		"electron-updater": "^6.6.2",
 		"fs": "^0.0.1-security",
 		"kleur": "^4.1.5",
 		"node-machine-id": "^1.1.12"

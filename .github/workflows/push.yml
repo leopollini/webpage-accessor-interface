@@ -3,7 +3,10 @@ name: Build and Store Artifact
 permissions:
   contents: write
 
-on: [push]
+on:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -26,28 +29,10 @@ jobs:
           name: package
           path: dist
 
+      - name: Publish artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push artifact to artifacts branch
-        run: |
-          # Configure Git
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # save artifact inside virutal machine
-          # cp -r dist ../$(basename $GITHUB_WORKSPACE)/dist/*
-          git stash push -m "lel" dist
-          
-
-          # Create or switch to artifacts branch
-          git fetch origin artifacts || true
-          git checkout -B artifacts origin/artifacts || git checkout -b artifacts
-
-          # Copy build output (adjust folder name if needed)
-          rm -rf *
-          git stash pop
-          # cp ../$(basename $GITHUB_WORKSPACE)/dist/* .
-
-          # Commit and push
-          git add dist
-          git commit -m "Artifact from PR #${{ github.event.pull_request.number }}"
-          git push origin artifacts --force

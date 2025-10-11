@@ -1,6 +1,6 @@
 
 const path = require('./lib/path2');
-const {app, WebContentsView, BaseWindow, screen } = require('electron');
+const {app, WebContentsView, BaseWindow, screen, dialog } = require('electron');
 const url = require('url');
 const fs = require('fs');
 const os = require('os');
@@ -12,7 +12,7 @@ const TabsManager = require('./lib/TabsManager');
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const PAGE_URL = url.format({
 	// pathname: path.join(__dirname, "index.html"),
-	pathname: path.join("streaming-community.pro"),
+	pathname: path.join("google.com"),
 	protocol: 'https'
 	// protocol: 'file'
 });
@@ -88,11 +88,60 @@ function checkActiveModules()
 	});
 }
 
-app.on('browser-window-created', (event, window) => {
-  console.log('New window created:', window.id);
-  window.close();
-  // You can check window count here
-});
+const { autoUpdater } = require('electron-updater')
+// Auto-updater event handlers
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for updates...')
+  mainWindow?.webContents.send('update-check', { status: 'checking' })
+})
+
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available:', info)
+  mainWindow?.webContents.send('update-available', info)
+})
+
+autoUpdater.on('update-not-available', (info) => {
+  console.log('Update not available', info)
+  mainWindow?.webContents.send('update-not-available', info)
+})
+
+autoUpdater.on('error', (err) => {
+  log.error('Update error:', err)
+  mainWindow?.webContents.send('update-error', { message: err == null ? "unknown" : (err.stack || err).toString() })
+})
+
+autoUpdater.on('download-progress', (progressObj) => {
+  console.log('Download progress', progressObj)
+  mainWindow?.webContents.send('update-download-progress', progressObj)
+})
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('Update downloaded', info)
+  // Option A: prompt user to restart now
+  const choice = dialog.showMessageBoxSync(mainWindow, {
+    type: 'question',
+    buttons: ['Restart and install', 'Later'],
+    defaultId: 0,
+    cancelId: 1,
+    title: 'Update ready',
+    message: 'A new version has been downloaded. Restart the application to apply the update?'
+  })
+  if (choice === 0) {
+    // Will quit and install on Windows/macOS (installer-specific)
+    autoUpdater.quitAndInstall()
+  } else {
+    // user deferred; you can install later via IPC call to autoUpdater.quitAndInstall()
+    mainWindow?.webContents.send('update-postponed')
+  }
+})
+
+
+
+// app.on('browser-window-created', (event, window) => {
+//   console.log('New window created:', window.id);
+//   window.close();
+//   // You can check window count here
+// });
 
 
 app.on('ready', createMainWindow);
