@@ -1,17 +1,17 @@
 {
 	"name": "webpage_accessor",
-	"version": "1.0.0",
+	"version": "0.0.10",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
-		"name": "Your Name",
-		"email": "lel@sos.com"
+		"name": "Leonardo Pollini",
+		"email": "leopollinik@gmail.com"
 	},
 	"main": "main.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "electron --trace-warnings . -- create_config_link",
 		"start:autoupdate": "npx electronmon --trace-warnings .",
-		"build": "electron-builder --publish=never"
+		"build": "electron-builder --publish=always"
 	},
 	"build": {
 		"appId": "webpage_accessor",
@@ -19,8 +19,9 @@
 		"asar": false,
 		"linux": {
 			"target": [
-				"deb"
+				"AppImage"
 			],
+		    "executableArgs": ["--no-sandbox"],
 			"category": "Utility"
 		},
 		"publish": {
@@ -28,6 +29,7 @@
 			"owner": "leopollini",
 			"repo": "webpage-accessor-interface"
 		}
+
 	},
 	"keywords": [
 		"electron",

@@ -1,7 +1,7 @@
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const { EXT_CONFIGS_DIR, DATA_CONF_PATH, LINUX_AUTOSTART_DIR } = require('./lib/Constants');
+const { EXT_CONFIGS_DIR, DATA_CONF_PATH, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX } = require('./lib/Constants');
 
 class PackageCreator
 {
@@ -39,7 +39,7 @@ class PackageCreator
 		});
 
 		// Not inside AppData
-		[LINUX_AUTOSTART_DIR].forEach(dir => {
+		[LINUX_AUTOSTART_DIR, HOME_BIN_LINUX].forEach(dir => {
 			dir = path.join(dir);
 			if (!fs.existsSync(dir))
 			{

@@ -93,7 +93,8 @@
 				"autoupdate":
 				{
 					"extension": "autoupdate",
-					"enabled": true
+					"enabled": true,
+					"auto_download": false
 				},
 				"splashscreen":
 				{

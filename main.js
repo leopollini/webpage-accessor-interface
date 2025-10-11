@@ -12,7 +12,7 @@ const TabsManager = require('./lib/TabsManager');
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const PAGE_URL = url.format({
 	// pathname: path.join(__dirname, "index.html"),
-	pathname: path.join("google.com"),
+	pathname: path.join("yepoda.com"),
 	protocol: 'https'
 	// protocol: 'file'
 });
@@ -24,14 +24,17 @@ app.args = process.argv.slice(3);
 app.conf = {};
 app.data = {};
 app.enabled_modules = [];
+app.app_info = {};
 
-// loads data file, if present
+// loads config file
+try {app.conf = JSON.parse(fs.readFileSync(pc.CONF_FILE_PATH));}
+catch {console.log('Main: could not load config file'); } // new pc(); return ;}
+// load data file, if present
 if (fs.existsSync(DATA_FILE_PATH))
 	try {app.data = JSON.parse(fs.readFileSync(DATA_FILE_PATH));}
 	catch {console.log('Main: could not load data file'); }
-// loads config file
-try {app.conf = JSON.parse(fs.readFileSync(pc.CONF_FILE_PATH));}
-catch {console.log('Main: could not load data file'); } // new pc(); return ;}
+try {app.app_info = app.conf.app_info;}
+catch {console.log('Main: could not load app info'); } // new pc(); return ;}
 
 
 async function createMainWindow()
