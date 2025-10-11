@@ -3,10 +3,10 @@ name: Build and Store Artifact
 permissions:
   contents: write
 
-on:
-  push:
-    tags:
-      - 'v*'
+on: [push]
+  # push:
+  #   tags:
+  #     - 'v*'
 
 jobs:
   build:
