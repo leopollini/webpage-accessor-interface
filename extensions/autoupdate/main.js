@@ -2,6 +2,7 @@ const { dialog, app } = require('electron')
 const { autoUpdater } = require('electron-updater');
 const path = require('../../lib/path2');
 const { HOME_BIN_LINUX } = require('../../lib/Constants');
+const fs = require('fs');
 
 
 // WARNING: THIS SCRIPT WILL CHANGE THE MACHINE'S STARTUP BEHAVIOUR.
