@@ -11,26 +11,28 @@ class Autoupdater extends require('../../lib/BaseModule')
 {
     MODULE_NAME = "autoupdate";
     EXECUTABLE_NAME = "";
+    DOWNLOAD_PATH = "";
 
     setup_linux()
     {
         this.EXECUTABLE_NAME = app.app_info.app_executable;
+        this.DOWNLOAD_PATH = app.getPath("downloads");
 
         // You can control this behavior:
         autoUpdater.autoDownload = (this.getAppData().auto_downalod == true); // ask first
         autoUpdater.autoInstallOnAppQuit = true; // install after app closes
-
-        this.log('Checking for updates...');
-        autoUpdater.checkForUpdates();
 
         if (!process.env.APPIMAGE)
         {
             this.warn("process.env.APPIMAGE not assigned: this is not an AppImage!");
             return;
         }
+        this.log('Checking for updates...');
+        autoUpdater.checkForUpdates();
+
         autoUpdater.on('update-available', info => {
-                this.log(`Update available: ${info.version}`);
-                dialog.showMessageBox(this.window, {
+            this.log(`Update available: ${info.version}`);
+            dialog.showMessageBox(this.window, {
                 type: 'info',
                 title: 'Update Available',
                 message: `Version ${info.version} is available. Download now?`,
@@ -51,19 +53,20 @@ class Autoupdater extends require('../../lib/BaseModule')
         });
 
         autoUpdater.on('update-downloaded', info => {
-            this.log('Update downloaded, will install now.');
-            dialog.showMessageBox(this.window, {
-                title: 'Install Update',
-                message: 'Update downloaded. The app will restart to install.'
-            }).then(() => {
-                const exec_bin_location = path.join(HOME_BIN_LINUX, this.EXECUTABLE_NAME);
-                const newFile = path.join(path.dirname(process.env.APPIMAGE), this.EXECUTABLE_NAME + `-${info.version}.AppImage`);
-                this.log("Linking new version:", info.version, "to", newFile, "at", exec_bin_location);
-                fs.existsSync(newFile) &&
-                    exec(`ln -sf "${newFile}" "${exec_bin_location}"`);
-                this.log("Installing");
-                // autoUpdater.quitAndInstall();
-            })
+            // dialog.showMessageBox(this.window, {
+            //     type: 'info',
+            //     title: 'Install Update',
+            //     message: 'Update downloaded. Quit app to install.',
+            //     buttons: ['Quit app']
+            // }).then(() => {
+            this.log("Linking executable...")
+            const exec_bin_location = path.join(HOME_BIN_LINUX, this.EXECUTABLE_NAME);
+            const newFile = path.join(this.DOWNLOAD_PATH, this.EXECUTABLE_NAME + `-${info.version}.AppImage`);
+            this.log("Linking new version:", info.version, "to", newFile, "at", exec_bin_location);
+            if (fs.existsSync(newFile))
+                fs.symlinkSync(newFile, exec_bin_location);
+            this.log("Installing");
+            autoUpdater.quitAndInstall();
         });
 
         autoUpdater.on('update-not-available', () => {
