@@ -90,6 +90,11 @@
 					"desktop_filename": "webpage_accessor.desktop",
 					"extension": "autostart"
 				},
+				"autoupdate":
+				{
+					"extension": "autoupdate",
+					"enabled": true
+				},
 				"splashscreen":
 				{
 					"enabled": true,

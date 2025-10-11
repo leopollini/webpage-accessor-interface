@@ -17,7 +17,7 @@ class Autostarter extends require('../../lib/BaseModule')
         {
             const file_content = `[Desktop Entry]
 Name=` + this.getAppConfig().app_info.app_name + `
-Comment=webpage accessor autostart script
+Comment=webpage accessor autostarter
 Type=Application
 Exec=` + this.getAppConfig().app_info.app_executable;
             // debug location
