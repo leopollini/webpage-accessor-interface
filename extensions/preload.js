@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const Env = require('../env');
+const kleur = require('kleur');
 
 const LOAD_DIR = __dirname;
+const BasePreload = require("../lib/BasePreload");
 
 // V2
 window.enabled_extensions = []
@@ -11,20 +13,18 @@ fs.readdirSync(LOAD_DIR).forEach(function (ext) {
 	if (!fs.existsSync(preload)) return
 	try
 	{
-	console.log('preloadimg', preload);
+	console.log('preloadimg', ext + "...");
 		const PreloadClass = require(preload);
-	console.log('preloadimg', preload);
-		console.log(new PreloadClass());
 		if (typeof(PreloadClass) !== typeof(function () {}) || Object.getPrototypeOf(PreloadClass) !== BasePreload) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
-	console.log('preloadimg', preload);
-		// const t = new PreloadClass();
-		// enabled_modules.push(t);
-		// t.__start(mainWindow, mainTab, data);
+	console.log('preloaded', ext);
+		const t = new PreloadClass();
+		window.enabled_extensions.push(t);
+		t.__start(ext);
 	}
 	catch (e)
 	{
 		if (Env.DEBUG_MODE)
-			console.log(ext, "not preloaded");
+			console.log(ext, "not preloaded", e);
 	}
 });
 

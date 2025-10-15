@@ -4,6 +4,7 @@ const path = require('../lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
 const Env = require('../env');
+const { ipcMain } = require('electron');
 
 const EXT_LOAD_DIR = __dirname;
 
@@ -45,8 +46,19 @@ class Loader2
         enabled_modules.forEach(function (module) {
             if (module.isActive()) module.__late_start();
         });
-
+        Loader2.allowGetPreloadData();
         return [...enabled_modules];
+    }
+
+    static allowGetPreloadData()
+    {
+		ipcMain.handle('preload-get-extension-conf', async (event, ext) =>
+        {
+            const res = JSON.parse(fs.readFileSync(path.joinConfigDir(ext + '.json')));
+            console.log(ext, "requested config info at '" + path.joinConfigDir(ext + '.json') + "'", "sending", res);
+            return res;
+        });
+		// ipcMain.handle('preload-get-extension-conf', async (event, ext) => {await fs.readFile(path.joinConfigDir(ext + '.json'));});
     }
 
     static loadModule(ext)
@@ -57,13 +69,14 @@ class Loader2
             if (typeof(ModuleClass) !== typeof(function () {}) || Object.getPrototypeOf(ModuleClass) !== BaseModule) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
             const t = new ModuleClass()
             enabled_modules.add(t);
-            t.__start(this.mainWindow, this.mainTab, this.data);
+            t.__start(this.mainWindow, this.mainTab, this.data, ext);
         }
         catch (e)
         {
             console.log("Module not loaded:", e);
         }
     }
+    
 }
 
 // class Loader

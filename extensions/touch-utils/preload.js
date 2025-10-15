@@ -11,25 +11,25 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js')
 	lastTouchedObject = null;	// necessary for doubletap
 	touchTime = 0;
 
-	start()
+	setup()
 	{
-		bubbleStyle = fs.readFileSync(path.join(__dirname, './bubble.html'));
+		const bubbleStyle = fs.readFileSync(path.join(__dirname, 'bubble.html'));
 		console.log("Bubble style:", bubbleStyle);
 
 		// detect long press (trigger left-click + contextmenu) and
 		// detect touched item for events sent from main
 		window.addEventListener('pointerdown', (e, input) => {
 			// Start timer on mouse down
-			if (!longPressTimer)
-				longPressTimer = setTimeout(() => {
+			if (!this.longPressTimer)
+				this.longPressTimer = setTimeout(() => {
 					// Trigger long press event after delay
 					console.log("long pressss!!!");
 					sendMouseEvent('contextmenu', e);
 					sendMouseEvent('pointerdown', e);
-				}, LONG_PRESS_DELAY);
+				}, this.LONG_PRESS_DELAY);
 
-			lastTouchedObject = e.target;
-			touchTime = Date.now();
+			this.lastTouchedObject = e.target;
+			this.touchTime = Date.now();
 			
 
 			// Summon Bubble when screen is touched
@@ -52,9 +52,9 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js')
 		// same
 		window.addEventListener('pointerup', (event) => {
 			// Cancel timer on mouseup
-			if (longPressTimer) {
-				clearTimeout(longPressTimer);
-				longPressTimer = null;
+			if (this.longPressTimer) {
+				clearTimeout(this.longPressTimer);
+				this.longPressTimer = null;
 			}
 		});
 			
@@ -62,13 +62,12 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js')
 		ipcRenderer.on('double-click2', function (e, pos)
 		{
 			var dbc_event = e;
-			dbc_event.target = lastTouchedObject;
+			dbc_event.target = this.lastTouchedObject;
 			dbc_event.clientX = pos.x;
 			dbc_event.clientY = pos.x;
 			const dblClickEvent = createMouseEvent('dblclick', dbc_event);
-			// console.log("###lastItem:", lastTouchedObject);
-			if (lastTouchedObject && Date.now() < touchTime + 1000)
-				lastTouchedObject.dispatchEvent(dblClickEvent);
+			if (this.lastTouchedObject && Date.now() < this.touchTime + 1000)
+				this.lastTouchedObject.dispatchEvent(dblClickEvent);
 			else
 				document.dispatchEvent(dblClickEvent);
 		});

@@ -1,19 +1,32 @@
+const { app } = require('electron');
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const { EXT_CONFIGS_DIR, DATA_CONF_PATH, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX } = require('./lib/Constants');
+const { EXT_CONFIGS_DIR, DATA_CONF_PATH, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX, DATA_FILE_PATH } = require('./lib/Constants');
+const Env = require('./env');
 
 class PackageCreator
 {
 	static CONF_FILE_PATH = path.join(__dirname, 'config.json');
 	
 
-	constructor(conf)
+	constructor()
 	{
+		// loads config file
+		try {app.conf = JSON.parse(fs.readFileSync(PackageCreator.CONF_FILE_PATH));}
+		catch(e) {console.log('Main: could not load config file:', e); app.exit(0); } // new pc(); return ;}
+		// load data file, if present
+		if (fs.existsSync(DATA_FILE_PATH))
+		{
+			try {app.data = JSON.parse(fs.readFileSync(DATA_FILE_PATH));}
+			catch {console.log('Main: could not load data file. Reconfiguring Webpage Accessor'); }
+		}
+		app.app_info = app.conf.app_info;
 		console.log("### CONFIGURING PACKAGE ###");
 
+
 		this.createAppDirectories();
-		this.conf = conf;
+		this.conf = app.conf;
 
 		// console.log(conf);
 
@@ -22,6 +35,8 @@ class PackageCreator
 		let data_file_content = {...this.conf.default_data, is_configured: false, ...this.conf.app_info}
 		try { fs.writeFileSync(path.joinAppData(DATA_CONF_PATH), JSON.stringify(data_file_content, null, 2)); }
 		catch (e) { console.log('Could not create data.json file:', e); }
+		finally {console.log("### CONFIGURATION FINISHED ###")};
+		app.data = data_file_content;
 		// this.conf.is_configured = true;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
 	}
@@ -58,11 +73,17 @@ class PackageCreator
 
 	loadConfiguration(conf, name, depth = 0)
 	{
-		if (Object.keys(conf).length == 0 || conf.enabled == false) return this.betterLog(depth, kleur.yellow('Ignoring'),'configuration of', kleur.grey(name));
+		if (Object.keys(conf).length == 0 || conf.enabled === false) return this.betterLog(depth, kleur.yellow('Ignoring'),'configuration of', kleur.grey(name));
 		this.betterLog(depth, 'Beginning configuration of', kleur.bold(kleur.blue(name)));
 		let env = {...conf};
 		Reflect.deleteProperty(env, "actions");
 		Reflect.deleteProperty(env, "extension");
+		if (Env.VERBOSE)
+		{
+			Object.entries(env).forEach(cnf => {
+				if (cnf[0] != 'enabled') this.betterLog(depth + 1, " ", cnf);
+			});
+		}
 		// only actions xor extension allowed, not both
 		if (conf.actions) this.loadActions(conf.actions, env, name, depth);
 		else if (conf.extension) this.loadExtension({...env, ...conf.extension}, name, depth);
@@ -90,6 +111,12 @@ class PackageCreator
 		this.betterLog(depth + 1, 'configuring', kleur.green(name));
 		const ext_name = ext.extension;
 		Reflect.deleteProperty(ext, 'extension');
+		if (Env.VERBOSE)
+		{
+			Object.entries(ext).forEach(cnf => {
+				if (cnf[0] != 'enabled') this.betterLog(depth + 1, " ", cnf);
+			});
+		}
 		fs.writeFileSync(path.joinConfigDir(ext_name + '.json'), JSON.stringify(ext, null, 2));
 	}
 

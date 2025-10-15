@@ -84,6 +84,10 @@ class DoubleClick extends require('../../lib/BaseModule')
                 }
             });
         }
+
+
+		app.commandLine.appendSwitch('touch-events', 'enabled');
+		// app.commandLine.appendSwitch('enable-pointer-events');
     }
     
     async looseDoubleClickCheck(input, event)

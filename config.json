@@ -52,8 +52,7 @@
 					"actions":
 					{
 						"lel": {"enabled": true, "extension": "touch-utils"}
-					},
-					"APIevents": {"dblclick": {}}
+					}
 				}
 			}
 		},
@@ -116,8 +115,8 @@
 		"webpages":
 		[
 			{   
-				"address": "index.html",
-				"protocol": "file",
+				"pathname": "service.parchotels.it",
+				"protocol": "https",
 				"is_main_page": true,
 				"require_private_window": true
 			}

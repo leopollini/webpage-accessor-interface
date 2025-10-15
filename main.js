@@ -10,9 +10,9 @@ const { DATA_CONF_PATH } = require('./lib/Constants');
 const TabsManager = require('./lib/TabsManager');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
-const PAGE_URL = url.format({
+const BASE_URL = url.format({
 	// pathname: path.join(__dirname, "index.html"),
-	pathname: path.join("yepoda.com"),
+	pathname: path.join("google.com"),
 	protocol: 'https'
 	// protocol: 'file'
 });
@@ -26,24 +26,11 @@ app.data = {};
 app.enabled_modules = [];
 app.app_info = {};
 
-// loads config file
-try {app.conf = JSON.parse(fs.readFileSync(pc.CONF_FILE_PATH));}
-catch {console.log('Main: could not load config file'); } // new pc(); return ;}
-// load data file, if present
-if (fs.existsSync(DATA_FILE_PATH))
-	try {app.data = JSON.parse(fs.readFileSync(DATA_FILE_PATH));}
-	catch {console.log('Main: could not load data file'); }
-try {app.app_info = app.conf.app_info;}
-catch {console.log('Main: could not load app info'); } // new pc(); return ;}
-
+new pc();
+const PAGE_URL = (app.data && app.data.webpages[0] && url.format(app.data.webpages[0])) || BASE_URL;
 
 async function createMainWindow()
 {
-	if (!app.data.is_configured) 
-		try {new pc(app.conf)}
-		catch (e) {console.log("FAILED:", e)}
-		finally {console.log("### CONFIGURATION FINISHED ###")};
-
 	if (Env.DEBUG_MODE && app.data && app.data.version)
 		console.log("### WELCOME TO VERSION", app.data.version, "###");
 
@@ -52,7 +39,7 @@ async function createMainWindow()
 	const mainWindow = new BaseWindow({
 		tabbingIdentifier: "myTabs",
 		title: "Electron",
-		// width: width / 2,
+		// width: width / 2,W
 		// height: height / 2,
 		fullscreenable: true,
 		autoHideMenuBar: true
@@ -66,20 +53,22 @@ async function createMainWindow()
 		}});
 	TabsManager.setup(mainWindow, mainTab);
 
-
 	mainTab.setBounds({x: 0, y: 0  , height: mainWindow.getContentBounds().height, width: mainWindow.getContentBounds().width});
 
+	console.log("Loading extensions");
+	app.enabled_modules = require('./extensions/loader').load(mainWindow, mainTab, app.data);
+	console.log("Loading page:", PAGE_URL);
 	mainTab.webContents.loadURL(PAGE_URL);
 
 	TabsManager.setNewTab(mainTab, 'main');
 
-	app.enabled_modules = require('./extensions/loader').load(mainWindow, mainTab, app.data);
 
 	if (Env.DEBUG_MODE)
 	{
 		checkActiveModules();
 	}
 	// mainWindow.maximize();
+	mainTab.webContents.toggleDevTools();
 }
 
 // Only main-side!!! Check app console for preload fails

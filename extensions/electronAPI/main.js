@@ -15,9 +15,6 @@ class ElectronAPI extends require('../../lib/BaseModule')
 		ipcMain.handle('select-file', async () => await this.selectFile());
 		ipcMain.handle('read-file', async (event, path) => await this.readFile(path));
 		// ipcMain.handle('get-key', async () => await this.getLocalKey()); --> moved in keys-checker.js
-		
-		app.commandLine.appendSwitch('touch-events', 'enabled');
-		// app.commandLine.appendSwitch('enable-pointer-events');
 	}
 
 	async readFile(path)
