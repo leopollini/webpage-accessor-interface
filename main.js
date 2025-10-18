@@ -60,6 +60,7 @@ async function createMainWindow()
 	console.log("Loading page:", PAGE_URL);
 	mainTab.webContents.loadURL(PAGE_URL);
 
+
 	TabsManager.setNewTab(mainTab, 'main');
 
 

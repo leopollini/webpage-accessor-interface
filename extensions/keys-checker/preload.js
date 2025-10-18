@@ -1,10 +1,11 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const ipcChannel = require('../../lib/icpChannel.js');
 
 class TouchUtils_preload extends require('../../lib/BasePreload.js')
 {
 	getKeyPlease()
 	{
-		ipcRenderer.invoke('get-key').then(keys => {return keys.machine_id});
+		ipcChannel.sendSignalToMain('get-key').then(keys => {return keys.machine_id});
 	}
 
 	setup()

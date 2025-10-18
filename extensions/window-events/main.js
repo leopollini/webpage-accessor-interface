@@ -34,7 +34,7 @@ class WindowSetup extends require('../../lib/BaseModule')
 			globalShortcut.register('ctrl+d', () => {
 				this.tab.webContents.toggleDevTools();
 			});
-			globalShortcut.register('ctrl+c', () => {
+			globalShortcut.register('ctrl+x', () => {
 				checkActiveModules();
 			});
 			globalShortcut.register('ctrl+w', () => {

@@ -82,7 +82,8 @@
 				{
 					"enabled": true,
 					"extension": "keys-checker",
-  					"custom_id": false
+  					"custom_id": false,
+					"structure_id": [1,2,3,4]
 				},
 				"autostart":
 				{
@@ -103,7 +104,13 @@
 				"splashscreen":
 				{
 					"enabled": true,
-					"extension": "splashscreen"
+					"extension": "splashscreen",
+					"splash_timeout": 20,
+					"splash_url": 
+					{
+						"pathname": "google.com",
+						"protocol": "https"
+					}
 				}
 			}
 		}

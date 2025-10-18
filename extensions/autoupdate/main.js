@@ -3,6 +3,8 @@ const { autoUpdater } = require('electron-updater');
 const path = require('../../lib/path2');
 const { HOME_BIN_LINUX } = require('../../lib/Constants');
 const fs = require('fs');
+const ipcChannel = require('../../lib/icpChannel');
+const Env = require('../../env');
 
 
 // WARNING: THIS SCRIPT WILL CHANGE THE MACHINE'S STARTUP BEHAVIOUR.
@@ -18,6 +20,7 @@ class Autoupdater extends require('../../lib/BaseModule')
 
     setup_linux()
     {
+        
         this.updateFunction = function() {
             this.EXECUTABLE_NAME = app.app_info.app_executable;
             this.DOWNLOAD_PATH = app.getPath("downloads");
@@ -49,12 +52,12 @@ class Autoupdater extends require('../../lib/BaseModule')
                         this.warn("User refused to update");
                 });
             });
-
-            autoUpdater.on('download-progress', progressObj => {
-                const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
-                this.log(logMsg);
-                this.window.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
-            });
+            if (Env.VERBOSE)
+                autoUpdater.on('download-progress', progressObj => {
+                    const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
+                    this.log(logMsg);
+                    this.window.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
+                });
 
             autoUpdater.on('update-downloaded', info => {
                 // dialog.showMessageBox(this.window, {
@@ -75,6 +78,12 @@ class Autoupdater extends require('../../lib/BaseModule')
 
             autoUpdater.on('update-not-available', () => {
                 this.log('No updates available.');
+                dialog.showMessageBox(this.window, {
+                    type: 'info',
+                    title: 'No updated available',
+                    message: ``,
+                    buttons: ['Ok']
+                })
             });
 
             autoUpdater.on('error', err => {
@@ -93,6 +102,7 @@ class Autoupdater extends require('../../lib/BaseModule')
     late_setup()
     {
         this.updateFunction();
+        ipcChannel.newMainHandler('usr-check-for-updates', () => this.updateFunction());
     }
 }
 

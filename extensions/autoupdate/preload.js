@@ -1,3 +1,5 @@
+const ipcChannel = require('../../lib/icpChannel.js');
+
 class Autoupdate_preload extends require('../../lib/BasePreload.js')
 {
     update_check_timer = null;
@@ -11,12 +13,20 @@ class Autoupdate_preload extends require('../../lib/BasePreload.js')
             window.addEventListener('pointerdown', (event) => {
                 this.update_check_timer = setTimeout(() => {this.updateCheckRequest()}, this.__conf.update_mode.duration * 1000);
             })
+            window.addEventListener('pointerup', (event) => {
+                if (this.update_check_timer)
+                {
+                    clearTimeout(this.update_check_timer);
+                    this.update_check_timer = null;
+                }
+            });
         }
     }
 
     updateCheckRequest()
     {
         this.warn("Update check requested!");
+        ipcChannel.sendSignalToMain('usr-check-for-updates');
     }
 }
 

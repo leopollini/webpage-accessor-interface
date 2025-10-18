@@ -1,4 +1,5 @@
 const { app } = require("electron");
+const Env = require("../../env");
 
 // radial double-click
 class DoubleClick extends require('../../lib/BaseModule')
@@ -21,7 +22,7 @@ class DoubleClick extends require('../../lib/BaseModule')
     setup()
     {
         this.tab.webContents.on('input-event', (event, input) => {
-            if (input.type != 'mouseMove')
+            if (input.type != 'mouseMove' && Env.VERBOSE)
                 this.log("sending an", input.type);
             switch(input.type)
             {
@@ -89,7 +90,6 @@ class DoubleClick extends require('../../lib/BaseModule')
                 }
             });
         }
-
 
 		app.commandLine.appendSwitch('touch-events', 'enabled');
 		// app.commandLine.appendSwitch('enable-pointer-events');
