@@ -2,13 +2,14 @@ const { app } = require('electron');
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const { EXT_CONFIGS_DIR, DATA_CONF_PATH, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX, DATA_FILE_PATH } = require('./lib/Constants');
+const { EXT_CONFIGS_DIR, DATA_FILE_CONF_PATH: DATA_CONF_PATH, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX } = require('./lib/Constants');
 const Env = require('./env');
+const { findAppArg } = require('./lib/utils');
 
 class PackageCreator
 {
 	static CONF_FILE_PATH = path.join(__dirname, 'config.json');
-	
+	static DATA_FILE_PATH = path.joinConfigDir('data.json');
 
 	constructor()
 	{
@@ -16,12 +17,19 @@ class PackageCreator
 		try {app.conf = JSON.parse(fs.readFileSync(PackageCreator.CONF_FILE_PATH));}
 		catch(e) {console.log('Main: could not load config file:', e); app.exit(0); } // new pc(); return ;}
 		// load data file, if present
-		if (fs.existsSync(DATA_FILE_PATH))
+		console.log('arcodio', findAppArg('reload-configs'));
+
+		if (fs.existsSync(PackageCreator.DATA_FILE_PATH))
 		{
-			try {app.data = JSON.parse(fs.readFileSync(DATA_FILE_PATH));}
-			catch {console.log('Main: could not load data file. Reconfiguring Webpage Accessor'); }
+			try
+			{
+				app.data = JSON.parse(fs.readFileSync(PackageCreator.DATA_FILE_PATH));
+				console.log(app.data.is_configured, findAppArg('reload-configs'));
+				if (app.data.is_configured == true && !findAppArg('reload-configs'))
+					return;
+			}
+			catch(e) {console.log('Main: could not load data file. Reconfiguring Webpage Accessor', e); }
 		}
-		app.app_info = app.conf.app_info;
 		console.log("### CONFIGURING PACKAGE ###");
 
 
@@ -32,12 +40,12 @@ class PackageCreator
 
 		this.createConfigurations();
 
-		let data_file_content = {...this.conf.default_data, is_configured: false, ...this.conf.app_info}
-		try { fs.writeFileSync(path.joinAppData(DATA_CONF_PATH), JSON.stringify(data_file_content, null, 2)); }
+		let data_file_content = {...this.conf.default_data, is_configured: true, ...this.conf.app_info}
+		try { fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(data_file_content, null, 2)); }
 		catch (e) { console.log('Could not create data.json file:', e); }
 		finally {console.log("### CONFIGURATION FINISHED ###")};
 		app.data = data_file_content;
-		// this.conf.is_configured = true;
+		app.app_info = app.conf.app_info;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
 	}
 

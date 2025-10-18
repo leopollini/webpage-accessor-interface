@@ -93,7 +93,12 @@
 				{
 					"extension": "autoupdate",
 					"enabled": true,
-					"auto_download": false
+					"auto_download": false,
+					"update_mode":
+					{
+						"mode": "long_press",
+						"duration": 5
+					}
 				},
 				"splashscreen":
 				{
@@ -114,7 +119,7 @@
 		"allow_navigation": true,
 		"webpages":
 		[
-			{   
+			{
 				"pathname": "service.parchotels.it",
 				"protocol": "https",
 				"is_main_page": true,

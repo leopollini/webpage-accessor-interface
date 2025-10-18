@@ -1,7 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const { createMouseEvent, sendMouseEvent } = require('../../lib/utils.js')
 const fs = require('fs');
-const path = require('path')
+const path = require('path');
+const Env = require('../../env.js');
 
 class TouchUtils_preload extends require('../../lib/BasePreload.js')
 {
@@ -11,43 +12,16 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js')
 	lastTouchedObject = null;	// necessary for doubletap
 	touchTime = 0;
 
+	bubbleStyle = "";
+
 	setup()
 	{
-		const bubbleStyle = fs.readFileSync(path.join(__dirname, 'bubble.html'));
-		console.log("Bubble style:", bubbleStyle);
+		this.bubbleStyle = fs.readFileSync(path.join(__dirname, 'bubble.html'));
+		// console.log("Bubble style:", this.bubbleStyle);
 
 		// detect long press (trigger left-click + contextmenu) and
 		// detect touched item for events sent from main
-		window.addEventListener('pointerdown', (e, input) => {
-			// Start timer on mouse down
-			if (!this.longPressTimer)
-				this.longPressTimer = setTimeout(() => {
-					// Trigger long press event after delay
-					console.log("long pressss!!!");
-					sendMouseEvent('contextmenu', e);
-					sendMouseEvent('pointerdown', e);
-				}, this.LONG_PRESS_DELAY);
-
-			this.lastTouchedObject = e.target;
-			this.touchTime = Date.now();
-			
-
-			// Summon Bubble when screen is touched
-			const bubble = document.createElement("span");
-			bubble.classList.add("bubble");
-			bubble.style.left = `${e.clientX - bubble.style.width}px`;
-			bubble.style.top = `${e.clientY - bubble.style.height}px`;
-
-			const style = document.createElement("style");
-			style.textContent = bubbleStyle;
-			document.head.appendChild(style);
-			document.body.appendChild(bubble);
-
-			// remove after animation ends
-			bubble.addEventListener("animationend", () => {
-			bubble.remove();
-			});
-		});
+		window.addEventListener('pointerdown', (e) => this.clickStuff(e));
 
 		// same
 		window.addEventListener('pointerup', (event) => {
@@ -70,7 +44,52 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js')
 				this.lastTouchedObject.dispatchEvent(dblClickEvent);
 			else
 				document.dispatchEvent(dblClickEvent);
+			if (Env.VERBOSE)
+				console.log("received doubleclick from main process");
 		});
+
+		// appends bubble dedicated style
+		if (document.head) this.styleSetup();
+		else window.addEventListener('DOMContentLoaded', () => { this.styleSetup(); });
+	}
+
+	styleSetup()
+	{
+		this.style = document.createElement("style");
+		this.style.textContent = this.bubbleStyle;
+		document.head.appendChild(this.style);
+	}
+
+	clickStuff(e)
+	{
+		// Start timer on mouse down
+		if (!this.longPressTimer)
+			this.longPressTimer = setTimeout(() => {
+				// Trigger long press event after delay
+			if (Env.VERBOSE)
+				console.log("long pressss!!!");
+				sendMouseEvent('contextmenu', e);
+				sendMouseEvent('pointerdown', e);
+			}, this.LONG_PRESS_DELAY);
+
+		this.lastTouchedObject = e.target;
+		this.touchTime = Date.now();
+		
+		if (document.body)
+		{
+		// Summon Bubble when screen is touched
+			const bubble = document.createElement("span");
+			bubble.classList.add("bubble");
+			
+			bubble.style.left = `${e.clientX - 15}px`;
+			bubble.style.top = `${e.clientY - 15}px`;
+
+			// remove after animation ends
+			bubble.addEventListener("animationend", () => { bubble.remove(); });
+
+			document.body.appendChild(bubble);
+
+		}
 	}
 }
 

@@ -9,7 +9,7 @@
 	"main": "main.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "electron --trace-warnings . -- create_config_link",
+		"start": "electron --trace-warnings . -- create_config_link reload-configs",
 		"start:autoupdate": "npx electronmon --trace-warnings .",
 		"build": "electron-builder --publish=always"
 	},

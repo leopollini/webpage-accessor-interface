@@ -54,6 +54,11 @@ class Loader2
     {
 		ipcMain.handle('preload-get-extension-conf', async (event, ext) =>
         {
+            if (ext.indexOf("..") > 0 || ext.indexOf("/") > 0)
+            {
+                console.log("detected ill request from extension:", '"' + kleur.yellow(ext) + '"', "returning");
+                return { nice_try: 'lol' };
+            }
             const res = JSON.parse(fs.readFileSync(path.joinConfigDir(ext + '.json')));
             console.log(ext, "requested config info at '" + path.joinConfigDir(ext + '.json') + "'", "sending", res);
             return res;

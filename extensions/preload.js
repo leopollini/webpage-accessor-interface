@@ -13,10 +13,10 @@ fs.readdirSync(LOAD_DIR).forEach(function (ext) {
 	if (!fs.existsSync(preload)) return
 	try
 	{
-	console.log('preloadimg', ext + "...");
+		if (Env.DEBUG_MODE)
+			console.log('preloadimg', ext + "...");
 		const PreloadClass = require(preload);
 		if (typeof(PreloadClass) !== typeof(function () {}) || Object.getPrototypeOf(PreloadClass) !== BasePreload) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
-	console.log('preloaded', ext);
 		const t = new PreloadClass();
 		window.enabled_extensions.push(t);
 		t.__start(ext);

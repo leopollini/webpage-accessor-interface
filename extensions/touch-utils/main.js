@@ -62,7 +62,12 @@ class DoubleClick extends require('../../lib/BaseModule')
             app.commandLine.appendSwitch("enable-pointer-events");
         }
 
-        if (this.__conf.disable_physical_keyboard == true)
+        if (this.__conf.disable_physical_keyboard == true && this.__conf.disable_virtual_keyboard == true)
+        {
+            this.warn("disabling keyboard");
+            this.tab.webContents.on("before-input-event", (event, input) => {if (input.type === 'keyDown' || input.type === 'keyUp') event.preventDefault();});
+        }
+        else if (this.__conf.disable_physical_keyboard == true)
         {
             this.warn("disabling physical keyboard");
             this.tab.webContents.on("before-input-event", (event, input) => {
@@ -73,7 +78,7 @@ class DoubleClick extends require('../../lib/BaseModule')
                 }
             });
         }
-        if (this.__conf.disable_virtual_keyboard == true)
+        else if (this.__conf.disable_virtual_keyboard == true)
         {
             this.warn("disabling virtual keyboard");
             this.tab.webContents.on("before-input-event", (event, input) => {

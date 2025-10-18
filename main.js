@@ -6,13 +6,13 @@ const fs = require('fs');
 const os = require('os');
 const Env = require('./env');
 const pc = require('./PackageCreator');
-const { DATA_CONF_PATH } = require('./lib/Constants');
+const { DATA_FILE_CONF_PATH: DATA_CONF_PATH } = require('./lib/Constants');
 const TabsManager = require('./lib/TabsManager');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const BASE_URL = url.format({
 	// pathname: path.join(__dirname, "index.html"),
-	pathname: path.join("google.com"),
+	pathname: path.join("example.com"),
 	protocol: 'https'
 	// protocol: 'file'
 });
@@ -79,7 +79,6 @@ function checkActiveModules()
 		e.log(e.isActive());
 	});
 }
-
 
 // app.on('browser-window-created', (event, window) => {
 //   console.log('New window created:', window.id);

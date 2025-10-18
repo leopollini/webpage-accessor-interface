@@ -14,76 +14,85 @@ class Autoupdater extends require('../../lib/BaseModule')
     EXECUTABLE_NAME = "";
     DOWNLOAD_PATH = "";
 
+    updateFunction;
+
     setup_linux()
     {
-        this.EXECUTABLE_NAME = app.app_info.app_executable;
-        this.DOWNLOAD_PATH = app.getPath("downloads");
+        this.updateFunction = function() {
+            this.EXECUTABLE_NAME = app.app_info.app_executable;
+            this.DOWNLOAD_PATH = app.getPath("downloads");
 
-        // You can control this behavior:
-        autoUpdater.autoDownload = (this.getAppData().auto_downalod == true); // ask first
-        autoUpdater.autoInstallOnAppQuit = true; // install after app closes
+            // You can control this behavior:
+            autoUpdater.autoDownload = (this.getAppData().auto_downalod == true); // ask first
+            autoUpdater.autoInstallOnAppQuit = true; // install after app closes
 
-        if (!process.env.APPIMAGE)
-        {
-            this.warn("process.env.APPIMAGE not assigned: this is not an AppImage!");
-            return;
-        }
-        this.log('Checking for updates...');
-        autoUpdater.checkForUpdates();
+            if (!process.env.APPIMAGE)
+            {
+                this.warn("process.env.APPIMAGE not assigned: this is not an AppImage!");
+                return;
+            }
+            this.log('Checking for updates...');
+            autoUpdater.checkForUpdates();
 
-        autoUpdater.on('update-available', info => {
-            this.log(`Update available: ${info.version}`);
-            dialog.showMessageBox(this.window, {
-                type: 'info',
-                title: 'Update Available',
-                message: `Version ${info.version} is available. Download now?`,
-                buttons: ['Yes', 'Later']
-            }).then(result => {
-                if (result.response === 0) {
-                    autoUpdater.downloadUpdate();
-                }
-                else
-                    this.warn("User refused to update");
+            autoUpdater.on('update-available', info => {
+                this.log(`Update available: ${info.version}`);
+                dialog.showMessageBox(this.window, {
+                    type: 'info',
+                    title: 'Update Available',
+                    message: `Version ${info.version} is available. Download now?`,
+                    buttons: ['Yes', 'Later']
+                }).then(result => {
+                    if (result.response === 0) {
+                        autoUpdater.downloadUpdate();
+                    }
+                    else
+                        this.warn("User refused to update");
+                });
             });
-        });
 
-        autoUpdater.on('download-progress', progressObj => {
-            const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
-            this.log(logMsg);
-            this.window.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
-        });
+            autoUpdater.on('download-progress', progressObj => {
+                const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
+                this.log(logMsg);
+                this.window.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
+            });
 
-        autoUpdater.on('update-downloaded', info => {
-            // dialog.showMessageBox(this.window, {
-            //     type: 'info',
-            //     title: 'Install Update',
-            //     message: 'Update downloaded. Quit app to install.',
-            //     buttons: ['Quit app']
-            // }).then(() => {
-            this.log("Linking executable...")
-            const exec_bin_location = path.join(HOME_BIN_LINUX, this.EXECUTABLE_NAME);
-            const newFile = path.join(this.DOWNLOAD_PATH, this.EXECUTABLE_NAME + `-${info.version}.AppImage`);
-            this.log("Linking new version:", info.version, "to", newFile, "at", exec_bin_location);
-            if (fs.existsSync(newFile))
-                fs.symlinkSync(newFile, exec_bin_location);
-            this.log("Installing");
-            autoUpdater.quitAndInstall();
-        });
+            autoUpdater.on('update-downloaded', info => {
+                // dialog.showMessageBox(this.window, {
+                //     type: 'info',
+                //     title: 'Install Update',
+                //     message: 'Update downloaded. Quit app to install.',
+                //     buttons: ['Quit app']
+                // }).then(() => {
+                this.log("Linking executable...")
+                const exec_bin_location = path.join(HOME_BIN_LINUX, this.EXECUTABLE_NAME);
+                const newFile = path.join(this.DOWNLOAD_PATH, this.EXECUTABLE_NAME + `-${info.version}.AppImage`);
+                this.log("Linking new version:", info.version, "to", newFile, "at", exec_bin_location);
+                if (fs.existsSync(newFile))
+                    fs.symlinkSync(newFile, exec_bin_location);
+                this.log("Installing");
+                autoUpdater.quitAndInstall();
+            });
 
-        autoUpdater.on('update-not-available', () => {
-            this.log('No updates available.');
-        });
+            autoUpdater.on('update-not-available', () => {
+                this.log('No updates available.');
+            });
 
-        autoUpdater.on('error', err => {
-            this.err('Updater error:', err);
-            dialog.showErrorBox('Update Error', err == null ? "unknown" : (err.stack || err).toString());
-        });
+            autoUpdater.on('error', err => {
+                this.err('Updater error:', err);
+                dialog.showErrorBox('Update Error', err == null ? "unknown" : (err.stack || err).toString());
+            });
+        }
 
     }
 
     setup_windows()
     {
 
+    }
+
+    late_setup()
+    {
+        this.updateFunction();
     }
 }
 
