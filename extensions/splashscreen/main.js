@@ -8,7 +8,7 @@ const url = require('url');
 class Splashscreen extends require('../../lib/BaseModule')
 {
     MODULE_NAME = "splashscreen";    // MUST be the same as the 'extension' field in config.json
-    required_modules = ['window-events'];
+    // required_modules = ['window-events'];
 
     is_splashscreen = false;
     inputed = true;
@@ -32,13 +32,14 @@ class Splashscreen extends require('../../lib/BaseModule')
                 this.removeSplash();
         });
 
+        // Actual splash screen activation time is between 3/4 of the timeout value and 3/2 of the timeout value
         setInterval(() => {
             if (Env.VERBOSE)
                 this.log("splash_check");
             if (!this.inputed)
                 this.setSplash();
             this.inputed = false;
-        }, (this.__conf.splash_timeout || 60) * 500);
+        }, (this.__conf.splash_timeout || 60) * 750);
        
         // const mainTab = TabsManager.activeTabName;
         // TabsManager.setNewTab(this.splash, "splash");

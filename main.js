@@ -81,11 +81,11 @@ function checkActiveModules()
 	});
 }
 
-// app.on('browser-window-created', (event, window) => {
-//   console.log('New window created:', window.id);
-//   window.close();
-//   // You can check window count here
-// });
+app.on('browser-window-created', (event, window) => {
+  console.log('New window created:', window.id);
+  window.close();
+  // You can check window count here
+});
 
 
 app.on('ready', createMainWindow);

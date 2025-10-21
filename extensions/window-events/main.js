@@ -1,5 +1,6 @@
 const { app, globalShortcut } = require('electron');
-const {checkActiveModules} = require('../../main')
+const {checkActiveModules} = require('../../main');
+const Env = require('../../env');
 
 // Sample Module. Plase copy-paste this file into new module's main folder
 class WindowSetup extends require('../../lib/BaseModule')
@@ -15,15 +16,18 @@ class WindowSetup extends require('../../lib/BaseModule')
         this.window.on('resize', () => {
 			if (this.window.isFullScreen()) return ;
             this.tab.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
-			this.logWindowDimensions('resize');
+			if (Env.VERBOSE)
+				this.logWindowDimensions('resize');
         });
         this.window.on('enter-full-screen', () => {
             this.tab.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
-			this.logWindowDimensions('enter fullscreen');
+			if (Env.VERBOSE)
+				this.logWindowDimensions('enter fullscreen');
         });
         this.window.on('leave-full-screen', () => {
             this.tab.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
-			this.logWindowDimensions('leave fullscreen');
+			if (Env.VERBOSE)
+				this.logWindowDimensions('leave fullscreen');
         });
 	
 		if (this.__conf.enable_shortcuts == true)

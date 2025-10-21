@@ -17,16 +17,17 @@ class PackageCreator
 		try {app.conf = JSON.parse(fs.readFileSync(PackageCreator.CONF_FILE_PATH));}
 		catch(e) {console.log('Main: could not load config file:', e); app.exit(0); } // new pc(); return ;}
 		// load data file, if present
-		console.log('arcodio', findAppArg('reload-configs'));
 
 		if (fs.existsSync(PackageCreator.DATA_FILE_PATH))
 		{
 			try
 			{
 				app.data = JSON.parse(fs.readFileSync(PackageCreator.DATA_FILE_PATH));
-				console.log(app.data.is_configured, findAppArg('reload-configs'));
 				if (app.data.is_configured == true && !findAppArg('reload-configs'))
+				{
+					console.log("### APP ALREADY CONFIGURED ###");
 					return;
+				}
 			}
 			catch(e) {console.log('Main: could not load data file. Reconfiguring Webpage Accessor', e); }
 		}
