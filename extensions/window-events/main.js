@@ -48,6 +48,8 @@ class WindowSetup extends require('../../lib/BaseModule')
 			// 	this.window.close();
 			// });
 		}
+		
+		if (this.__conf.start_with_dev_tools == true) this.tab.webContents.toggleDevTools();
 
 		if (this.getAppData().fullscreen == true) this.window.setFullScreen(true);
 	}

@@ -2,19 +2,24 @@ const { app } = require('electron');
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const { EXT_CONFIGS_DIR, DATA_FILE_CONF_PATH: DATA_CONF_PATH, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX } = require('./lib/Constants');
+const { EXT_CONFIGS_DIR, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX, DATA_FILE_PATH } = require('./lib/Constants');
 const Env = require('./env');
 const { findAppArg } = require('./lib/utils');
 
 class PackageCreator
 {
 	static CONF_FILE_PATH = path.join(__dirname, 'config.json');
-	static DATA_FILE_PATH = path.joinConfigDir('data.json');
+	static DATA_FILE_PATH = path.joinConfigDir(DATA_FILE_PATH);
 
 	constructor()
 	{
 		// loads config file
-		try {app.conf = JSON.parse(fs.readFileSync(PackageCreator.CONF_FILE_PATH));}
+		try {
+			const config_file_content = fs.readFileSync(PackageCreator.CONF_FILE_PATH);
+			fs.writeFileSync(path.joinAppData('config.json'), config_file_content);
+			this.conf = JSON.parse(config_file_content);
+			app.conf.app_info = this.conf.app_info;
+		}
 		catch(e) {console.log('Main: could not load config file:', e); app.exit(0); } // new pc(); return ;}
 		// load data file, if present
 
@@ -23,25 +28,28 @@ class PackageCreator
 			try
 			{
 				app.data = JSON.parse(fs.readFileSync(PackageCreator.DATA_FILE_PATH));
-				if (app.data.is_configured == true && !findAppArg('reload-configs'))
 				{
-					console.log("### APP ALREADY CONFIGURED ###");
-					return;
+					if (new Date(app.data.last_configured) > new Date(fs.statSync(PackageCreator.CONF_FILE_PATH).birthtime))
+						console.log("New configuration file detected! Creating new extension conf files...");
+					else if (app.data.is_configured == true && !findAppArg('reload-configs'))
+					{
+						console.log("### APP ALREADY CONFIGURED ###");
+						return;
+					}
 				}
 			}
-			catch(e) {console.log('Main: could not load data file. Reconfiguring Webpage Accessor', e); }
+			catch(e) {console.log('Main: could not load data file. Reconfiguring Webpage Accessor. Error was:', e); }
 		}
-		console.log("### CONFIGURING PACKAGE ###");
+		console.log("### CONFIGURING PACKAGES ###");
 
 
 		this.createAppDirectories();
-		this.conf = app.conf;
 
 		// console.log(conf);
 
 		this.createConfigurations();
 
-		let data_file_content = {...this.conf.default_data, is_configured: true, ...this.conf.app_info}
+		let data_file_content = {...this.conf.default_data, is_configured: true, ...this.conf.app_info, last_configured: Date.now()}
 		try { fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(data_file_content, null, 2)); }
 		catch (e) { console.log('Could not create data.json file:', e); }
 		finally {console.log("### CONFIGURATION FINISHED ###")};
@@ -111,12 +119,14 @@ class PackageCreator
 	loadExtension(ext, name, depth)
 	{
 		if (ext.enabled == false) return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because', kleur.red('disabled'));
+
 		if (ext.actions)
 		{
 			this.loadConfiguration(ext, name, depth + 1);
 			return ;
 		}
 		if (!ext.extension) return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because configuration is', kleur.red('missing'));
+		if (!Env.ALWAYS_RECONFIGURE_EXTENSIONS && fs.existsSync(path.joinConfigDir(ext.extension + '.json'))) return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because is already configured');
 		this.betterLog(depth + 1, 'configuring', kleur.green(name));
 		const ext_name = ext.extension;
 		Reflect.deleteProperty(ext, 'extension');

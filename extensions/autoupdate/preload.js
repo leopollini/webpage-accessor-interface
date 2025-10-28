@@ -12,10 +12,10 @@ class Autoupdate_preload extends require('../../lib/BasePreload.js')
             this.update_click_timeout = this.__conf.update_mode
 
             // bad check: frequent false positives.
-            window.addEventListener('pointerdown', (event) => {
+            window.addEventListener('pointerdown', () => {
                 this.update_check_timer = setTimeout(() => {this.updateCheckRequest()}, this.__conf.update_mode.duration * 1000);
             })
-            window.addEventListener('pointerup', (event) => {
+            window.addEventListener('pointerup', () => {
                 if (this.update_check_timer)
                 {
                     clearTimeout(this.update_check_timer);

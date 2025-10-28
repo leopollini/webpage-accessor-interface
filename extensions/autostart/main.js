@@ -9,15 +9,16 @@ const { LINUX_AUTOSTART_DIR } = require('../../lib/Constants')
 class Autostarter extends require('../../lib/BaseModule')
 {
     MODULE_NAME = "autostart";
+    autostart_function;
 
     setup_linux()
     {
         this.log("setting autostart to", this.getAppData().autostart);
         if (this.getAppData().autostart == true)
-        {
+        this.autostart_function = function() {
             const file_content = `[Desktop Entry]
 Name=` + this.getAppConfig().app_info.app_name + `
-Comment=webpage accessor autostarter
+Comment=webpage accessor
 Type=Application
 Exec=` + this.getAppConfig().app_info.app_executable;
             // debug location
@@ -31,9 +32,23 @@ Exec=` + this.getAppConfig().app_info.app_executable;
     setup_windows()
     {
         if (this.getAppData().autostart == true)
-            app.setLoginItemSettings({
-                openAtLogin: true    
-            })
+            this.autostart_function = function() {
+                app.setLoginItemSettings({
+                    openAtLogin: true    
+                });
+            }
+    }
+
+    late_setup()
+    {
+        this.update_desktop_file();
+    }
+
+    update_desktop_file()
+    {
+        return ;
+        if (this.autostart_function)
+            this.autostart_function();
     }
 }
 

@@ -76,6 +76,7 @@
 				{
 					"enable_shortcuts": true,
 					"hide_toolbar": true,
+					"start_with_dev_tools": true,
 					"extension": "window-events"
 				},
 				"startup_actions": {},
@@ -96,6 +97,7 @@
 					"extension": "autoupdate",
 					"enabled": true,
 					"auto_download": false,
+					"ask_update_on_start": false,
 					"update_mode":
 					{
 						"mode": "long_press",
@@ -107,7 +109,7 @@
 					"enabled": true,
 					"extension": "splashscreen",
 					"splash_timeout": 5,
-					"splash_url": 
+					"splash_url":
 					{
 						"pathname": "google.com",
 						"protocol": "https"

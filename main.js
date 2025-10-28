@@ -1,12 +1,10 @@
-
 const path = require('./lib/path2');
 const {app, WebContentsView, BaseWindow, screen } = require('electron');
 const url = require('url');
 const fs = require('fs');
-const os = require('os');
 const Env = require('./env');
 const pc = require('./PackageCreator');
-const { DATA_FILE_CONF_PATH: DATA_CONF_PATH } = require('./lib/Constants');
+const { DATA_FILE_PATH: DATA_CONF_PATH } = require('./lib/Constants');
 const TabsManager = require('./lib/TabsManager');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
@@ -16,8 +14,6 @@ const BASE_URL = url.format({
 	protocol: 'https'
 	// protocol: 'file'
 });
-
-console.log("I AMS", os.platform(), ", AN", os.arch());
 
 // During first execution create all config files
 app.args = process.argv.slice(3);	
@@ -69,7 +65,6 @@ async function createMainWindow()
 		checkActiveModules();
 	}
 	// mainWindow.maximize();
-	mainTab.webContents.toggleDevTools();
 }
 
 // Only main-side!!! Check app console for preload fails
@@ -81,11 +76,10 @@ function checkActiveModules()
 	});
 }
 
-app.on('browser-window-created', (event, window) => {
-  console.log('New window created:', window.id);
-  window.close();
-  // You can check window count here
-});
+// app.on('browser-window-created', (event, window) => {
+//   console.log('New window created:', window.id);
+//   window.close();
+// });
 
 
 app.on('ready', createMainWindow);
