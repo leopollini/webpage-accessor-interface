@@ -2,6 +2,7 @@ const ipcChannel = require('../../lib/icpChannel.js');
 
 class Autoupdate_preload extends require('../../lib/BasePreload.js')
 {
+    MODULE_NAME = "autoupdate";
     update_check_timer = null;
     update_click_timeout;
 
@@ -13,7 +14,8 @@ class Autoupdate_preload extends require('../../lib/BasePreload.js')
 
             // bad check: frequent false positives.
             window.addEventListener('pointerdown', () => {
-                this.update_check_timer = setTimeout(() => {this.updateCheckRequest()}, this.__conf.update_mode.duration * 1000);
+                if (!this.update_check_timer)
+                    this.update_check_timer = setTimeout(() => {this.updateCheckRequest()}, this.__conf.update_mode.duration * 1000);
             })
             window.addEventListener('pointerup', () => {
                 if (this.update_check_timer)

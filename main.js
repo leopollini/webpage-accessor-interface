@@ -6,6 +6,7 @@ const Env = require('./env');
 const pc = require('./PackageCreator');
 const { DATA_FILE_PATH: DATA_CONF_PATH } = require('./lib/Constants');
 const TabsManager = require('./lib/TabsManager');
+const Loader = require('./extensions/loader');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const BASE_URL = url.format({
@@ -47,17 +48,16 @@ async function createMainWindow()
 			nodeIntegration: false,
 			sandbox: false
 		}});
+
 	TabsManager.setup(mainWindow, mainTab);
 
 	mainTab.setBounds({x: 0, y: 0  , height: mainWindow.getContentBounds().height, width: mainWindow.getContentBounds().width});
 
 	console.log("Loading extensions");
-	app.enabled_modules = require('./extensions/loader').load(mainWindow, mainTab, app.data);
+	app.enabled_modules = Loader.load(app.data);
+	Loader.newTabCreated(mainTab);	// called manually since default tab is created before module initialization (FIX PLEASE)
 	console.log("Loading page:", PAGE_URL);
 	mainTab.webContents.loadURL(PAGE_URL);
-
-
-	TabsManager.setNewTab(mainTab, 'main');
 
 
 	if (Env.DEBUG_MODE)

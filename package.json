@@ -21,7 +21,7 @@
 			"target": [
 				"AppImage"
 			],
-		    "executableArgs": ["--no-sandbox"],
+			"executableArgs": ["--no-sandbox"],
 			"category": "Utility"
 		},
 		"publish": {

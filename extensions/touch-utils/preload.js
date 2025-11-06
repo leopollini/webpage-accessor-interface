@@ -1,4 +1,3 @@
-const { contextBridge, ipcRenderer } = require('electron');
 const { createMouseEvent, sendMouseEvent } = require('../../lib/utils.js')
 const fs = require('fs');
 const path = require('path');
@@ -7,6 +6,8 @@ const ipcChannel = require('../../lib/icpChannel.js');
 
 class TouchUtils_preload extends require('../../lib/BasePreload.js')
 {
+    MODULE_NAME = "touch-utils";
+	
 	LONG_PRESS_DELAY = 500;	// longpress duration in ms
 	longPressTimer = null;
 
@@ -32,6 +33,12 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js')
 				this.longPressTimer = null;
 			}
 		});
+
+		// long press to rightclick
+		window.addEventListener('gestureLongTap' , (e) => {
+			sendMouseEvent('contextmenu', e);
+			sendMouseEvent('pointerdown', e);
+		})
 			
 		// radial double-click signal forward
 		ipcChannel.newRendererHandler('double-click2', (e, pos) =>
@@ -63,18 +70,6 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js')
 
 	clickStuff(e)
 	{
-		// Start timer on mouse down
-		if (!this.longPressTimer)
-			this.longPressTimer = setTimeout(() => {
-				// Trigger long press event after delay
-			if (Env.VERBOSE)
-				console.log("long pressss!!!");
-				sendMouseEvent('contextmenu', e);
-				sendMouseEvent('pointerdown', e);
-			}, this.LONG_PRESS_DELAY);
-
-		this.lastTouchedObject = e.target;
-		this.touchTime = Date.now();
 		
 		if (document.body)
 		{

@@ -18,8 +18,9 @@ class DoubleClick extends require('../../lib/BaseModule')
     //// Constructor trace, please leave commented, unless necessary.
     // constructor(window, tab) { super(window, tab); }
 
+    setup() {}
 
-    setup()
+    onNewTabCreated()
     {
         this.tab.webContents.on('input-event', (event, input) => {
             if (input.type != 'mouseMove' && Env.VERBOSE)

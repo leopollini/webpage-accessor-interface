@@ -63,16 +63,23 @@
 			{
 				"toolbar":
 				{
-					"enabled": false,
+					"enabled": true,
 					"hidden": false,
-					"extension": "toolbar"
+					"toolbar_width": 50,
+					"toolbar_html": "toolbar.html",
+					"extension": "toolbar",
+					"default_url":
+					{
+						"pathname": "service.parchotels.it",
+						"protocol": "https"
+					}
 				},
 				"electron-api":
 				{
 					"enabled": true,
 					"extension": "electronAPI"
 				},
-				"extra_extensions":
+				"window-utils":
 				{
 					"enable_shortcuts": true,
 					"hide_toolbar": true,
@@ -121,11 +128,10 @@
 
 	"default_data":
 	{
-		"fullscreen": true,
+		"fullscreen": false ,
 		"autostart": false,
 		"autorestart": false,
 		"autoreload": false,
-		"only_one_webpage": true,
 		"allow_navigation": true,
 		"webpages":
 		[

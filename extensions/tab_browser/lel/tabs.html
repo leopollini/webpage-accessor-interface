@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Parc Hotels Italia</title>
+  <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="node_modules/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <style>
+    body {margin:0 !important;}
+    #btn-window-close {position:fixed; top:0; right:0; text-align:center; width:40px; height:32px; padding-top:4px; cursor:pointer; z-index:1000;}
+  </style>
+  <script src="node_modules/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+<!-- https://github.com/brrd/electron-tabs/tree/master -->
+<tab-group new-tab-button="true" sortable="true">
+  <style>
+    /* Add custom styles */
+  </style>
+</tab-group>
+
+<div id="btn-window-close" onmouseover="$(this).addClass('bg-danger text-white');" onmouseout="$(this).removeClass('bg-danger text-white');"><i class="bi bi-x-lg"></i></div>
+
+<script src="node_modules/electron-tabs/dist/electron-tabs.js"></script>
+<script>
+  let pmsTitle = "PhlexHotel", pmsURL = "https://pms.parchotels.dev/", pmsIcon = "https://pms.parchotels.dev/favicon.png", pmsTab = {
+    title: pmsTitle,
+    src: pmsURL,
+    iconURL: pmsIcon,
+    active: true
+  };
+  
+  const tabGroup = document.querySelector("tab-group");
+  tabGroup.on("ready", () => console.info("TabGroup is ready"));
+
+  tabGroup.setDefaultTab(pmsTab);
+  tabGroup.addTab(pmsTab);
+</script>
+</body>
+</html>
