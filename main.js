@@ -24,7 +24,6 @@ app.enabled_modules = [];
 app.app_info = {};
 
 new pc();
-const PAGE_URL = (app.data && app.data.webpages[0] && url.format(app.data.webpages[0])) || BASE_URL;
 
 async function createMainWindow()
 {
@@ -41,23 +40,27 @@ async function createMainWindow()
 		fullscreenable: true,
 		autoHideMenuBar: true
 	});
-	const mainTab = new WebContentsView({
-		webPreferences: {
-			preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
-			contextIsolation: true,
-			nodeIntegration: false,
-			sandbox: false
-		}});
+	TabsManager.setup(mainWindow);
 
-	TabsManager.setup(mainWindow, mainTab);
+	if (app.data.webpages.length != 0)
+	{
+		const mainTab = new WebContentsView({
+			webPreferences: {
+				preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
+				contextIsolation: true,
+				nodeIntegration: false,
+				sandbox: false
+			}});
+		const PAGE_URL = (app.data && app.data.webpages[0] && url.format(app.data.webpages[0])) || BASE_URL;
+		mainTab.webContents.loadURL(PAGE_URL);
+		TabsManager.setNewTab(mainTab);	// called manually since default tab is created before module initialization (FIX PLEASE)
+		console.log("Loading page:", PAGE_URL);
+	}
 
-	mainTab.setBounds({x: 0, y: 0  , height: mainWindow.getContentBounds().height, width: mainWindow.getContentBounds().width});
 
 	console.log("Loading extensions");
 	app.enabled_modules = Loader.load(app.data);
-	Loader.newTabCreated(mainTab);	// called manually since default tab is created before module initialization (FIX PLEASE)
-	console.log("Loading page:", PAGE_URL);
-	mainTab.webContents.loadURL(PAGE_URL);
+
 
 
 	if (Env.DEBUG_MODE)

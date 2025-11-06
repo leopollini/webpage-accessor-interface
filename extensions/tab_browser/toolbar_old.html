@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>Simple Tabs Browser</title>
+		<style>
+			body {
+				margin: 0;
+			}
+			#tab-bar {
+				display: flex;
+				align-items: center;
+				height: 40px;
+				background: #2f3136;
+				padding: 4px;
+			}
+			.tab {
+				background: #3a3c41;
+				margin-right: 6px;
+				padding: 6px 12px;
+				border-radius: 6px;
+				cursor: pointer;
+			}
+			.tab.active {
+				background: #5c5f66;
+			}
+			#new-tab {
+				background: #4c8bf5;
+				color: white;
+				border: none;
+				border-radius: 6px;
+				padding: 4px 8px;
+				cursor: pointer;
+			}
+			#new-tab:hover {
+				background: #6da3ff;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="tab-bar">
+			<div id="tabs"></div>
+			<button id="new-tab">+</button>
+		</div>
+		<script>
+console.log(window.manage_tabs);
+
+const tabsDiv = document.getElementById("tabs");
+const newTabBtn = document.getElementById("new-tab");
+let tabCount = 0;
+
+newTabBtn.addEventListener("click", async () => {
+	console.log("new tab requestedd");
+	await window.manage_tabs.createTab();
+	addTabUI('lelelel');
+});
+
+function addTabUI(url) {
+	const tab = document.createElement("div");
+	tab.classList.add("tab");
+	tab.textContent = `Tab ${++tabCount}`;
+	tab.dataset.index = tabCount - 1;
+	tabsDiv.appendChild(tab);
+
+	tab.addEventListener("click", () => {
+		window.manage_tabs.switchTab(parseInt(tab.dataset.index));
+		setActiveUI(tab);
+	});
+
+	setActiveUI(tab);
+}
+
+function setActiveUI(tabElement) {
+	document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+	tabElement.classList.add("active");
+}
+
+window.manage_tabs.onTabSwitched(({ index }) => {
+	const tabElement = document.querySelector(`.tab[data-index="${index}"]`);
+	if (tabElement) setActiveUI(tabElement);
+});
+
+
+		</script>
+	</body>
+</html>

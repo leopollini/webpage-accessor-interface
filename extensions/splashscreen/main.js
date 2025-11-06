@@ -23,8 +23,12 @@ class Splashscreen extends require('../../lib/BaseModule')
 		}});
     
         this.splash.webContents.loadURL(url.format(this.__conf.splash_url));
+        this.splash.webContents.on('input-event', () => {
+            if (this.is_splashscreen)
+                this.removeSplash();
+        });
 
-        TabsManager.newTab(this.splash, "splashscreen");
+        TabsManager.newTab(this.splash, "splashscreen", false);
 
         // Actual splash screen activation time is between 3/4 of the timeout value and 3/2 of the timeout value
         setInterval(() => {
@@ -35,7 +39,7 @@ class Splashscreen extends require('../../lib/BaseModule')
             if (!this.inputed)
                 this.setSplash();
             this.inputed = false;
-        }, (this.__conf.splash_timeout || 60) * 750);
+        }, (this.__conf.splash_timeout) * 750);
        
         // const mainTab = TabsManager.activeTabName;
         // TabsManager.setNewTab(this.splash, "splash");
@@ -46,10 +50,6 @@ class Splashscreen extends require('../../lib/BaseModule')
     {
         this.tab.webContents.on('input-event', (e, input) => {
             this.inputed = true;
-        });
-        this.splash.webContents.on('input-event', () => {
-            if (this.is_splashscreen)
-                this.removeSplash();
         });
     }
 

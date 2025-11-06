@@ -22,7 +22,6 @@ class Loader2
 	static load(data) {
 		this.mainWindow = TabsManager.mainWindow;
 		this.mainTab = TabsManager.activeTab.tab;
-		console.log("ASDASDASDASDAS", this.mainTab);
 		this.data = data;
 		
 		// load modules -> no setup

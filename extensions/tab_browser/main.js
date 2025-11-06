@@ -10,8 +10,9 @@ class Toolbar extends require('../../lib/BaseModule')
 {
 	MODULE_NAME = "toolbar";    // MUST be the same as the 'extension' field in config.json
 	toolbar_tab;
-	tabs_count = 1;
+	tabs_count = 0;
 	track_active_tab = false;
+	first_avoided = false;
 
 	// required_modules = ['window-events'];
 
@@ -43,33 +44,41 @@ class Toolbar extends require('../../lib/BaseModule')
 			
 			fs.watch(__dirname, (event) => {if (event == "change") {this.toolbar_tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
 
-			icpChannel.newMainHandler('create-tab', (_, tab_url) => this.createNewTab(url.format(this.__conf.default_url)));
+			icpChannel.newMainHandler('created-tab', (_, tab_url) => this.createNewTab(url.format(this.__conf.default_url)));
 			icpChannel.newMainHandler('switch-tab', (_, index) => this.setActiveTab(index));
+			icpChannel.newMainHandler('close-tab', (_, index) => this.closeTab(index));
 
-			
 			this.toolbar_tab.webContents.openDevTools({mode: 'detach'});
+
+			if (this.__conf.create_on_open == true)
+				icpChannel.sendSignalToRender('create-tab', this.tab, 'Tab');
 		}
 	}
 
-	createNewTab(page_url)
+	createNewTab()
 	{
 		const newTab = new WebContentsView({
 		webPreferences: {
+			preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
 			contextIsolation: true,
 			nodeIntegration: false,
 			sandbox: false
 		}});
-
+		TabsManager.setNewTab(newTab, "tab_" + this.tabs_count++);
 		const tab_url = url.format({pathname: 'service.parchotels.it', protocol: 'https'});
 		newTab.webContents.loadURL(tab_url);
-		TabsManager.setNewTab(newTab, "tab_" + this.tabs_count++);
 		this.log("Created new tab at url:", tab_url);
 	}
 
 	setActiveTab(index) {
 	if (index < 0 || index >= this.tabs_count) return;
-	TabsManager.setTab(index == 0 ? 'main' : 'tab_' + index);
+	TabsManager.setTab(/*index == 0 ? 'main' : */'tab_' + index);
 	// mainWindow.webContents.send("tab-switched", { index });
+	}
+
+	closeTab(tabId)
+	{
+		TabsManager.closeTab(tabId);
 	}
 } 
 

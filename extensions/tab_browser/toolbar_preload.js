@@ -5,9 +5,10 @@ class Toolbar_preload extends require('../../lib/BasePreload.js')
     MODULE_NAME = "toolbar";
 	contextbridge_expose = {
 		'manage_tabs': {
-			createTab: (url) => ipcRenderer.invoke("create-tab", url),
+			createdTab: (url) => ipcRenderer.invoke("created-tab", url),
 			switchTab: (index) => ipcRenderer.invoke("switch-tab", index),
-			onTabSwitched: (cb) => ipcRenderer.on("tab-switched", (_, data) => cb(data))
+			closeTab: (index) => ipcRenderer.invoke("close-tab", index),
+			onDoCreateTab: (cb) => ipcRenderer.on("create-tab", (_, data) => cb(data))
 		}
 	}
 }

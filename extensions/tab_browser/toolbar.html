@@ -1,86 +1,135 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8" />
-		<title>Simple Tabs Browser</title>
-		<style>
-			body {
-				margin: 0;
-			}
-			#tab-bar {
-				display: flex;
-				align-items: center;
-				height: 40px;
-				background: #2f3136;
-				padding: 4px;
-			}
-			.tab {
-				background: #3a3c41;
-				margin-right: 6px;
-				padding: 6px 12px;
-				border-radius: 6px;
-				cursor: pointer;
-			}
-			.tab.active {
-				background: #5c5f66;
-			}
-			#new-tab {
-				background: #4c8bf5;
-				color: white;
-				border: none;
-				border-radius: 6px;
-				padding: 4px 8px;
-				cursor: pointer;
-			}
-			#new-tab:hover {
-				background: #6da3ff;
-			}
-		</style>
-	</head>
-	<body>
-		<div id="tab-bar">
-			<div id="tabs"></div>
-			<button id="new-tab">+</button>
-		</div>
-		<script>
-console.log(window.manage_tabs);
+<head>
+	<meta charset="UTF-8">
+	<title>My Electron Tab Manager</title>
+	<style>
+		/* Basic styling for tab bar + views */
+		#tabBar {
+			display: flex;
+			overflow-x: auto;
+			background: #eee;
+			padding: 4px;
+		}
+		.tab {
+			padding: 4px 8px;
+			margin-right: 4px;
+			background: #ddd;
+			border-radius: 4px 4px 0 0;
+			cursor: pointer;
+			position: relative;
+		}
+		.tab.active {
+			background: white;
+			border-bottom: 1px solid white;
+		}
+		.tab .close {
+			position: absolute;
+			right: 2px;
+			top: 0px;
+			font-size: 12px;
+			cursor: pointer;
+		}
+		#viewContainer {
+			position: absolute;
+			top: 40px;  /* adjust as needed */
+			bottom: 0;
+			left: 0;
+			right: 0;
+		}
+		webview {
+			width: 100%;
+			height: 100%;
+			display: none;
+		}
+		webview.active {
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	<div id="tabBar">
+		<!-- tabs will be injected here -->
+		<button id="newTabBtn">+ New Tab</button>
+	</div>
+	<div id="viewContainer"></div>
 
-const tabsDiv = document.getElementById("tabs");
-const newTabBtn = document.getElementById("new-tab");
+	<script>
+window.manage_tabs.onDoCreateTab(createTab);
+
+const tabBar = document.getElementById('tabBar');
+const viewContainer = document.getElementById('viewContainer');
+const newTabBtn = document.getElementById('newTabBtn');
+
+let tabs = [];
+let activeTabId = null;
 let tabCount = 0;
 
-newTabBtn.addEventListener("click", async () => {
-	console.log("new tab requestedd");
-	await window.manage_tabs.createTab();
-	addTabUI('lelelel');
+newTabBtn.addEventListener('click', async () => {
+	console.log("new tab requested");
+	createTab('tab');
 });
 
-function addTabUI(url) {
-	const tab = document.createElement("div");
-	tab.classList.add("tab");
-	tab.textContent = `Tab ${++tabCount}`;
-	tab.dataset.index = tabCount - 1;
-	tabsDiv.appendChild(tab);
+async function createTab( title ) {
+	// create tab element
+	await window.manage_tabs.createdTab();
+	const tabEl = document.createElement('div');
+	tabEl.classList.add('tab');
+	tabEl.id = tabCount;
+	tabEl.textContent = title;
+	tabEl.dataset.index = tabCount++;
+	const closeBtn = document.createElement('span');
+	closeBtn.textContent = '×';
+	closeBtn.classList.add('close');
+	tabEl.appendChild(closeBtn);
+	tabBar.insertBefore(tabEl, newTabBtn);
+    tabs.push(tabEl);
 
-	tab.addEventListener("click", () => {
-		window.manage_tabs.switchTab(parseInt(tab.dataset.index));
-		setActiveUI(tab);
+	// event handlers
+	tabEl.addEventListener("click", () => {
+		window.manage_tabs.switchTab(parseInt(tabEl.dataset.index));
+		activateTab(tabEl);
+	});
+	closeBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		closeTab(tabEl);
 	});
 
-	setActiveUI(tab);
+	// activate it
+	activateTab(tabEl);
 }
 
-function setActiveUI(tabElement) {
-	document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-	tabElement.classList.add("active");
+function activateTab(tabEl) {
+	tabs.forEach(t => t.classList.remove("active"));
+	tabEl.classList.add("active");
 }
 
-window.manage_tabs.onTabSwitched(({ index }) => {
-	const tabElement = document.querySelector(`.tab[data-index="${index}"]`);
-	if (tabElement) setActiveUI(tabElement);
-});
-
-
-		</script>
-	</body>
+function closeTab(tabEl) {
+    tabs.pop(tabEl.dataset.index);
+    if (tabs.length != 0)
+        activateTab(tabs[0]);
+    else
+        createTab('tab');
+    console.log("closing tab");
+    tabEl.remove();
+    window.manage_tabs.closeTab(tabEl.dataset.index);
+    delete tabEl;
+	// const idx = tabs.findIndex(t => t.id === id);
+	// if (idx >= 0) {
+	// 	const t = tabs[idx];
+	// 	t.tabEl.remove();
+	// 	t.viewEl.remove();
+	// 	tabs.splice(idx, 1);
+	// 	// if it was active, activate another
+	// 	if (activeTabId === id) {
+	// 		if (tabs.length > 0) {
+	// 			activateTab(tabs[Math.max(0, idx-1)].id);
+	// 		} else {
+	// 			activeTabId = null;
+	// 		}
+	// 	}
+	// }
+}
+	</script>
+</body>
 </html>

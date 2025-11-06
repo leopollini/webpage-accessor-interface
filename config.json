@@ -72,7 +72,8 @@
 					{
 						"pathname": "service.parchotels.it",
 						"protocol": "https"
-					}
+					},
+					"create_on_open": true
 				},
 				"electron-api":
 				{
@@ -135,12 +136,11 @@
 		"allow_navigation": true,
 		"webpages":
 		[
+		],
+		"loltemp":
 			{
 				"pathname": "service.parchotels.it",
-				"protocol": "https",
-				"is_main_page": true,
-				"require_private_window": true
+				"protocol": "https"
 			}
-		]
 	}
 }
