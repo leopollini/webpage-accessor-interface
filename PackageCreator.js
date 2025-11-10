@@ -16,7 +16,7 @@ class PackageCreator
 		// loads config file
 		try {
 			const config_file_content = fs.readFileSync(PackageCreator.CONF_FILE_PATH);
-			fs.writeFileSync(path.joinAppData('config.json'), config_file_content);
+			fs.writeFileSync(path.joinAppData('config.json'), config_file_content);			// Create a readonly copy of currently active config file
 			this.conf = JSON.parse(config_file_content);
 			app.conf.app_info = this.conf.app_info;
 		}
@@ -39,6 +39,27 @@ class PackageCreator
 				}
 			}
 			catch(e) {console.log('Main: could not load data file. Reconfiguring Webpage Accessor. Error was:', e); }
+		}
+		if (Env.CLEAR_CONFS_ON_RESTART)
+		{
+			console.log("### CLEARING OLD CONFIGURATIONS ###");
+			try {
+				if (fs.existsSync(path.joinConfigDir())) {
+					fs.readdirSync(path.joinConfigDir()).forEach(entry => {
+						const fullPath = path.join(path.joinConfigDir(), entry);
+						try {
+							fs.rmSync(fullPath, { recursive: true, force: true });
+							console.log('\t@ Removed', fullPath);
+						}
+						catch (err) {
+							console.log('Could not remove', fullPath, err);
+						}
+					});
+				}
+			}
+			catch (e) {
+				console.log('Error clearing appData folder:', e);
+			}
 		}
 		console.log("### CONFIGURING PACKAGES ###");
 
@@ -90,7 +111,7 @@ class PackageCreator
 
 	loadConfiguration(conf, name, depth = 0)
 	{
-		if (Object.keys(conf).length == 0 || conf.enabled === false) return this.betterLog(depth, kleur.yellow('Ignoring'),'configuration of', kleur.grey(name));
+		if (Object.keys(conf).length == 0 || (!Env.CREATE_CONF_FOR_DISABLED_EXTENSIONS && conf.enabled === false)) return this.betterLog(depth, kleur.yellow('Ignoring'),'configuration of', kleur.grey(name));
 		this.betterLog(depth, 'Beginning configuration of', kleur.bold(kleur.blue(name)));
 		let env = {...conf};
 		Reflect.deleteProperty(env, "actions");
@@ -105,12 +126,11 @@ class PackageCreator
 		if (conf.actions) this.loadActions(conf.actions, env, name, depth);
 		else if (conf.extension) this.loadExtension({...env, ...conf.extension}, name, depth);
 		console.log('|\t'.repeat(depth) + '|__' + kleur.green(' done'));
-		
 	}
 
 	loadActions(actions, env, name, depth)
 	{
-		if (actions.enabled == false) return this.betterLog(depth, kleur.yellow('Ignoring'),'actions for', kleur.grey(name), 'because', kleur.red('disabled'));
+		if (!Env.CREATE_CONF_FOR_DISABLED_EXTENSIONS && actions.enabled == false) return this.betterLog(depth, kleur.yellow('Ignoring'),'actions for', kleur.grey(name), 'because', kleur.red('disabled'));
 		Object.entries(actions).forEach(([name, ext]) => {
 			this.loadExtension({...env, ...ext}, name, depth);
 		});

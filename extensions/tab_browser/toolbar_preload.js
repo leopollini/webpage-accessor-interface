@@ -11,6 +11,8 @@ class Toolbar_preload extends require('../../lib/BasePreload.js')
 			onDoCreateTab: (cb) => ipcRenderer.on("create-tab", (_, data) => cb(data))
 		}
 	}
+
+	setup() {}
 }
 
 module.exports = Toolbar_preload;

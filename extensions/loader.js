@@ -43,12 +43,16 @@ class Loader2
 			this.loadModule(ext);
 		}
 
+		Loader2.allowGetPreloadData();
+		return [...enabled_modules];
+	}
+
+	static lateLoad()
+	{
 		// Module late start
 		enabled_modules.forEach(function (module) {
 			if (module.isActive()) module.__late_start();
 		});
-		Loader2.allowGetPreloadData();
-		return [...enabled_modules];
 	}
 
 	static allowGetPreloadData()
@@ -86,15 +90,6 @@ class Loader2
 		{
 			console.log("Module not loaded:", e);
 		}
-	}
-
-	static newTabCreated(tab)
-	{
-		console.log('[', kleur.gray('loader'), '] assigning new tab to etensions');
-		if (tab)
-			enabled_modules.forEach(module => {
-				if (module.__onNewTab) module.__onNewTab(tab);
-			});
 	}
 }
 

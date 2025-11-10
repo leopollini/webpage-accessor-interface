@@ -1,7 +1,7 @@
 const { createMouseEvent, sendMouseEvent } = require('../../lib/utils.js')
 const fs = require('fs');
-const path = require('path');
 const Env = require('../../env.js');
+const path = require('../../lib/path2.js');
 const ipcChannel = require('../../lib/icpChannel.js');
 
 class TouchUtils_preload extends require('../../lib/BasePreload.js')

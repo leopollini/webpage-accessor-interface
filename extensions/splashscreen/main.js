@@ -17,9 +17,7 @@ class Splashscreen extends require('../../lib/BaseModule')
     {
         this.splash = new WebContentsView({
 		webPreferences: {
-			contextIsolation: true,
-			nodeIntegration: false,
-			sandbox: false
+			...Env.WEBVIEW_DEFAULT_PREFERENCES
 		}});
     
         this.splash.webContents.loadURL(url.format(this.__conf.splash_url));
@@ -32,7 +30,7 @@ class Splashscreen extends require('../../lib/BaseModule')
 
         // Actual splash screen activation time is between 3/4 of the timeout value and 3/2 of the timeout value
         setInterval(() => {
-            if (!this.is_splashscreen)
+            if (this.is_splashscreen)
                 return;
             if (Env.VERBOSE)
                 this.log("splash_check");
@@ -51,6 +49,7 @@ class Splashscreen extends require('../../lib/BaseModule')
         this.tab.webContents.on('input-event', (e, input) => {
             this.inputed = true;
         });
+        this.log('listener set');
     }
 
     setSplash()

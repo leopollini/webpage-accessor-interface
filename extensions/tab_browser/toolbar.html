@@ -18,6 +18,11 @@
 			border-radius: 4px 4px 0 0;
 			cursor: pointer;
 			position: relative;
+			
+			max-width: 100px;        /* limit tab width */
+			white-space: nowrap;      /* prevent wrapping */
+			overflow: hidden;         /* hide overflow */
+			text-overflow: ellipsis;  /* show "..." for long text */
 		}
 		.tab.active {
 			background: white;
@@ -50,11 +55,12 @@
 <body>
 	<div id="tabBar">
 		<!-- tabs will be injected here -->
-		<button id="newTabBtn">+ New Tab</button>
+		<button id="newTabBtn", style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"">+ New Tab</button>
 	</div>
 	<div id="viewContainer"></div>
 
 	<script>
+
 window.manage_tabs.onDoCreateTab(createTab);
 
 const tabBar = document.getElementById('tabBar');
@@ -62,17 +68,22 @@ const viewContainer = document.getElementById('viewContainer');
 const newTabBtn = document.getElementById('newTabBtn');
 
 let tabs = [];
-let activeTabId = null;
+let activeTab = null;
 let tabCount = 0;
 
 newTabBtn.addEventListener('click', async () => {
 	console.log("new tab requested");
-	createTab('tab');
+	requestNewTab('asdasdasdasd');
 });
 
-async function createTab( title ) {
+async function requestNewTab(title)
+{
+	activeTab = null;
+	createTab(await window.manage_tabs.createdTab(title));
+}
+
+async function createTab(title) {
 	// create tab element
-	await window.manage_tabs.createdTab();
 	const tabEl = document.createElement('div');
 	tabEl.classList.add('tab');
 	tabEl.id = tabCount;
@@ -82,7 +93,7 @@ async function createTab( title ) {
 	closeBtn.textContent = '×';
 	closeBtn.classList.add('close');
 	tabEl.appendChild(closeBtn);
-	tabBar.insertBefore(tabEl, newTabBtn);
+	tabBar.insertBefore(tabEl, activeTab ? activeTab.nextSibling : newTabBtn);
     tabs.push(tabEl);
 
 	// event handlers
@@ -102,6 +113,7 @@ async function createTab( title ) {
 function activateTab(tabEl) {
 	tabs.forEach(t => t.classList.remove("active"));
 	tabEl.classList.add("active");
+	activeTab = tabEl;
 }
 
 function closeTab(tabEl) {
@@ -109,26 +121,11 @@ function closeTab(tabEl) {
     if (tabs.length != 0)
         activateTab(tabs[0]);
     else
-        createTab('tab');
+        requestNewTab('asdasdasdasd');
     console.log("closing tab");
     tabEl.remove();
     window.manage_tabs.closeTab(tabEl.dataset.index);
     delete tabEl;
-	// const idx = tabs.findIndex(t => t.id === id);
-	// if (idx >= 0) {
-	// 	const t = tabs[idx];
-	// 	t.tabEl.remove();
-	// 	t.viewEl.remove();
-	// 	tabs.splice(idx, 1);
-	// 	// if it was active, activate another
-	// 	if (activeTabId === id) {
-	// 		if (tabs.length > 0) {
-	// 			activateTab(tabs[Math.max(0, idx-1)].id);
-	// 		} else {
-	// 			activeTabId = null;
-	// 		}
-	// 	}
-	// }
 }
 	</script>
 </body>

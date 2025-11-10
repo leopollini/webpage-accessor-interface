@@ -42,30 +42,27 @@ async function createMainWindow()
 	});
 	TabsManager.setup(mainWindow);
 
+	console.log("Loading extensions");
+	app.enabled_modules = Loader.load(app.data);
+
+	if (Env.DEBUG_MODE)
+	{
+		checkActiveModules();
+	}
+
+	Loader.lateLoad();
+
 	if (app.data.webpages.length != 0)
 	{
 		const mainTab = new WebContentsView({
 			webPreferences: {
 				preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
-				contextIsolation: true,
-				nodeIntegration: false,
-				sandbox: false
+				...Env.WEBVIEW_DEFAULT_PREFERENCES
 			}});
 		const PAGE_URL = (app.data && app.data.webpages[0] && url.format(app.data.webpages[0])) || BASE_URL;
 		mainTab.webContents.loadURL(PAGE_URL);
-		TabsManager.setNewTab(mainTab);	// called manually since default tab is created before module initialization (FIX PLEASE)
+		TabsManager.setNewTab(mainTab, 'main');	// called manually since default tab is created before module initialization (FIX PLEASE)
 		console.log("Loading page:", PAGE_URL);
-	}
-
-
-	console.log("Loading extensions");
-	app.enabled_modules = Loader.load(app.data);
-
-
-
-	if (Env.DEBUG_MODE)
-	{
-		checkActiveModules();
 	}
 	// mainWindow.maximize();
 }
@@ -78,12 +75,6 @@ function checkActiveModules()
 		e.log(e.isActive());
 	});
 }
-
-// app.on('browser-window-created', (event, window) => {
-//   console.log('New window created:', window.id);
-//   window.close();
-// });
-
 
 app.on('ready', createMainWindow);
 
