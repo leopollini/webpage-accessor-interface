@@ -26,7 +26,9 @@
 		}
 		.tab.active {
 			background: white;
-			border-bottom: 1px solid white;
+			border-bottom: 0px solid white;
+			min-width: 100px;        /* limit tab width */
+			max-width: 200px;        /* limit tab width */
 		}
 		.tab .close {
 			position: absolute;
@@ -34,6 +36,11 @@
 			top: 0px;
 			font-size: 12px;
 			cursor: pointer;
+		}
+		.button-close{
+			font-size: 12px;
+			white-space: nowrap;
+			overflow: hidden;
 		}
 		#viewContainer {
 			position: absolute;
@@ -55,13 +62,15 @@
 <body>
 	<div id="tabBar">
 		<!-- tabs will be injected here -->
-		<button id="newTabBtn", style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"">+ New Tab</button>
+		<button id="newTabBtn", class="button-close">+ New Tab</button>
 	</div>
 	<div id="viewContainer"></div>
 
 	<script>
 
 window.manage_tabs.onDoCreateTab(createTab);
+window.manage_tabs.onDoCloseTab(closeTabId);
+window.manage_tabs.onRenameTab(renameTab);
 
 const tabBar = document.getElementById('tabBar');
 const viewContainer = document.getElementById('viewContainer');
@@ -71,34 +80,40 @@ let tabs = [];
 let activeTab = null;
 let tabCount = 0;
 
-newTabBtn.addEventListener('click', async () => {
+newTabBtn.addEventListener('click', () => {
 	console.log("new tab requested");
 	requestNewTab('asdasdasdasd');
-});
+}, {once: true});
 
-async function requestNewTab(title)
+async function requestNewTab(content)
 {
 	activeTab = null;
-	createTab(await window.manage_tabs.createdTab(title));
+	createTab(await window.manage_tabs.createdTab(content));
+
+	newTabBtn.addEventListener('click', async () => {
+		console.log("new tab requested");
+		requestNewTab('asdasdasdasd');
+	}, {once: true});
 }
 
-async function createTab(title) {
+async function createTab({title, success, id}) {
 	// create tab element
+	if (success != true) return console.log('page creation not succesful');
 	const tabEl = document.createElement('div');
 	tabEl.classList.add('tab');
-	tabEl.id = tabCount;
+	tabEl.id = id;
 	tabEl.textContent = title;
 	tabEl.dataset.index = tabCount++;
 	const closeBtn = document.createElement('span');
 	closeBtn.textContent = '×';
 	closeBtn.classList.add('close');
-	tabEl.appendChild(closeBtn);
+	tabEl.buttonEl = closeBtn
+	tabEl.appendChild(tabEl.buttonEl);
 	tabBar.insertBefore(tabEl, activeTab ? activeTab.nextSibling : newTabBtn);
     tabs.push(tabEl);
 
 	// event handlers
 	tabEl.addEventListener("click", () => {
-		window.manage_tabs.switchTab(parseInt(tabEl.dataset.index));
 		activateTab(tabEl);
 	});
 	closeBtn.addEventListener('click', (e) => {
@@ -110,22 +125,51 @@ async function createTab(title) {
 	activateTab(tabEl);
 }
 
+function renameTab({id, new_title})
+{
+	tabs.forEach(tabEl => {
+		if (tabEl.id === id)
+		{
+			tabEl.removeChild(tabEl.buttonEl);
+			tabEl.textContent = new_title;
+			tabEl.appendChild(tabEl.buttonEl);
+		}
+	});
+}
+
 function activateTab(tabEl) {
+	console.log('switching to', parseInt(tabEl.dataset.index));
+	window.manage_tabs.switchTab(parseInt(tabEl.dataset.index));
 	tabs.forEach(t => t.classList.remove("active"));
 	tabEl.classList.add("active");
 	activeTab = tabEl;
 }
 
-function closeTab(tabEl) {
-    tabs.pop(tabEl.dataset.index);
+function closeTabId(tabId)
+{
+    console.log("requested to close tab", tabId);
+	tabs.forEach(tab => {
+		if (tab.dataset.index === tabId)
+			removeTab(tab);
+	});
+}
+
+function removeTab(tabEl)
+{
+	console.log("ALL TABS:", tabs);
+	tabs = tabs.filter(tab => tab.dataset.index !== tabEl.dataset.index);
+	console.log("ALL TABS:", tabs);
+	tabEl.remove();
     if (tabs.length != 0)
-        activateTab(tabs[0]);
-    else
-        requestNewTab('asdasdasdasd');
-    console.log("closing tab");
-    tabEl.remove();
+		activateTab(tabs[0]);
+	else
+		requestNewTab({title: 'asdasdasd', success: 'true'});
+}
+
+function closeTab(tabEl) {
+    console.log("closing tab", tabEl.dataset.index);
     window.manage_tabs.closeTab(tabEl.dataset.index);
-    delete tabEl;
+	removeTab(tabEl);
 }
 	</script>
 </body>

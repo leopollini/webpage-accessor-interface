@@ -6,7 +6,7 @@
 			"name": "Leonardo Pollini",
 			"email": "leopollinik@gmail.com"
 		},
-		"version": "0.0.21",
+		"version": "0.0.23",
 		"autoupdate": false,
 		"electron_package": "package.json",
 		"app_name": "Webpage Accessor",
@@ -71,6 +71,16 @@
 			"enabled": true,
 			"actions":
 			{
+				"webpage_filter":
+				{
+					"enabled": true,
+					"hosts_whitelist": [],
+					"hosts_blacklist": [],
+					"webpages_whitelist": [],
+					"webpages_blacklist": [],
+					"allow_navigation": true,
+					"extension": "webpage-filter"
+				},
 				"toolbar":
 				{
 					"enabled": true,
@@ -81,10 +91,9 @@
 					"allow_target_blank": true,
 					"default_url":
 					{
-						"pathname": "new_page.html",
-						"protocol": "file"
-					},
-					"create_on_open": true
+						"pathname": "pms.parchotels.dev",
+						"protocol": "https"
+					}
 				},
 				"electron-api":
 				{

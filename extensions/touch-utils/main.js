@@ -20,11 +20,11 @@ class DoubleClick extends require('../../lib/BaseModule')
 
     setup() {}
 
-    onNewTabCreated()
+    onNewTabCreated(newTab)
     {
-        this.tab.webContents.on('input-event', (event, input) => {
-            if (input.type != 'mouseMove' && Env.VERBOSE)
-                this.log("sending an", input.type);
+        newTab.webContents.on('input-event', (event, input) => {
+            // if (input.type != 'mouseMove' && Env.VERBOSE)
+            //     this.log("sending an", input.type);
             switch(input.type)
             {
                 case 'mouseDown':
@@ -67,12 +67,12 @@ class DoubleClick extends require('../../lib/BaseModule')
         if (this.__conf.disable_physical_keyboard == true && this.__conf.disable_virtual_keyboard == true)
         {
             this.warn("disabling keyboard");
-            this.tab.webContents.on("before-input-event", (event, input) => {if (input.type === 'keyDown' || input.type === 'keyUp') event.preventDefault();});
+            newTab.webContents.on("before-input-event", (event, input) => {if (input.type === 'keyDown' || input.type === 'keyUp') event.preventDefault();});
         }
         else if (this.__conf.disable_physical_keyboard == true)
         {
             this.warn("disabling physical keyboard");
-            this.tab.webContents.on("before-input-event", (event, input) => {
+            newTab.webContents.on("before-input-event", (event, input) => {
                 if (!this.mouseHasLeft && input.type === 'keyDown' || input.type === 'keyUp')
                 {   
                     event.preventDefault();
@@ -83,7 +83,7 @@ class DoubleClick extends require('../../lib/BaseModule')
         else if (this.__conf.disable_virtual_keyboard == true)
         {
             this.warn("disabling virtual keyboard");
-            this.tab.webContents.on("before-input-event", (event, input) => {
+            newTab.webContents.on("before-input-event", (event, input) => {
                 if (this.mouseHasLeft && input.type === 'keyDown' || input.type === 'keyUp')
                 {
                     event.preventDefault();

@@ -21,7 +21,7 @@ class Loader2
 	// 'data' shoud be app.data
 	static load(data) {
 		this.mainWindow = TabsManager.mainWindow;
-		this.mainTab = TabsManager.activeTab.tab;
+		this.mainTab = TabsManager.getActiveTab();
 		this.data = data;
 		
 		// load modules -> no setup
@@ -80,6 +80,7 @@ class Loader2
 	{
 		try
 		{
+			if (!ext || !modules[ext]) return console.log(kleur.red("Error:"), ext, "is not a module!!");
 			const ModuleClass = require(modules[ext]);
 			if (typeof(ModuleClass) !== typeof(function () {}) || Object.getPrototypeOf(ModuleClass) !== BaseModule) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
 			const t = new ModuleClass()
