@@ -23,8 +23,8 @@ class DoubleClick extends require('../../lib/BaseModule')
     onNewTabCreated(newTab)
     {
         newTab.webContents.on('input-event', (event, input) => {
-            if (input.type != 'mouseMove' && Env.VERBOSE)
-                this.log("sending an", input.type);
+            // if (input.type != 'mouseMove' && Env.VERBOSE)
+            //     this.log("sending an", input.type);
             switch(input.type)
             {
                 case 'mouseDown':

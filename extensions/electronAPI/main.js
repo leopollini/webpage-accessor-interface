@@ -10,23 +10,23 @@ class ElectronAPI extends require('../../lib/BaseModule')
     // constructor(window, tab) { super(window, tab); }
 
     // Setup code here. This function is called in BaseModule's constructor.
-    setup()
-	{
-		ipcMain.handle('select-file', async () => await this.selectFile());
-		ipcMain.handle('read-file', async (event, path) => await this.readFile(path));
-		// ipcMain.handle('get-key', async () => await this.getLocalKey()); --> moved in keys-checker.js
-	}
+    // setup()
+	// {
+	// 	ipcMain.handle('select-file', async () => await this.selectFile());
+	// 	ipcMain.handle('read-file', async (event, path) => await this.readFile(path));
+	// 	// ipcMain.handle('get-key', async () => await this.getLocalKey()); --> moved in keys-checker.js
+	// }
 
-	async readFile(path)
-	{
-		console.log("reading file");
-		try {
-			return fs.readFileSync(path, 'utf-8');
-		} catch (err) {
-			console.error(err);
-			return null;
-		}
-	}
+	// async readFile(path)
+	// {
+	// 	console.log("reading file");
+	// 	try {
+	// 		return fs.readFileSync(path, 'utf-8');
+	// 	} catch (err) {
+	// 		console.error(err);
+	// 		return null;
+	// 	}
+	// }
 
 }
 

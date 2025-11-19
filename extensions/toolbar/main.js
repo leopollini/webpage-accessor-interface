@@ -71,11 +71,13 @@ class Toolbar extends BaseModule
 			if (input.key)
 			{
 				this.warn("forwarding event to active tab");
-				TabsManager.getActiveTab().webContents.send('before-input-event', input);
+				TabsManager.getActiveTab().webContents.send('before-input-event', event, input);
 				event.preventDefault();
 			}
 		});
-		if (this.__conf.create_on_open == true)
+		new (require('../window-events/main'))().onNewTabCreated(this.tab);
+
+		if (this.__conf.create_on_open == true || Object.keys(TabsManager.tabs).length == 0)
 			this.requestNewTab();
 	}
 
@@ -95,6 +97,7 @@ class Toolbar extends BaseModule
 		if (!tab || !tab.tab_id) return console.log('[', kleur.green("toolbar") , '] cannot close', tab && tab.tab_id);
 		console.log('[', kleur.green("toolbar") , '] closing', tab.tab_id);
 		icpChannel.sendSignalToRender('close-tab', Toolbar.toolbar_tab, tab.tab_id.substring(4));
+		TabsManager.closeTab(tab);
 	}
 
 	// force_url can be set to true ONLY from this extension's context, NOT from the browser's new tab request
@@ -108,10 +111,11 @@ class Toolbar extends BaseModule
 		const tab_url = force_url ? requested_url : url.format(this.__conf.default_url);
 		newTab.webContents.loadURL(tab_url);
 		this.log("Created new tab at url:", tab_url);
-		return {success: await TabsManager.newTab(newTab, "tab_" + this.tabs_count++), title: await getPageTitle(newTab.webContents)};
+		this.setTitleTracker(newTab);
+		return {success: await TabsManager.setNewTab(newTab, "tab_" + this.tabs_count++), title: await getPageTitle(newTab.webContents), id: newTab.tab_id};
 	}
 
-	setActiveTab(index) {
+	async setActiveTab(index) {
 		if (index < 0 || index >= this.tabs_count) return;
 		TabsManager.setTab(/*index == 0 ? 'main' : */'tab_' + index);
 		// mainWindow.webContents.send("tab-switched", { index });
@@ -121,6 +125,15 @@ class Toolbar extends BaseModule
 	{
 		this.log('renderer requested tab close')
 		TabsManager.closeTabName(tab_name);
+	}
+
+	setTitleTracker(tab)
+	{
+		tab.webContents.on('page-title-updated', (e, new_title) => {
+			if (tab == TabsManager.getActiveTab())
+				this.window.setTitle(new_title);
+			icpChannel.sendSignalToRender('rename-tab', this.tab, {id: tab.tab_id, new_title: new_title});
+		});
 	}
 } 
 

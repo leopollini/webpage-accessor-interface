@@ -1,19 +1,16 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const ipcChannel = require('../../lib/icpChannel.js');
+const BasePreload = require('../../lib/BasePreload.js');
 
-class TouchUtils_preload extends require('../../lib/BasePreload.js')
+class TouchUtils_preload extends BasePreload
 {
     MODULE_NAME = "keys-checker";
+	
 	contextbridge_expose = {
 			'electronAPI': {
-				getLocalKey: () => ipcRenderer.invoke('get-key')
+				getExtraInfo: () => ipcRenderer.invoke('get-info')
 			}
 		};
-
-	getKeyPlease()
-	{
-		ipcChannel.sendSignalToMain('get-key').then(keys => {return keys.machine_id});
-	}
 
 	setup() {}
 }

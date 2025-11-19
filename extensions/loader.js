@@ -21,7 +21,7 @@ class Loader2
 	// 'data' shoud be app.data
 	static load(data) {
 		this.mainWindow = TabsManager.mainWindow;
-		this.mainTab = TabsManager.activeTab.tab;
+		this.mainTab = TabsManager.getActiveTab();
 		this.data = data;
 		
 		// load modules -> no setup

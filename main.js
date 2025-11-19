@@ -33,13 +33,15 @@ async function createMainWindow()
 
 	const {height, width} = screen.getPrimaryDisplay().workAreaSize;
 	app.displaySize = {height: height, width: width}
+	console.log('######## ICON FILE>', fs.existsSync( path.join(__dirname, 'assets/icons/icon.png'),));
 	const mainWindow = new BaseWindow({
 		tabbingIdentifier: "myTabs",
 		title: "Electron",
-		// width: width / 2,W
+		// width: width / 2,
 		// height: height / 2,
 		fullscreenable: true,
-		autoHideMenuBar: true
+		autoHideMenuBar: true,
+		icon: path.join(__dirname, 'assets/icons/icon.png'),
 	});
 	TabsManager.setup(mainWindow);
 
