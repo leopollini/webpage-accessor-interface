@@ -10,27 +10,27 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        setupIcon: '/path/to/icon.ico'
+        setupIcon: '/assets/icons/icon.ico'
       }
     },
     {
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
       config: {
-        icon: './images/icon.png'
+        icon: './assets/icons/icon.png'
       },
     },
     {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          icon: './images/icon.png'
+          icon: './assets/icons/icon.png'
         }},
     },
     {
       name: '@electron-forge/maker-rpm',
       config: {
-        icon: './images/icon.png'
+        icon: './assets/icons/icon.png'
       },
     },
   ],

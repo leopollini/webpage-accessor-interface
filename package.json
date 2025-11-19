@@ -1,6 +1,6 @@
 {
 	"name": "webpage_accessor",
-	"version": "0.0.23",
+	"version": "0.0.24",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
 		"name": "Leonardo Pollini",
@@ -25,7 +25,7 @@
 				"--no-sandbox"
 			],
 			"category": "Utility",
-	        "icon": "./images/icon.png"
+	        "icon": "build/icons"
 		},
 		"publish": {
 			"provider": "github",
