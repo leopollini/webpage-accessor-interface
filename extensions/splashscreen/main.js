@@ -44,9 +44,9 @@ class Splashscreen extends require('../../lib/BaseModule')
         // setTimeout(TabsManager.setTab, 5000, mainTab);
     }
 
-    onNewTabCreated()
+    onNewTabCreated(newTab)
     {
-        this.tab.webContents.on('input-event', (e, input) => {
+        newTab.webContents.on('input-event', (e, input) => {
             this.inputed = true;
         });
         this.log('listener set');

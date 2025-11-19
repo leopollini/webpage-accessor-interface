@@ -71,6 +71,16 @@
 			"enabled": true,
 			"actions":
 			{
+				"webpage_filter":
+				{
+					"enabled": true,
+					"hosts_whitelist": ["google"],
+					"hosts_blacklist": [],
+					"webpages_whitelist": [],
+					"webpages_blacklist": [],
+					"allow_navigation": true,
+					"extension": "webpage-filter"
+				},
 				"toolbar":
 				{
 					"enabled": true,

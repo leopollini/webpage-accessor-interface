@@ -62,6 +62,7 @@
 	<script>
 
 window.manage_tabs.onDoCreateTab(createTab);
+window.manage_tabs.onDoCloseTab(closeTabId);
 
 const tabBar = document.getElementById('tabBar');
 const viewContainer = document.getElementById('viewContainer');
@@ -71,19 +72,26 @@ let tabs = [];
 let activeTab = null;
 let tabCount = 0;
 
-newTabBtn.addEventListener('click', async () => {
-	console.log("new tab requested");
-	requestNewTab('asdasdasdasd');
-});
+newTabBtn.addEventListener('click', request_tab, {once: true});
 
-async function requestNewTab(title)
+function request_tab()
 {
-	activeTab = null;
-	createTab(await window.manage_tabs.createdTab(title));
+	console.log("new tab requested");
+	newTab('asdasdasdasd');
 }
 
-async function createTab(title) {
+async function newTab(content)
+{
+	activeTab = null;
+	createTab(await window.manage_tabs.createdTab(content));
+	
+	newTabBtn.removeEventListener('click', request_tab);
+	newTabBtn.addEventListener('click', request_tab, {once: true});
+}
+
+async function createTab({title, success}) {
 	// create tab element
+	if (success != true) return console.log('page creation not succesful');
 	const tabEl = document.createElement('div');
 	tabEl.classList.add('tab');
 	tabEl.id = tabCount;
@@ -98,7 +106,6 @@ async function createTab(title) {
 
 	// event handlers
 	tabEl.addEventListener("click", () => {
-		window.manage_tabs.switchTab(parseInt(tabEl.dataset.index));
 		activateTab(tabEl);
 	});
 	closeBtn.addEventListener('click', (e) => {
@@ -111,21 +118,38 @@ async function createTab(title) {
 }
 
 function activateTab(tabEl) {
+	console.log('switching to', parseInt(tabEl.dataset.index));
+	window.manage_tabs.switchTab(parseInt(tabEl.dataset.index));
 	tabs.forEach(t => t.classList.remove("active"));
 	tabEl.classList.add("active");
 	activeTab = tabEl;
 }
 
-function closeTab(tabEl) {
-    tabs.pop(tabEl.dataset.index);
+function closeTabId(tabId)
+{
+    console.log("requested to close tab", tabId);
+	tabs.forEach(tab => {
+		if (tab.dataset.index === tabId)
+			removeTab(tab);
+	});
+}
+
+function removeTab(tabEl)
+{
+	console.log("ALL TABS:", tabs);
+	tabs = tabs.filter(tab => tab.dataset.index !== tabEl.dataset.index);
+	console.log("ALL TABS:", tabs);
+	tabEl.remove();
+	window.manage_tabs.closeTab(tabEl.dataset.index);
     if (tabs.length != 0)
-        activateTab(tabs[0]);
-    else
-        requestNewTab('asdasdasdasd');
-    console.log("closing tab");
-    tabEl.remove();
-    window.manage_tabs.closeTab(tabEl.dataset.index);
-    delete tabEl;
+		activateTab(tabs[0]);
+	else
+		newTab({title: 'asdasdasd', success: 'true'});
+}
+
+function closeTab(tabEl) {
+    console.log("closing tab", tabEl.dataset.index);
+	removeTab(tabEl);
 }
 	</script>
 </body>

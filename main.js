@@ -7,6 +7,7 @@ const pc = require('./PackageCreator');
 const { DATA_FILE_PATH: DATA_CONF_PATH } = require('./lib/Constants');
 const TabsManager = require('./lib/TabsManager');
 const Loader = require('./extensions/loader');
+const kleur = require('kleur');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const BASE_URL = url.format({
@@ -61,6 +62,7 @@ async function createMainWindow()
 			}});
 		const PAGE_URL = (app.data && app.data.webpages[0] && url.format(app.data.webpages[0])) || BASE_URL;
 		mainTab.webContents.loadURL(PAGE_URL);
+		
 		TabsManager.setNewTab(mainTab, 'main');	// called manually since default tab is created before module initialization (FIX PLEASE)
 		console.log("Loading page:", PAGE_URL);
 	}
@@ -72,7 +74,7 @@ function checkActiveModules()
 {
 	console.log('CHECKING ACTIVE MODULES:');
 	app.enabled_modules.forEach(function (e) {
-		e.log(e.isActive());
+		e.log(e.isActive() ? kleur.yellow('true') : kleur.red('false'));
 	});
 }
 

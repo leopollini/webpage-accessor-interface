@@ -6,17 +6,18 @@ const fs = require('fs');
 const icpChannel = require('../../lib/icpChannel');
 const Env = require('../../env');
 const { getPageTitle } = require('../../lib/utils');
+const BaseModule = require('../../lib/BaseModule');
+const kleur = require('kleur');
+const ipcChannel = require('../../lib/icpChannel');
 
 // Sample Module. Plase copy-paste this file into new module's main folder
-class Toolbar extends require('../../lib/BaseModule')
+class Toolbar extends BaseModule
 {
 	MODULE_NAME = "toolbar";    // MUST be the same as the 'extension' field in config.json
 	static toolbar_tab;
 	tabs_count = 0;
 	track_active_tab = false;
 	first_avoided = false;
-
-	// required_modules = ['window-events'];
 
 	onNewTabCreated(new_tab, old_tab)
 	{
@@ -33,40 +34,47 @@ class Toolbar extends require('../../lib/BaseModule')
 	{
 		if (this.__conf.hidden != true)
 		{
-			Toolbar.toolbar_tab = new WebContentsView({
+			this.tab = new WebContentsView({
 			webPreferences: {
 				preload: path.join(__dirname, '../single_preload.js'),
 				additionalArguments: ['--load-only=' + path.join(__dirname, 'toolbar_preload.js')],
 				...Env.WEBVIEW_DEFAULT_PREFERENCES
 			}});
+			Toolbar.toolbar_tab = this.tab;
+			this.tab.tab_id = 'toolbar';
 
-			this.tab = Toolbar.toolbar_tab;
-
-			Toolbar.toolbar_tab.webContents.loadURL(url.format({
+			this.tab.webContents.loadURL(url.format({
 				pathname: path.join(__dirname, this.__conf.toolbar_html),
 				protocol: 'file'
 			}));
 
 			this.warn({height: this.__conf.toolbar_width});
 			if (this.__conf.default_url.protocol == 'file') this.__conf.default_url.pathname = path.join(__dirname, this.__conf.default_url.pathname);
-			TabsManager.newSideTab(Toolbar.toolbar_tab, 'toolbar', {height: this.__conf.toolbar_width});
+			TabsManager.newSideTab(this.tab, 'toolbar', {height: this.__conf.toolbar_width});
 			TabsManager.newDefaultBounds({y: this.__conf.toolbar_width});
 
-
-			this.newCtrlShortcut('r', () => { Toolbar.toolbar_tab.webContents.reload(); });
+			this.newCtrlShortcut('r', () => { this.tab.webContents.reload(); });
 			
-			fs.watch(__dirname, (event) => {if (event == "change") {Toolbar.toolbar_tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
+			fs.watch(__dirname, (event) => {if (event == "change") {this.tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
 
 			icpChannel.newMainHandler('created-tab', (_, tab_url) => this.createNewTab(url.format(this.__conf.default_url)));
 			icpChannel.newMainHandler('switch-tab', (_, index) => this.setActiveTab(index));
-			icpChannel.newMainHandler('close-tab', (_, index) => this.closeTab(index));
+			icpChannel.newMainHandler('closed-tab', (_, index) => this.closeTab(TabsManager.idToName(index)));
 
-			Toolbar.toolbar_tab.webContents.openDevTools({mode: 'detach'});
+			this.tab.webContents.openDevTools({mode: 'detach'});
 		}
 	}
-
+	
 	late_setup()
 	{
+        this.tab.webContents.on('before-input-event', (event, input) => {
+			if (input.key)
+			{
+				this.warn("forwarding event to active tab");
+				TabsManager.getActiveTab().webContents.send('before-input-event', input);
+				event.preventDefault();
+			}
+		});
 		if (this.__conf.create_on_open == true)
 			this.requestNewTab();
 	}
@@ -74,7 +82,19 @@ class Toolbar extends require('../../lib/BaseModule')
 	// this method can be called from ANYWHERE (after initialization), thanks to the singleton behaviour of the modules.
 	async requestNewTab(req_url = this.__conf.default_url)
 	{
-		icpChannel.sendSignalToRender('create-tab', Toolbar.toolbar_tab, await this.createNewTab(typeof(req_url) == 'string' ? req_url : url.format(req_url), true));
+		icpChannel.sendSignalToRender('create-tab', this.tab, await this.createNewTab(typeof(req_url) == 'string' ? req_url : url.format(req_url), true));
+	}
+
+	static requestCloseTabId(tab_id)
+	{
+		Toolbar.requestCloseTab(TabsManager.getNameTab(tab_id));
+	}
+
+	static requestCloseTab(tab)
+	{
+		if (!tab || !tab.tab_id) return console.log('[', kleur.green("toolbar") , '] cannot close', tab && tab.tab_id);
+		console.log('[', kleur.green("toolbar") , '] closing', tab.tab_id);
+		icpChannel.sendSignalToRender('close-tab', Toolbar.toolbar_tab, tab.tab_id.substring(4));
 	}
 
 	// force_url can be set to true ONLY from this extension's context, NOT from the browser's new tab request
@@ -85,11 +105,10 @@ class Toolbar extends require('../../lib/BaseModule')
 			preload: path.join(__dirname, '../preload.js'), // Secure bridge
 			...Env.WEBVIEW_DEFAULT_PREFERENCES
 		}});
-		TabsManager.setNewTab(newTab, "tab_" + this.tabs_count++);
 		const tab_url = force_url ? requested_url : url.format(this.__conf.default_url);
 		newTab.webContents.loadURL(tab_url);
 		this.log("Created new tab at url:", tab_url);
-		return getPageTitle(newTab.webContents);
+		return {success: await TabsManager.newTab(newTab, "tab_" + this.tabs_count++), title: await getPageTitle(newTab.webContents)};
 	}
 
 	setActiveTab(index) {
@@ -98,9 +117,10 @@ class Toolbar extends require('../../lib/BaseModule')
 		// mainWindow.webContents.send("tab-switched", { index });
 	}
 
-	closeTab(tabId)
+	closeTab(tab_name)
 	{
-		TabsManager.closeTab(tabId);
+		this.log('renderer requested tab close')
+		TabsManager.closeTabName(tab_name);
 	}
 } 
 
