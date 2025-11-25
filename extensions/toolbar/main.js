@@ -32,37 +32,38 @@ class Toolbar extends BaseModule
 
 	setup()
 	{
+		this.tab = new WebContentsView({
+		webPreferences: {
+			preload: path.join(__dirname, '../single_preload.js'),
+			additionalArguments: ['--load-only=' + path.join(__dirname, 'toolbar_preload.js')],
+			...Env.WEBVIEW_DEFAULT_PREFERENCES
+		}});
+		Toolbar.toolbar_tab = this.tab;
+		this.tab.tab_id = 'toolbar';
+
+		this.tab.webContents.loadURL(url.format({
+			pathname: path.join(__dirname, this.__conf.toolbar_html),
+			protocol: 'file'
+		}));
+
+		this.warn({height: this.__conf.toolbar_width});
+		if (this.__conf.default_url.protocol == 'file') this.__conf.default_url.pathname = path.join(__dirname, this.__conf.default_url.pathname);
+
 		if (this.__conf.hidden != true)
 		{
-			this.tab = new WebContentsView({
-			webPreferences: {
-				preload: path.join(__dirname, '../single_preload.js'),
-				additionalArguments: ['--load-only=' + path.join(__dirname, 'toolbar_preload.js')],
-				...Env.WEBVIEW_DEFAULT_PREFERENCES
-			}});
-			Toolbar.toolbar_tab = this.tab;
-			this.tab.tab_id = 'toolbar';
-
-			this.tab.webContents.loadURL(url.format({
-				pathname: path.join(__dirname, this.__conf.toolbar_html),
-				protocol: 'file'
-			}));
-
-			this.warn({height: this.__conf.toolbar_width});
-			if (this.__conf.default_url.protocol == 'file') this.__conf.default_url.pathname = path.join(__dirname, this.__conf.default_url.pathname);
 			TabsManager.newSideTab(this.tab, 'toolbar', {height: this.__conf.toolbar_width});
 			TabsManager.newDefaultBounds({y: this.__conf.toolbar_width});
-
-			this.newCtrlShortcut('r', () => { this.tab.webContents.reload(); });
-			
-			fs.watch(__dirname, (event) => {if (event == "change") {this.tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
-
-			icpChannel.newMainHandler('created-tab', (_, tab_url) => this.createNewTab(url.format(this.__conf.default_url)));
-			icpChannel.newMainHandler('switch-tab', (_, index) => this.setActiveTab(index));
-			icpChannel.newMainHandler('closed-tab', (_, index) => this.closeTab(TabsManager.idToName(index)));
-
-			this.tab.webContents.openDevTools({mode: 'detach'});
 		}
+
+		this.newCtrlShortcut('r', () => { this.tab.webContents.reload(); });
+		
+		fs.watch(__dirname, (event) => {if (event == "change") {this.tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
+
+		icpChannel.newMainHandler('created-tab', (_, tab_url) => this.createNewTab(url.format(this.__conf.default_url)));
+		icpChannel.newMainHandler('switch-tab', (_, index) => this.setActiveTab(index));
+		icpChannel.newMainHandler('closed-tab', (_, index) => this.closeTab(TabsManager.idToName(index)));
+
+		this.tab.webContents.openDevTools({mode: 'detach'});
 	}
 	
 	late_setup()

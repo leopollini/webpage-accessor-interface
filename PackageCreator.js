@@ -13,12 +13,14 @@ class PackageCreator
 
 	constructor()
 	{
+		this.ensureAppDirectories();
+
 		// loads config file
 		try {
 			const config_file_content = fs.readFileSync(PackageCreator.CONF_FILE_PATH);
 			fs.writeFileSync(path.joinAppData('config.json'), config_file_content);			// Create a readonly copy of currently active config file
 			this.conf = JSON.parse(config_file_content);
-			app.conf.app_info = this.conf.app_info;
+			app.app_info = this.conf.app_info;
 		}
 		catch(e) {console.log('Main: could not load config file:', e); app.exit(0); } // new pc(); return ;}
 		// load data file, if present
@@ -28,15 +30,13 @@ class PackageCreator
 			try
 			{
 				app.data = JSON.parse(fs.readFileSync(PackageCreator.DATA_FILE_PATH));
-				{
-					if (new Date(app.data.last_configured) > new Date(fs.statSync(PackageCreator.CONF_FILE_PATH).birthtime))
-						console.log("New configuration file detected! Creating new extension conf files...");
-					else if (app.data.is_configured == true && !findAppArg('reload-configs'))
-					{
-						console.log("### APP ALREADY CONFIGURED ###");
-						return;
-					}
-				}
+				// if (new Date(app.data.last_configured) > new Date(fs.statSync(PackageCreator.CONF_FILE_PATH).birthtime))
+				// 	console.log("New configuration file detected! Creating new extension conf files...");
+				// else if (app.data.is_configured == true && !findAppArg('reload-configs'))
+				// {
+				// 	console.log("### APP ALREADY CONFIGURED ###");
+				// 	return;
+				// }
 			}
 			catch(e) {console.log('Main: could not load data file. Reconfiguring Webpage Accessor. Error was:', e); }
 		}
@@ -63,9 +63,6 @@ class PackageCreator
 		}
 		console.log("### CONFIGURING PACKAGES ###");
 
-
-		this.createAppDirectories();
-
 		// console.log(conf);
 
 		this.createConfigurations();
@@ -75,11 +72,10 @@ class PackageCreator
 		catch (e) { console.log('Could not create data.json file:', e); }
 		finally {console.log("### CONFIGURATION FINISHED ###")};
 		app.data = data_file_content;
-		app.app_info = app.conf.app_info;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
 	}
 
-	createAppDirectories()
+	ensureAppDirectories()
 	{
 		// Inside AppData
 		[EXT_CONFIGS_DIR].forEach(dir => {
@@ -146,7 +142,19 @@ class PackageCreator
 			return ;
 		}
 		if (!ext.extension) return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because configuration is', kleur.red('missing'));
-		if (!Env.ALWAYS_RECONFIGURE_EXTENSIONS && fs.existsSync(path.joinConfigDir(ext.extension + '.json'))) return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because is already configured');
+		if (!Env.ALWAYS_RECONFIGURE_EXTENSIONS && fs.existsSync(path.joinConfigDir(ext.extension + '.json')))
+		{
+			// return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because is already configured');
+			this.betterLog(depth + 1, 'extension', kleur.grey(name), 'already configured, adding extra content');
+			try
+			{
+				ext = {...ext, ...JSON.parse(fs.readFileSync(path.joinConfigDir(ext.extension + '.json')))};
+			}
+			catch (e)
+			{
+				this.betterLog(depth + 1, 'could not load original content. Overwriting.');
+			}
+		}
 		this.betterLog(depth + 1, 'configuring', kleur.green(name));
 		const ext_name = ext.extension;
 		Reflect.deleteProperty(ext, 'extension');

@@ -35,7 +35,7 @@ class Autoupdater extends require('../../lib/BaseModule')
         }
         this.log("Starting update checks");
 
-        this.updateFunction = autoUpdater.checkForUpdates;
+        this.updateFunction = () => autoUpdater.checkForUpdates();
 
         autoUpdater.on('update-available', info => {
             this.log(`Update available: ${info.version}`);
@@ -73,7 +73,7 @@ class Autoupdater extends require('../../lib/BaseModule')
             dialog.showMessageBox(this.window, {
                 type: 'info',
                 title: 'No updated available',
-                message: ``,
+                message: `Check again later :)`,
                 buttons: ['Ok'] // Button broken at runtime :( fix please
             })
         });

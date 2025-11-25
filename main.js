@@ -58,25 +58,26 @@ async function createMainWindow()
 
 	if (app.data.webpages.length != 0)
 	{
-		for (let i = 0; i < app.data.webpages.length; i++)
-		{
-			console.log("## Creating tab at", app.data.webpages[i]);
-			const PAGE_URL = (app.data && app.data.webpages[i] && url.format(app.data.webpages[i]));
-
-			if (new Toolbar().isActive())
-				new Toolbar().requestNewTab(PAGE_URL);
-			else
+		if (new Toolbar().isActive())
+			for (let i = 0; i < app.data.webpages.length; i++)
 			{
-				const mainTab = new WebContentsView({
-					webPreferences: {
-						preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
-						...Env.WEBVIEW_DEFAULT_PREFERENCES
-					}});
-				
-				mainTab.webContents.loadURL(PAGE_URL);
-				TabsManager.setNewTab(mainTab, i == 0 ? 'main' : 'main_' + i);	// called manually since default tab is created before module initialization (FIX PLEASE)
-				console.log("Loading page:", PAGE_URL);
+				console.log("## Creating tab at", app.data.webpages[i]);
+				const PAGE_URL = (app.data && app.data.webpages[i] && url.format(app.data.webpages[i]));
+				new Toolbar().requestNewTab(PAGE_URL);
 			}
+		else
+		{
+			// Only one tab since there is no Toolbar :(
+			const PAGE_URL = (app.data && app.data.webpages[0] && url.format(app.data.webpages[0]));
+			const mainTab = new WebContentsView({
+				webPreferences: {
+					preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
+					...Env.WEBVIEW_DEFAULT_PREFERENCES
+				}});
+			
+			mainTab.webContents.loadURL(PAGE_URL);
+			TabsManager.setNewTab(mainTab, 'main');	// called manually since default tab is created before module initialization (FIX PLEASE)
+			console.log("Loading page:", PAGE_URL);
 		}
 	}
 	// mainWindow.maximize();
