@@ -33,6 +33,8 @@ class Autoupdater extends require('../../lib/BaseModule')
             this.warn("process.env.APPIMAGE not assigned: this is not an AppImage!");
             return;
         }
+        this.log("Starting update checks");
+
         this.updateFunction = autoUpdater.checkForUpdates;
 
         autoUpdater.on('update-available', info => {

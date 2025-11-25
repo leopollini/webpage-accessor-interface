@@ -12,6 +12,7 @@ class Splashscreen extends require('../../lib/BaseModule')
 
     is_splashscreen = false;
     inputed = true;
+    splash = null;
 
     setup()
     {
@@ -19,6 +20,8 @@ class Splashscreen extends require('../../lib/BaseModule')
 		webPreferences: {
 			...Env.WEBVIEW_DEFAULT_PREFERENCES
 		}});
+
+        this.splash.tab_id = 'splashscreen'
     
         this.splash.webContents.loadURL(url.format(this.__conf.splash_url));
         this.splash.webContents.on('input-event', () => {
@@ -62,7 +65,8 @@ class Splashscreen extends require('../../lib/BaseModule')
     removeSplash()
     {
         this.is_splashscreen = false;
-        TabsManager.unsetTab();
+        if (TabsManager.activeTabName == this.splash.tab_id)
+            TabsManager.unsetTab();
     }
 } 
 

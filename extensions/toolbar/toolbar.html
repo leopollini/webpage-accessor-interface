@@ -18,6 +18,8 @@
 			border-radius: 4px 4px 0 0;
 			cursor: pointer;
 			position: relative;
+
+    		flex-shrink: 1;
 			
 			max-width: 100px;        /* limit tab width */
 			white-space: nowrap;      /* prevent wrapping */
@@ -25,9 +27,12 @@
 			text-overflow: ellipsis;  /* show "..." for long text */
 		}
 		.tab.active {
+			text-overflow: ellipsis;  /* show "..." for long text */
 			background: white;
+
+    		flex-shrink: 0;
+
 			border-bottom: 0px solid white;
-			min-width: 100px;        /* limit tab width */
 			max-width: 200px;        /* limit tab width */
 		}
 		.tab .close {
@@ -41,6 +46,8 @@
 			font-size: 12px;
 			white-space: nowrap;
 			overflow: hidden;
+
+    		flex-shrink: 0;
 		}
 		#viewContainer {
 			position: absolute;
@@ -80,20 +87,21 @@ let tabs = [];
 let activeTab = null;
 let tabCount = 0;
 
-newTabBtn.addEventListener('click', () => {
+function newTabFunction()
+{
 	console.log("new tab requested");
 	requestNewTab('asdasdasdasd');
-}, {once: true});
+}
+
+newTabBtn.addEventListener('click', newTabFunction, {once: true});
 
 async function requestNewTab(content)
 {
 	activeTab = null;
 	createTab(await window.manage_tabs.createdTab(content));
 
-	newTabBtn.addEventListener('click', async () => {
-		console.log("new tab requested");
-		requestNewTab('asdasdasdasd');
-	}, {once: true});
+	newTabBtn.removeEventListener('click', newTabFunction);
+	newTabBtn.addEventListener('click', newTabFunction, {once: true});
 }
 
 async function createTab({title, success, id}) {
@@ -128,7 +136,7 @@ async function createTab({title, success, id}) {
 function renameTab({id, new_title})
 {
 	tabs.forEach(tabEl => {
-		if (tabEl.id === id)
+		if (tabEl.id === id && tabEl)
 		{
 			tabEl.removeChild(tabEl.buttonEl);
 			tabEl.textContent = new_title;

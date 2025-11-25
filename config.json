@@ -6,7 +6,7 @@
 			"name": "Leonardo Pollini",
 			"email": "leopollinik@gmail.com"
 		},
-		"version": "0.0.23",
+		"version": "0.0.24",
 		"autoupdate": false,
 		"electron_package": "package.json",
 		"app_name": "Webpage Accessor",
@@ -47,7 +47,7 @@
 				},
 				"keyboard_config":
 				{
-					"enabled": false,
+					"enabled": true,
 					"whitelist": false,
 					"blacklist": [],
 					"extension": "keyboard-config"
@@ -55,9 +55,9 @@
 				"mouse_config": {},
 				"splashscreen":
 				{
-					"enabled": false,
+					"enabled": true,
 					"extension": "splashscreen",
-					"splash_timeout": 5,
+					"splash_timeout": 50,
 					"splash_url":
 					{
 						"pathname": "google.com",
@@ -91,7 +91,7 @@
 					"allow_target_blank": true,
 					"default_url":
 					{
-						"pathname": "pms.parchotels.dev",
+						"pathname": "example.com",
 						"protocol": "https"
 					}
 				},
@@ -125,7 +125,7 @@
 					"enabled": true,
 					"extension": "autoupdate",
 					"auto_download": false,
-					"ask_update_on_start": false,
+					"ask_update_on_start": true,
 					"update_mode":
 					{
 						"mode": "long_press",
@@ -139,12 +139,20 @@
 	"default_data":
 	{
 		"fullscreen": false,
-		"autostart": false,
+		"autostart": true,
 		"autorestart": false,
 		"autoreload": false,
 		"allow_navigation": true,
 		"webpages":
 		[
+			{
+				"pathname": "example.com",
+				"protocol": "https"
+			},
+			{
+				"pathname": "google.com",
+				"protocol": "https"
+			}
 		]
 	}
 }

@@ -36,7 +36,8 @@ class WindowSetup extends BaseModule
 	ctrlW(tab)
 	{
 		console.log("pressed ctrl+w on tab", tab.tab_id, 'closing', TabsManager.getActiveTab().tab_id)
-		Toolbar.requestCloseTab(TabsManager.getActiveTab());
+		if (Toolbar)
+			new Toolbar().requestCloseTab(TabsManager.getActiveTab());
 	}
 
 	setup()

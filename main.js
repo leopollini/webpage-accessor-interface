@@ -8,6 +8,7 @@ const { DATA_FILE_PATH: DATA_CONF_PATH } = require('./lib/Constants');
 const TabsManager = require('./lib/TabsManager');
 const Loader = require('./extensions/loader');
 const kleur = require('kleur');
+const Toolbar = require('./extensions/toolbar/main');
 
 const DATA_FILE_PATH = path.joinAppData(DATA_CONF_PATH);
 const BASE_URL = url.format({
@@ -33,15 +34,15 @@ async function createMainWindow()
 
 	const {height, width} = screen.getPrimaryDisplay().workAreaSize;
 	app.displaySize = {height: height, width: width}
-	console.log('######## ICON FILE>', fs.existsSync( path.join(__dirname, 'assets/icons/icon.png'),));
+	// console.log('######## ICON FILE>', fs.existsSync( path.join(__dirname, 'build/icons/icon.png'),));
 	const mainWindow = new BaseWindow({
 		tabbingIdentifier: "myTabs",
-		title: "Electron",
-		// width: width / 2,
-		// height: height / 2,
+		title: app.app_info.app_name || "Electron",
+		width: width / 2,
+		height: height / 2,
 		fullscreenable: true,
 		autoHideMenuBar: true,
-		icon: path.join(__dirname, 'assets/icons/icon.png'),
+		icon: path.join(__dirname, 'build/icons/icon.png'),
 	});
 	TabsManager.setup(mainWindow);
 
@@ -57,18 +58,29 @@ async function createMainWindow()
 
 	if (app.data.webpages.length != 0)
 	{
-		const mainTab = new WebContentsView({
-			webPreferences: {
-				preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
-				...Env.WEBVIEW_DEFAULT_PREFERENCES
-			}});
-		const PAGE_URL = (app.data && app.data.webpages[0] && url.format(app.data.webpages[0])) || BASE_URL;
-		mainTab.webContents.loadURL(PAGE_URL);
-		
-		TabsManager.setNewTab(mainTab, 'main');	// called manually since default tab is created before module initialization (FIX PLEASE)
-		console.log("Loading page:", PAGE_URL);
+		for (let i = 0; i < app.data.webpages.length; i++)
+		{
+			console.log("## Creating tab at", app.data.webpages[i]);
+			const PAGE_URL = (app.data && app.data.webpages[i] && url.format(app.data.webpages[i]));
+
+			if (new Toolbar().isActive())
+				new Toolbar().requestNewTab(PAGE_URL);
+			else
+			{
+				const mainTab = new WebContentsView({
+					webPreferences: {
+						preload: path.join(__dirname, 'extensions/preload.js'), // Secure bridge
+						...Env.WEBVIEW_DEFAULT_PREFERENCES
+					}});
+				
+				mainTab.webContents.loadURL(PAGE_URL);
+				TabsManager.setNewTab(mainTab, i == 0 ? 'main' : 'main_' + i);	// called manually since default tab is created before module initialization (FIX PLEASE)
+				console.log("Loading page:", PAGE_URL);
+			}
+		}
 	}
 	// mainWindow.maximize();
+	
 }
 
 // Only main-side!!! Check app console for preload fails

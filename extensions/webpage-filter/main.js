@@ -19,7 +19,7 @@ class WebpageFilter extends BaseModule
 		newTab.webContents.once('did-start-navigation', (event, req_url) => {
 			this.warn('Checking url:', req_url);
 			if (this.isBadPage(url.parse(req_url)))
-				Toolbar.requestCloseTab(newTab);
+				new Toolbar().requestCloseTab(newTab);
 		});
 	}
 

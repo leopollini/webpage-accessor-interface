@@ -15,7 +15,7 @@ class Toolbar extends BaseModule
 {
 	MODULE_NAME = "toolbar";    // MUST be the same as the 'extension' field in config.json
 	static toolbar_tab;
-	tabs_count = 0;
+	static tabs_count = 0;
 	track_active_tab = false;
 	first_avoided = false;
 
@@ -23,8 +23,8 @@ class Toolbar extends BaseModule
 	{
 		new_tab.webContents.setWindowOpenHandler((details) => {
 			this.log('preventing window creation by opening new tab at', details.url);
-			if (this.__conf.allow_target_blank == true)
-				this.requestNewTab(details.url);
+			// if (this.__conf.allow_target_blank == true)
+			// 	this.requestNewTab(details.url);
 			return {action: 'deny'}
 		});
 		this.log('done set');
@@ -67,18 +67,21 @@ class Toolbar extends BaseModule
 	
 	late_setup()
 	{
-        this.tab.webContents.on('before-input-event', (event, input) => {
-			if (input.key)
-			{
-				this.warn("forwarding event to active tab");
-				TabsManager.getActiveTab().webContents.send('before-input-event', event, input);
-				event.preventDefault();
-			}
-		});
-		new (require('../window-events/main'))().onNewTabCreated(this.tab);
+		if (this.tab)
+		{
+			this.tab.webContents.on('before-input-event', (event, input) => {
+				if (input.key)
+				{
+					this.warn("forwarding event to active tab");
+					TabsManager.getActiveTab().webContents.send('before-input-event', input);
+					event.preventDefault();
+				}
+			});
+			// new (require('../window-events/main'))().onNewTabCreated(this.tab);
 
-		if (this.__conf.create_on_open == true || Object.keys(TabsManager.tabs).length == 0)
-			this.requestNewTab();
+			if (this.__conf.create_on_open == true || Object.keys(TabsManager.tabs).length == 0)
+				this.requestNewTab();
+		}
 	}
 
 	// this method can be called from ANYWHERE (after initialization), thanks to the singleton behaviour of the modules.
@@ -87,12 +90,13 @@ class Toolbar extends BaseModule
 		icpChannel.sendSignalToRender('create-tab', this.tab, await this.createNewTab(typeof(req_url) == 'string' ? req_url : url.format(req_url), true));
 	}
 
-	static requestCloseTabId(tab_id)
+	requestCloseTabId(tab_id)
 	{
-		Toolbar.requestCloseTab(TabsManager.getNameTab(tab_id));
+		
+		this.requestCloseTab(TabsManager.getNameTab(tab_id));
 	}
 
-	static requestCloseTab(tab)
+	requestCloseTab(tab)
 	{
 		if (!tab || !tab.tab_id) return console.log('[', kleur.green("toolbar") , '] cannot close', tab && tab.tab_id);
 		console.log('[', kleur.green("toolbar") , '] closing', tab.tab_id);
@@ -110,13 +114,13 @@ class Toolbar extends BaseModule
 		}});
 		const tab_url = force_url ? requested_url : url.format(this.__conf.default_url);
 		newTab.webContents.loadURL(tab_url);
-		this.log("Created new tab at url:", tab_url);
+		this.log("Created new tab at url:", tab_url, 'name:', "tab_" + Toolbar.tabs_count);
 		this.setTitleTracker(newTab);
-		return {success: await TabsManager.setNewTab(newTab, "tab_" + this.tabs_count++), title: await getPageTitle(newTab.webContents), id: newTab.tab_id};
+		return {success: await TabsManager.newTab(newTab, "tab_" + Toolbar.tabs_count++), title: await getPageTitle(newTab.webContents), id: newTab.tab_id};
 	}
 
 	async setActiveTab(index) {
-		if (index < 0 || index >= this.tabs_count) return;
+		if (index < 0 || index >= Toolbar.tabs_count) return;
 		TabsManager.setTab(/*index == 0 ? 'main' : */'tab_' + index);
 		// mainWindow.webContents.send("tab-switched", { index });
 	}
