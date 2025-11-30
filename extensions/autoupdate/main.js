@@ -45,9 +45,8 @@ class Autoupdater extends require('../../lib/BaseModule')
                 message: `Version ${info.version} is available. Download now?`,
                 buttons: ['Yes', 'Later']
             }).then(result => {
-                if (result.response === 0) {
+                if (result.response === 0)
                     autoUpdater.downloadUpdate();
-                }
                 else
                     this.warn("User refused to update");
             });
@@ -70,12 +69,7 @@ class Autoupdater extends require('../../lib/BaseModule')
 
         autoUpdater.on('update-not-available', () => {
             this.log('No updates available.');
-            dialog.showMessageBox(this.window, {
-                type: 'info',
-                title: 'No updated available',
-                message: `Check again later :)`,
-                buttons: ['Ok'] // Button broken at runtime :( fix please
-            })
+            dialog.showErrorBox('No updated available', `Check again later :)`)
         });
 
         autoUpdater.on('error', err => {

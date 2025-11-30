@@ -1,4 +1,4 @@
-const { app } = require('electron');
+const { app, dialog } = require('electron');
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
@@ -8,8 +8,9 @@ const { findAppArg } = require('./lib/utils');
 
 class PackageCreator
 {
-	static CONF_FILE_PATH = path.join(__dirname, 'config.json');
+	static CONF_FILE_PATH = Env.IS_EXECUTABLE ?  path.joinAppData('config.json') : path.join(__dirname, 'config.json');
 	static DATA_FILE_PATH = path.joinConfigDir(DATA_FILE_PATH);
+	static PC_SUCCESS = false;
 
 	constructor()
 	{
@@ -22,7 +23,32 @@ class PackageCreator
 			this.conf = JSON.parse(config_file_content);
 			app.app_info = this.conf.app_info;
 		}
-		catch(e) {console.log('Main: could not load config file:', e); app.exit(0); } // new pc(); return ;}
+		catch(e) {
+			// Choose a new config file for the appp
+			app.on('ready', () => {			
+				console.log('Main: could not load config file:', e);
+				dialog.showErrorBox('Bad Config', `Please chose a valid config file and restart the app.`);
+				dialog.showOpenDialog({
+					title: "Select Config File",
+					buttonLabel: "Load",
+					properties: ["openFile"],
+					filters: [{ name: "JSON Files", extensions: ["json"] }]
+				}).then(({canceled, filePaths}) => {
+					if (canceled || !filePaths || filePaths.length == 0)
+					{
+						console.log("Bad File Selected:", canceled, filePaths);
+						app.quit();
+						return;
+					}
+					console.log("## new config file at", filePaths[0])
+					// fs.rmSync(PackageCreator.CONF_FILE_PATH);
+					fs.linkSync(filePaths[0], PackageCreator.CONF_FILE_PATH);
+					app.quit();
+					return ;
+				});
+			});
+			return
+		}
 		// load data file, if present
 
 		if (fs.existsSync(PackageCreator.DATA_FILE_PATH))
@@ -72,6 +98,7 @@ class PackageCreator
 		catch (e) { console.log('Could not create data.json file:', e); }
 		finally {console.log("### CONFIGURATION FINISHED ###")};
 		app.data = data_file_content;
+		PackageCreator.PC_SUCCESS = true;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
 	}
 

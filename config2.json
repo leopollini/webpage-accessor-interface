@@ -6,7 +6,7 @@
 			"name": "Leonardo Pollini",
 			"email": "leopollinik@gmail.com"
 		},
-		"version": "0.0.21",
+		"version": "0.0.33",
 		"autoupdate": false,
 		"electron_package": "package.json",
 		"app_name": "Webpage Accessor",
@@ -47,8 +47,7 @@
 				},
 				"keyboard_config":
 				{
-					"not_created_yet": "lol",
-					"enabled": false,
+					"enabled": true,
 					"whitelist": false,
 					"blacklist": [],
 					"extension": "keyboard-config"
@@ -56,9 +55,9 @@
 				"mouse_config": {},
 				"splashscreen":
 				{
-					"enabled": true,
+					"enabled": false,
 					"extension": "splashscreen",
-					"splash_timeout": 5,
+					"splash_timeout": 50,
 					"splash_url":
 					{
 						"pathname": "google.com",
@@ -72,20 +71,29 @@
 			"enabled": true,
 			"actions":
 			{
+				"webpage_filter":
+				{
+					"enabled": true,
+					"hosts_whitelist": [],
+					"hosts_blacklist": [],
+					"webpages_whitelist": [],
+					"webpages_blacklist": [],
+					"allow_navigation": true,
+					"extension": "webpage-filter"
+				},
 				"toolbar":
 				{
-					"enabled": false,
+					"enabled": true,
 					"hidden": false,
 					"toolbar_width": 50,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",
-					"allow_target_blank": false,
+					"allow_target_blank": true,
 					"default_url":
 					{
-						"pathname": "service.parchotels.it",
+						"pathname": "example.com",
 						"protocol": "https"
-					},
-					"create_on_open": true
+					}
 				},
 				"electron-api":
 				{
@@ -117,7 +125,7 @@
 					"enabled": true,
 					"extension": "autoupdate",
 					"auto_download": false,
-					"ask_update_on_start": false,
+					"ask_update_on_start": true,
 					"update_mode":
 					{
 						"mode": "long_press",
@@ -131,14 +139,14 @@
 	"default_data":
 	{
 		"fullscreen": false,
-		"autostart": false,
+		"autostart": true,
 		"autorestart": false,
 		"autoreload": false,
 		"allow_navigation": true,
 		"webpages":
 		[
 			{
-				"pathname": "service.parchotels.it",
+				"pathname": "streaming-community.ink/",
 				"protocol": "https"
 			}
 		]

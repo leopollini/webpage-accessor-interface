@@ -32,6 +32,7 @@ class Toolbar extends BaseModule
 
 	setup()
 	{
+
 		this.tab = new WebContentsView({
 		webPreferences: {
 			preload: path.join(__dirname, '../single_preload.js'),
@@ -55,9 +56,9 @@ class Toolbar extends BaseModule
 			TabsManager.newDefaultBounds({y: this.__conf.toolbar_width});
 		}
 
-		this.newCtrlShortcut('r', () => { this.tab.webContents.reload(); });
+		// this.newCtrlShortcut('r', () => { this.tab.webContents.reload(); });
 		
-		fs.watch(__dirname, (event) => {if (event == "change") {this.tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
+		// fs.watch(__dirname, (event) => {if (event == "change") {this.tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
 
 		icpChannel.newMainHandler('created-tab', (_, tab_url) => this.createNewTab(url.format(this.__conf.default_url)));
 		icpChannel.newMainHandler('switch-tab', (_, index) => this.setActiveTab(index));
@@ -80,7 +81,7 @@ class Toolbar extends BaseModule
 			});
 			// new (require('../window-events/main'))().onNewTabCreated(this.tab);
 
-			if (this.__conf.create_on_open == true || Object.keys(TabsManager.tabs).length == 0)
+			if (this.__conf.create_on_open == true || !TabsManager.isTabActive())
 				this.requestNewTab();
 		}
 	}

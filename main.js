@@ -29,6 +29,8 @@ new pc();
 
 async function createMainWindow()
 {
+	if (!pc.PC_SUCCESS)
+		return ;
 	if (Env.DEBUG_MODE && app.data && app.data.version)
 		console.log("### WELCOME TO VERSION", app.data.version, "###");
 
