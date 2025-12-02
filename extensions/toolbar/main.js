@@ -71,17 +71,16 @@ class Toolbar extends BaseModule
 	{
 		if (this.tab)
 		{
-			this.tab.webContents.on('before-input-event', (event, input) => {
-				if (input.key)
-				{
-					this.warn("forwarding event to active tab");
-					TabsManager.getActiveTab().webContents.send('before-input-event', input);
-					event.preventDefault();
-				}
-			});
-			// new (require('../window-events/main'))().onNewTabCreated(this.tab);
-
-			if (this.__conf.create_on_open == true || !TabsManager.isTabActive())
+			// this.tab.webContents.on('before-input-event', (event, input) => {
+			// 	if (input.key)
+			// 	{
+			// 		this.warn("forwarding event to active tab");
+			// 		TabsManager.getActiveTab().webContents.send('before-input-event', input);
+			// 		event.preventDefault();
+			// 	}
+			// });
+			new (require('../window-events/main'))().onNewTabCreated(this.tab);
+			if (this.__data.webpages.length == 0 && this.__conf.create_on_open == true)
 				this.requestNewTab();
 		}
 	}
@@ -123,7 +122,7 @@ class Toolbar extends BaseModule
 
 	async setActiveTab(index) {
 		if (index < 0 || index >= Toolbar.tabs_count) return;
-		TabsManager.setTab(/*index == 0 ? 'main' : */'tab_' + index);
+		TabsManager.setTab(/*index == 0 ? 'main' : */'tab_' + index, null);
 		// mainWindow.webContents.send("tab-switched", { index });
 	}
 
@@ -131,6 +130,7 @@ class Toolbar extends BaseModule
 	{
 		this.log('renderer requested tab close')
 		TabsManager.closeTabName(tab_name);
+		this.tab.webContents.focus();
 	}
 
 	setTitleTracker(tab)

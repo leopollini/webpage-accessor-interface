@@ -1,6 +1,6 @@
 {
 	"name": "webpage_accessor",
-	"version": "0.0.33",
+	"version": "0.0.34",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
 		"name": "Leonardo Pollini",

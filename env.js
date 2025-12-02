@@ -2,6 +2,7 @@
 
 class Env
 {
+	static ROOT_LOCATION;
 	static IS_EXECUTABLE = process.env.APPIMAGE;
 	static DEBUG_MODE = true;
 	static get VERBOSE() {return this.DEBUG_MODE};

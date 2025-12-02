@@ -25,6 +25,8 @@ app.data = {};
 app.enabled_modules = [];
 app.app_info = {};
 
+Env.ROOT_LOCATION = __dirname;
+
 new pc();
 
 async function createMainWindow()
@@ -56,8 +58,6 @@ async function createMainWindow()
 		checkActiveModules();
 	}
 
-	Loader.lateLoad();
-
 	if (app.data.webpages.length != 0)
 	{
 		if (new Toolbar().isActive())
@@ -78,10 +78,12 @@ async function createMainWindow()
 				}});
 			
 			mainTab.webContents.loadURL(PAGE_URL);
-			TabsManager.setNewTab(mainTab, 'main');	// called manually since default tab is created before module initialization (FIX PLEASE)
+			TabsManager.setNewTab(mainTab, 'main', true, undefined, null);	// called manually since default tab is created before module initialization (FIX PLEASE)
 			console.log("Loading page:", PAGE_URL);
 		}
 	}
+
+	Loader.lateLoad();
 	// mainWindow.maximize();
 	
 }

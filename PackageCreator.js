@@ -2,7 +2,7 @@ const { app, dialog } = require('electron');
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const { EXT_CONFIGS_DIR, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX, DATA_FILE_PATH } = require('./lib/Constants');
+const { EXT_CONFIGS_DIR, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX, DATA_FILE_PATH, SAMPLE_CONFIGS_DIR } = require('./lib/Constants');
 const Env = require('./env');
 const { findAppArg } = require('./lib/utils');
 
@@ -19,12 +19,12 @@ class PackageCreator
 		// loads config file
 		try {
 			const config_file_content = fs.readFileSync(PackageCreator.CONF_FILE_PATH);
-			fs.writeFileSync(path.joinAppData('config.json'), config_file_content);			// Create a readonly copy of currently active config file
 			this.conf = JSON.parse(config_file_content);
 			app.app_info = this.conf.app_info;
 		}
 		catch(e) {
-			// Choose a new config file for the appp
+			// Choose a new config file for the app
+			this.unpackSampleConfigs();
 			app.on('ready', () => {			
 				console.log('Main: could not load config file:', e);
 				dialog.showErrorBox('Bad Config', `Please chose a valid config file and restart the app.`);
@@ -50,6 +50,9 @@ class PackageCreator
 			return
 		}
 		// load data file, if present
+
+		this.conf.app_info.version = app.getVersion();
+		fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 4));
 
 		if (fs.existsSync(PackageCreator.DATA_FILE_PATH))
 		{
@@ -94,7 +97,7 @@ class PackageCreator
 		this.createConfigurations();
 
 		let data_file_content = {...this.conf.default_data, is_configured: true, ...this.conf.app_info, last_configured: Date.now()}
-		try { fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(data_file_content, null, 2)); }
+		try { fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(data_file_content, null, 4)); }
 		catch (e) { console.log('Could not create data.json file:', e); }
 		finally {console.log("### CONFIGURATION FINISHED ###")};
 		app.data = data_file_content;
@@ -102,10 +105,15 @@ class PackageCreator
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
 	}
 
+	unpackSampleConfigs()
+	{
+		fs.copy(path.joinDataDir(SAMPLE_CONFIGS_DIR), path.joinAppData(SAMPLE_CONFIGS_DIR), { overwrite: true });
+	}
+
 	ensureAppDirectories()
 	{
 		// Inside AppData
-		[EXT_CONFIGS_DIR].forEach(dir => {
+		[EXT_CONFIGS_DIR, SAMPLE_CONFIGS_DIR].forEach(dir => {
 			dir = path.joinAppData(dir);
 			if (!fs.existsSync(dir))
 			{
@@ -191,7 +199,7 @@ class PackageCreator
 				if (cnf[0] != 'enabled') this.betterLog(depth + 1, " ", cnf);
 			});
 		}
-		fs.writeFileSync(path.joinConfigDir(ext_name + '.json'), JSON.stringify(ext, null, 2));
+		fs.writeFileSync(path.joinConfigDir(ext_name + '.json'), JSON.stringify(ext, null, 4));
 	}
 
 	betterLog(depth, ...msg)
