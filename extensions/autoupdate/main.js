@@ -18,7 +18,7 @@ class Autoupdater extends require('../../lib/BaseModule')
 
     updateFunction = () => {this.log("autoupdater not configured");};
 
-    setup_linux()
+    setup()
     {
         this.EXECUTABLE_NAME = app.app_info.app_executable | 'webpage-accessor';
         this.DOWNLOAD_PATH = app.getPath("downloads");
@@ -28,9 +28,9 @@ class Autoupdater extends require('../../lib/BaseModule')
         autoUpdater.autoDownload = (this.getAppData().auto_downalod == true); // ask first
         autoUpdater.autoInstallOnAppQuit = true; // install after app closes
 
-        if (!process.env.APPIMAGE)
+        if (!Env.IS_EXECUTABLE)
         {
-            this.warn("process.env.APPIMAGE not assigned: this is not an AppImage!");
+            this.warn("Updater not running: this is app is not packaged!");
             return;
         }
         this.log("Starting update checks");

@@ -26,11 +26,15 @@ app.enabled_modules = [];
 app.app_info = {};
 
 Env.ROOT_LOCATION = __dirname;
+Env.IS_EXECUTABLE = true; //app.isPackaged || !!process.env.APPIMAGE || require('path').extname(app.getPath('exe')).toLowerCase() === '.exe';
+
+console.log("ASDASD", Env.IS_EXECUTABLE);
 
 new pc();
 
 async function createMainWindow()
 {
+	
 	if (!pc.PC_SUCCESS)
 		return ;
 	if (Env.DEBUG_MODE && app.data && app.data.version)

@@ -1,9 +1,10 @@
 // Here be only static defined variables used for debugging purposes
+const { app } = require('electron');
 
 class Env
 {
-	static ROOT_LOCATION;
-	static IS_EXECUTABLE = process.env.APPIMAGE;
+	static ROOT_LOCATION;		// set in main.js
+	static IS_EXECUTABLE;		// set in main.js
 	static DEBUG_MODE = true;
 	static get VERBOSE() {return this.DEBUG_MODE};
 	static ALWAYS_RECONFIGURE_EXTENSIONS = false;

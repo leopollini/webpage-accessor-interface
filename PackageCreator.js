@@ -2,13 +2,13 @@ const { app, dialog } = require('electron');
 const path = require('./lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const { EXT_CONFIGS_DIR, LINUX_AUTOSTART_DIR, HOME_BIN_LINUX, DATA_FILE_PATH, SAMPLE_CONFIGS_DIR } = require('./lib/Constants');
+const { EXT_CONFIGS_DIR, LINUX_AUTOSTART_LOCATION, HOME_BIN_LINUX, DATA_FILE_PATH, SAMPLE_CONFIGS_DIR } = require('./lib/Constants');
 const Env = require('./env');
 const { findAppArg } = require('./lib/utils');
 
 class PackageCreator
 {
-	static CONF_FILE_PATH = Env.IS_EXECUTABLE ?  path.joinAppData('config.json') : path.join(__dirname, 'config.json');
+	static CONF_FILE_PATH = Env.IS_EXECUTABLE ? path.joinAppData('config.json') : path.join(__dirname, 'config.json');
 	static DATA_FILE_PATH = path.joinConfigDir(DATA_FILE_PATH);
 	static PC_SUCCESS = false;
 
@@ -31,6 +31,7 @@ class PackageCreator
 				dialog.showOpenDialog({
 					title: "Select Config File",
 					buttonLabel: "Load",
+					defaultPath: path.joinAppData(SAMPLE_CONFIGS_DIR),
 					properties: ["openFile"],
 					filters: [{ name: "JSON Files", extensions: ["json"] }]
 				}).then(({canceled, filePaths}) => {
@@ -51,23 +52,13 @@ class PackageCreator
 		}
 		// load data file, if present
 
-		this.conf.app_info.version = app.getVersion();
-		fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 4));
-
 		if (fs.existsSync(PackageCreator.DATA_FILE_PATH))
 		{
 			try
 			{
 				app.data = JSON.parse(fs.readFileSync(PackageCreator.DATA_FILE_PATH));
-				// if (new Date(app.data.last_configured) > new Date(fs.statSync(PackageCreator.CONF_FILE_PATH).birthtime))
-				// 	console.log("New configuration file detected! Creating new extension conf files...");
-				// else if (app.data.is_configured == true && !findAppArg('reload-configs'))
-				// {
-				// 	console.log("### APP ALREADY CONFIGURED ###");
-				// 	return;
-				// }
 			}
-			catch(e) {console.log('Main: could not load data file. Reconfiguring Webpage Accessor. Error was:', e); }
+			catch(e) {console.log('Main: could not load data file. Reconfiguring data.json. Error was:', e); }
 		}
 		if (Env.CLEAR_CONFS_ON_RESTART)
 		{
@@ -96,7 +87,10 @@ class PackageCreator
 
 		this.createConfigurations();
 
-		let data_file_content = {...this.conf.default_data, is_configured: true, ...this.conf.app_info, last_configured: Date.now()}
+		this.conf.app_info.version = app.getVersion();
+		this.conf.app_info.last_configured = Date.now();
+		// the object's unpacking order is VERY important: first the incoming data from the config file, then whatever whas set in data.json before launching, then the incoming app info, then some extra info.
+		let data_file_content = {...this.conf.default_data, ...app.data, ...this.conf.app_info, is_configured: true}
 		try { fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(data_file_content, null, 4)); }
 		catch (e) { console.log('Could not create data.json file:', e); }
 		finally {console.log("### CONFIGURATION FINISHED ###")};
@@ -107,7 +101,7 @@ class PackageCreator
 
 	unpackSampleConfigs()
 	{
-		fs.copy(path.joinDataDir(SAMPLE_CONFIGS_DIR), path.joinAppData(SAMPLE_CONFIGS_DIR), { overwrite: true });
+		fs.cp(path.joinRootDir(SAMPLE_CONFIGS_DIR), path.joinAppData(SAMPLE_CONFIGS_DIR), { recursive: true, force: true }, () => {});
 	}
 
 	ensureAppDirectories()
@@ -123,7 +117,7 @@ class PackageCreator
 		});
 
 		// Not inside AppData
-		[LINUX_AUTOSTART_DIR, HOME_BIN_LINUX].forEach(dir => {
+		[LINUX_AUTOSTART_LOCATION, HOME_BIN_LINUX].forEach(dir => {
 			dir = path.join(dir);
 			if (!fs.existsSync(dir))
 			{

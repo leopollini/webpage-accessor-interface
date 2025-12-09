@@ -167,9 +167,12 @@ function removeTab(tabEl)
 	console.log("ALL TABS:", tabs);
 	tabs = tabs.filter(tab => tab.dataset.index !== tabEl.dataset.index);
 	console.log("ALL TABS:", tabs);
+	const next = tabEl.nextElementSibling;
+	const prev = tabEl.previousElementSibling
+	console.log("next:", next, "; prev:", prev);
 	tabEl.remove();
     if (tabs.length != 0)
-		activateTab(tabs[0]);
+		activateTab(next.id == 'newTabBtn' ? prev : next);
 	else
 		requestNewTab({title: 'asdasdasd', success: 'true'});
 }

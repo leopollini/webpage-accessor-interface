@@ -23,8 +23,9 @@ class Toolbar extends BaseModule
 	{
 		new_tab.webContents.setWindowOpenHandler((details) => {
 			this.log('preventing window creation by opening new tab at', details.url);
-			// if (this.__conf.allow_target_blank == true)
-			// 	this.requestNewTab(details.url);
+			if (this.__conf.allow_target_blank == true)
+				this.requestNewTab(details.url);
+			this.focusToolbar();
 			return {action: 'deny'}
 		});
 		this.log('done set');
@@ -64,7 +65,7 @@ class Toolbar extends BaseModule
 		icpChannel.newMainHandler('switch-tab', (_, index) => this.setActiveTab(index));
 		icpChannel.newMainHandler('closed-tab', (_, index) => this.closeTab(TabsManager.idToName(index)));
 
-		this.tab.webContents.openDevTools({mode: 'detach'});
+		// this.tab.webContents.openDevTools({mode: 'detach'});
 	}
 	
 	late_setup()
@@ -102,6 +103,7 @@ class Toolbar extends BaseModule
 		if (!tab || !tab.tab_id) return console.log('[', kleur.green("toolbar") , '] cannot close', tab && tab.tab_id);
 		console.log('[', kleur.green("toolbar") , '] closing', tab.tab_id);
 		icpChannel.sendSignalToRender('close-tab', Toolbar.toolbar_tab, tab.tab_id.substring(4));
+		this.focusToolbar();
 		TabsManager.closeTab(tab);
 	}
 
@@ -130,7 +132,7 @@ class Toolbar extends BaseModule
 	{
 		this.log('renderer requested tab close')
 		TabsManager.closeTabName(tab_name);
-		this.tab.webContents.focus();
+		this.focusToolbar();
 	}
 
 	setTitleTracker(tab)
@@ -141,6 +143,11 @@ class Toolbar extends BaseModule
 			icpChannel.sendSignalToRender('rename-tab', this.tab, {id: tab.tab_id, new_title: new_title});
 		});
 	}
-} 
+
+	focusToolbar()
+	{
+		this.tab.webContents.focus();
+	}
+}
 
 module.exports = Toolbar;
