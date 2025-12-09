@@ -4,3 +4,5 @@ out/
 dist
 extensions_conf
 github_token
+.stfolder
+.stignore

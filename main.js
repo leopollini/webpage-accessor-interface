@@ -26,14 +26,19 @@ app.enabled_modules = [];
 app.app_info = {};
 
 Env.ROOT_LOCATION = __dirname;
-Env.IS_EXECUTABLE = true; //app.isPackaged || !!process.env.APPIMAGE || require('path').extname(app.getPath('exe')).toLowerCase() === '.exe';
 
-console.log("ASDASD", Env.IS_EXECUTABLE);
+try {
+	console.log("Is Executable TESTS", app.isPackaged, !!process.env.APPIMAGE, require('path').extname(app.getPath('exe')).toLowerCase() === '.exe');
+} catch {}
+console.log("app root is at", __dirname);
+console.log("AppData is at", path.appDataDir);
+console.log("Printing Env", Env);
+console.log("config.json is at", pc.CONF_FILE_PATH);
 
-new pc();
 
 async function createMainWindow()
 {
+	new pc();
 	
 	if (!pc.PC_SUCCESS)
 		return ;
@@ -96,9 +101,10 @@ async function createMainWindow()
 function checkActiveModules()
 {
 	console.log('CHECKING ACTIVE MODULES:');
-	app.enabled_modules.forEach(function (e) {
-		e.log(e.isActive() ? kleur.yellow('true') : kleur.red('false'));
+	app.enabled_modules.forEach(function (mod) {
+		mod.log(mod.isActive() ? kleur.yellow('true') : kleur.red('false') + " (" + (mod.fail_reason ? mod.fail_reason : "unknown") + ")");
 	});
+	console.log('DONE CHECK');
 }
 
 app.on('ready', createMainWindow);

@@ -23,32 +23,11 @@ class PackageCreator
 			app.app_info = this.conf.app_info;
 		}
 		catch(e) {
-			// Choose a new config file for the app
-			this.unpackSampleConfigs();
-			app.on('ready', () => {			
-				console.log('Main: could not load config file:', e);
-				dialog.showErrorBox('Bad Config', `Please chose a valid config file and restart the app.`);
-				dialog.showOpenDialog({
-					title: "Select Config File",
-					buttonLabel: "Load",
-					defaultPath: path.joinAppData(SAMPLE_CONFIGS_DIR),
-					properties: ["openFile"],
-					filters: [{ name: "JSON Files", extensions: ["json"] }]
-				}).then(({canceled, filePaths}) => {
-					if (canceled || !filePaths || filePaths.length == 0)
-					{
-						console.log("Bad File Selected:", canceled, filePaths);
-						app.quit();
-						return;
-					}
-					console.log("## new config file at", filePaths[0])
-					// fs.rmSync(PackageCreator.CONF_FILE_PATH);
-					fs.linkSync(filePaths[0], PackageCreator.CONF_FILE_PATH);
-					app.quit();
-					return ;
-				});
-			});
-			return
+			console.log('Main: could not load config file:' + e);
+			if (e.message.includes('ENOENT') && this.requestConfig())
+				return new PackageCreator();	// try again
+			app.quit();
+			return;
 		}
 		// load data file, if present
 
@@ -60,27 +39,8 @@ class PackageCreator
 			}
 			catch(e) {console.log('Main: could not load data file. Reconfiguring data.json. Error was:', e); }
 		}
-		if (Env.CLEAR_CONFS_ON_RESTART)
-		{
-			console.log("### CLEARING OLD CONFIGURATIONS ###");
-			try {
-				if (fs.existsSync(path.joinConfigDir())) {
-					fs.readdirSync(path.joinConfigDir()).forEach(entry => {
-						const fullPath = path.join(path.joinConfigDir(), entry);
-						try {
-							fs.rmSync(fullPath, { recursive: true, force: true });
-							console.log('\t@ Removed', fullPath);
-						}
-						catch (err) {
-							console.log('Could not remove', fullPath, err);
-						}
-					});
-				}
-			}
-			catch (e) {
-				console.log('Error clearing appData folder:', e);
-			}
-		}
+		if (Env.CLEAR_CONFS_ON_RESTART && app.data.clear_confs_set !== false)
+			this.clearConfigs();
 		console.log("### CONFIGURING PACKAGES ###");
 
 		// console.log(conf);
@@ -93,10 +53,77 @@ class PackageCreator
 		let data_file_content = {...this.conf.default_data, ...app.data, ...this.conf.app_info, is_configured: true}
 		try { fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(data_file_content, null, 4)); }
 		catch (e) { console.log('Could not create data.json file:', e); }
-		finally {console.log("### CONFIGURATION FINISHED ###")};
+		console.log("### CONFIGURATION FINISHED ###");
 		app.data = data_file_content;
 		PackageCreator.PC_SUCCESS = true;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
+	}
+
+	clearConfigs()
+	{
+		if (Env.CLEAR_CONFS_ON_RESTART == 'ask' && !app.data.clear_confs_set)
+		{
+			switch (dialog.showMessageBoxSync({
+				type: 'question',
+				buttons: ['Yes', 'No', 'Clear Always', 'Never Clear'],
+				defaultId: 0,
+				cancelId: 1,
+				title: 'Debug',
+				message: 'Clear old configurations? (debug mode)'
+			}))
+			{
+				case 1:
+					return ;
+				case 2:
+					app.data.clear_confs_set = false;
+				case 3:
+					app.data.clear_confs_set = true;
+					return ;
+			}
+		}
+		console.log("### CLEARING OLD CONFIGURATIONS ###");
+		try {
+			if (fs.existsSync(path.joinConfigDir())) {
+				fs.readdirSync(path.joinConfigDir()).forEach(entry => {
+					const fullPath = path.join(path.joinConfigDir(), entry);
+					try {
+						fs.rmSync(fullPath, { recursive: true, force: true });
+						console.log('\t@ Removed', fullPath);
+					}
+					catch (err) {
+						console.log('Could not remove', fullPath, err);
+					}
+				});
+			}
+		}
+		catch (e) {
+			console.log('Error clearing appData folder:', e);
+		}
+	}
+
+	requestConfig()
+	{
+		// Choose a new config file for the app
+		this.unpackSampleConfigs();
+		dialog.showErrorBox('Bad Config', `Please chose a valid config file.`);
+		const filePaths = dialog.showOpenDialogSync({
+			title: "Select Config File",
+			buttonLabel: "Load",
+			defaultPath: path.joinAppData(SAMPLE_CONFIGS_DIR),
+			properties: ["openFile"],
+			filters: [{ name: "JSON Files", extensions: ["json"] }]
+		});
+		if (!filePaths || filePaths.length == 0)
+		{
+			console.log("Bad File Selected:", filePaths);
+			return false;
+		}
+		console.log("## new config file at", filePaths[0]);
+		// fs.rmSync(PackageCreator.CONF_FILE_PATH);
+		try{ fs.linkSync(filePaths[0], PackageCreator.CONF_FILE_PATH); }
+		catch {console.log("Error: could not create link to", filePaths[0], "."); return false;}
+		// app.quit();
+		return true;
 	}
 
 	unpackSampleConfigs()

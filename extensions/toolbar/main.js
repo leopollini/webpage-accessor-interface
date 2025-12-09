@@ -123,7 +123,7 @@ class Toolbar extends BaseModule
 	}
 
 	async setActiveTab(index) {
-		if (index < 0 || index >= Toolbar.tabs_count) return;
+		if (index < 0 || index >= Toolbar.tabs_count) return ;
 		TabsManager.setTab(/*index == 0 ? 'main' : */'tab_' + index, null);
 		// mainWindow.webContents.send("tab-switched", { index });
 	}

@@ -74,8 +74,8 @@
 			{
 				"toolbar":
 				{
-					"enabled": false,
-					"hidden": false,
+					"enabled": true,
+					"hidden": true,
 					"toolbar_width": 50,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",
@@ -109,6 +109,7 @@
 				},
 				"autostart":
 				{
+					"enabled": true,
 					"desktop_filename": "webpage_accessor.desktop",
 					"extension": "autostart"
 				},

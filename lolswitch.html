@@ -184,7 +184,7 @@
 
       function onPointerDown(e){
         // only primary button
-        if (e.isPrimary === false) return;
+        if (e.isPrimary === false) return ;
         pointerId = e.pointerId;
         switchEl.setPointerCapture(pointerId);
         dragging = true;
@@ -199,14 +199,14 @@
       }
 
       function onPointerMove(e){
-        if (!dragging || e.pointerId !== pointerId) return;
+        if (!dragging || e.pointerId !== pointerId) return ;
         const dx = e.clientX - startX;
         const newPx = startTranslatePx + dx;
         setTranslatePx(newPx);
       }
 
       function onPointerUp(e){
-        if (!dragging || e.pointerId !== pointerId) return;
+        if (!dragging || e.pointerId !== pointerId) return ;
         dragging = false;
         switchEl.classList.remove('dragging');
         switchEl.releasePointerCapture(pointerId);

@@ -5,12 +5,13 @@ const { HOME_BIN_LINUX } = require('../../lib/Constants');
 const fs = require('fs');
 const ipcChannel = require('../../lib/icpChannel');
 const Env = require('../../env');
+const BaseModule = require('../../lib/BaseModule');
 
 
 // WARNING: THIS SCRIPT WILL CHANGE THE MACHINE'S STARTUP BEHAVIOUR.
 // TO DISABLE REMOVE .desktop FILE
 // WILL TAKE EFFECT ONLY ON BUILD MODE, NOT ON DEV MODE
-class Autoupdater extends require('../../lib/BaseModule')
+class Autoupdater extends BaseModule
 {
     MODULE_NAME = "autoupdate";
     EXECUTABLE_NAME = "";
@@ -30,8 +31,7 @@ class Autoupdater extends require('../../lib/BaseModule')
 
         if (!Env.IS_EXECUTABLE)
         {
-            this.warn("Updater not running: this is app is not packaged!");
-            return;
+            throw new BaseModule.LoadError("Updater not running: this is app is not packaged!");
         }
         this.log("Starting update checks");
 

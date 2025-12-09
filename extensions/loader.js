@@ -30,7 +30,7 @@ class Loader2
 			const main = path.join(EXT_LOAD_DIR, ext, 'main.js');
 			// console.log("ASDASDAS", ext);
 			// console.log("\t at", main_dir);
-			if (!fs.existsSync(main)) return;
+			if (!fs.existsSync(main)) return ;
 			
 			// if (Env.DEBUG_MODE)
 			//     console.log("loading", kleur.green(main));
@@ -78,18 +78,26 @@ class Loader2
 
 	static loadModule(ext)
 	{
+		let mod;
 		try
 		{
 			if (!ext || !modules[ext]) return console.log(kleur.red("Error:"), ext, "is not a module!!");
 			const ModuleClass = require(modules[ext]);
-			if (typeof(ModuleClass) !== typeof(function () {}) || Object.getPrototypeOf(ModuleClass) !== BaseModule) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
-			const t = new ModuleClass()
-			enabled_modules.add(t);
-			t.__start(this.mainWindow, this.mainTab, this.data, ext);
+			if (typeof(ModuleClass) !== typeof(function () {}) || Object.getPrototypeOf(ModuleClass) !== BaseModule) { throw new BaseModule.ModuleError("Not a module") } ;
+			mod = new ModuleClass()
+			enabled_modules.add(mod);
+			mod.__start(this.mainWindow, this.mainTab, this.data, ext);
 		}
 		catch (e)
 		{
-			console.log("Module not loaded:", e);
+			if (e instanceof BaseModule.ModuleError)
+			{
+				console.log("Module not loaded: " + e);
+				if (mod)
+					mod.fail_reason = e;
+			}
+			else
+				console.log("Module not loaded:", e);
 		}
 	}
 }

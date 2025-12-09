@@ -1,6 +1,6 @@
 {
 	"name": "webpage_accessor",
-	"version": "0.0.37",
+	"version": "0.0.39",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
 		"name": "Leonardo Pollini",
@@ -33,6 +33,9 @@
 		},
 		"win":
 		{
+			"signAndEditExecutable": false,
+			"certificateFile": null,
+			"certificatePassword": null,
 			"target": "nsis",
 			"icon": "build/icons/win"
 		},

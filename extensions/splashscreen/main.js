@@ -34,7 +34,7 @@ class Splashscreen extends require('../../lib/BaseModule')
         // Actual splash screen activation time is between 3/4 of the timeout value and 3/2 of the timeout value
         setInterval(() => {
             if (this.is_splashscreen)
-                return;
+                return ;
             if (Env.VERBOSE)
                 this.log("splash_check");
             if (!this.inputed)
