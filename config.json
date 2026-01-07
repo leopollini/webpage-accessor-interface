@@ -1,8 +1,6 @@
 {
-	"app_info":
-	{
-		"author":
-		{
+	"app_info": {
+		"author": {
 			"name": "Leonardo Pollini",
 			"email": "leopollinik@gmail.com"
 		},
@@ -11,40 +9,32 @@
 		"app_executable": "webpage_accessor"
 	},
 
-	"log":
-	{
+	"log": {
 		"log_level": "WARNING",
 		"log_file": "log.log",
-		"actions":
-		{
+		"actions": {
 			"theese are just some examples": "I cannot use comments in json :(",
 			"send_mail": {},
 			"end_session": {}
 		}
 	},
 
-	"configuration":
-	{
-		"touchscreen_config":
-		{
+	"configuration": {
+		"touchscreen_config": {
 			"enabled": true,
 			"remap_to_pointeraction": true,
 			"disable_physical_keyboard": false,
 			"disable_virtual_keyboard": false,
-			"actions":
-			{
-				"enlarged_doubleclick":
-				{
+			"actions": {
+				"enlarged_doubleclick": {
 					"enabled": true,
 					"doubleclick_sqr_radius": 1600,
 					"doubleclick_max_delay": 500,
-					"actions":
-					{
-						"lel": {"enabled": true, "extension": "touch-utils"}
+					"actions": {
+						"lel": { "enabled": true, "extension": "touch-utils" }
 					}
 				},
-				"keyboard_config":
-				{
+				"keyboard_config": {
 					"not_created_yet": "lol",
 					"enabled": false,
 					"whitelist": false,
@@ -52,83 +42,70 @@
 					"extension": "keyboard-config"
 				},
 				"mouse_config": {},
-				"splashscreen":
-				{
+				"splashscreen": {
 					"enabled": true,
 					"extension": "splashscreen",
 					"splash_timeout": 5,
-					"splash_url":
-					{
+					"splash_url": {
 						"pathname": "google.com",
 						"protocol": "https"
 					}
 				}
 			}
 		},
-		"other_actions":
-		{
+		"other_actions": {
 			"enabled": true,
-			"actions":
-			{
-				"webpage_filter":
-				{
+			"actions": {
+				"webpage_filter": {
 					"enabled": true,
-					"hosts_whitelist": ["parchotels"],
+					"hosts_whitelist": ["parchotels", "google"],
 					"hosts_blacklist": [],
 					"webpages_whitelist": [],
 					"webpages_blacklist": [],
 					"allow_navigation": true,
 					"extension": "webpage-filter"
 				},
-				"toolbar":
-				{
+				"toolbar": {
 					"enabled": true,
 					"hidden": false,
 					"toolbar_width": 50,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",
 					"allow_target_blank": false,
-					"default_url":
-					{
-						"pathname": "example.com",
+					"default_url": {
+						"pathname": "google.com",
 						"protocol": "https"
 					},
 					"create_on_open": true
 				},
-				"electron-api":
-				{
+				"electron-api": {
 					"enabled": true,
 					"extension": "electronAPI"
 				},
-				"window-utils":
-				{
+				"window-utils": {
 					"enable_shortcuts": true,
 					"hide_toolbar": true,
 					"start_with_dev_tools": true,
 					"extension": "window-events"
 				},
 				"startup_actions": {},
-				"keys-checker":
-				{
+				"keys-checker": {
 					"enabled": true,
 					"extension": "keys-checker",
-  					"custom_id": false,
-					"structure_id": [1,2,3,4]
+					"custom_id": false,
+					"structure_id": [1, 2, 3, 4]
 				},
-				"autostart":
-				{
+				"autostart": {
 					"enabled": true,
 					"desktop_filename": "webpage_accessor.desktop",
 					"extension": "autostart"
 				},
-				"autoupdate":
-				{
+				"autoupdate": {
 					"enabled": true,
 					"extension": "autoupdate",
 					"auto_download": false,
 					"ask_update_on_start": true,
-					"update_mode":
-					{
+					"update_mode": {
 						"mode": "long_press",
 						"duration": 5
 					}
@@ -137,19 +114,16 @@
 		}
 	},
 
-	"default_data":
-	{
+	"default_data": {
 		"fullscreen": false,
 		"autostart": true,
 		"autorestart": false,
 		"autoreload": false,
 		"allow_navigation": true,
-		"webpages":
-		[
-			{
-				"pathname": "example.com",
-				"protocol": "https"
-			}
-		]
+		"webpages": [],
+		"other_wwebpages": {
+			"pathname": "example.com",
+			"protocol": "https"
+		}
 	}
 }

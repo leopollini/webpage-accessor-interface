@@ -6,3 +6,4 @@ extensions_conf
 github_token
 .stfolder
 .stignore
+.env
