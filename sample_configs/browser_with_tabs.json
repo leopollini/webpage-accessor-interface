@@ -6,8 +6,6 @@
 			"name": "Leonardo Pollini",
 			"email": "leopollinik@gmail.com"
 		},
-		"version": "0.0.21",
-		"autoupdate": false,
 		"electron_package": "package.json",
 		"app_name": "Webpage Accessor",
 		"app_executable": "webpage_accessor"

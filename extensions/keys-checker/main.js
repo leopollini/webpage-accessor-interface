@@ -10,7 +10,6 @@ class LocalKeysCheck extends require('../../lib/BaseModule')
 	machine_id = null;
 	real_machine_id;
 	
-
 	setup()
 	{
 		ipcChannel.newMainHandler('get-info', async () => await this.getInfo());

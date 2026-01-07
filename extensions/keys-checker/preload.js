@@ -8,7 +8,8 @@ class TouchUtils_preload extends BasePreload
 	
 	contextbridge_expose = {
 			'electronAPI': {
-				getExtraInfo: () => ipcRenderer.invoke('get-info')
+				getExtraInfo: () => ipcRenderer.invoke('get-info'),
+				getLocalKey: () => ipcRenderer.invoke('get-info')
 			}
 		};
 

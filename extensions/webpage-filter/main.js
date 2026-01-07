@@ -16,11 +16,11 @@ class WebpageFilter extends BaseModule
 
 	onNewTabCreated(newTab)
 	{
-		newTab.webContents.once('did-start-navigation', (event, req_url) => {
-			this.warn('Checking url:', req_url);
-			if (this.isBadPage(url.parse(req_url)))
-				new Toolbar().requestCloseTab(newTab);
-		});
+			newTab.webContents.once('did-start-navigation', (event, req_url) => {
+				this.warn('Checking url:', req_url);
+				if (this.isBadPage(url.parse(req_url)))
+					new Toolbar().requestCloseTab(newTab);
+			});
 	}
 
 	// false -> page OK. true -> page NOT OK.

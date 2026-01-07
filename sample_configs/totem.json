@@ -6,8 +6,6 @@
 			"name": "Leonardo Pollini",
 			"email": "leopollinik@gmail.com"
 		},
-		"version": "0.0.21",
-		"autoupdate": false,
 		"electron_package": "package.json",
 		"app_name": "Webpage Accessor",
 		"app_executable": "webpage_accessor"
@@ -72,17 +70,27 @@
 			"enabled": true,
 			"actions":
 			{
+				"webpage_filter":
+				{
+					"enabled": true,
+					"hosts_whitelist": ["parchotels"],
+					"hosts_blacklist": [],
+					"webpages_whitelist": [],
+					"webpages_blacklist": [],
+					"allow_navigation": true,
+					"extension": "webpage-filter"
+				},
 				"toolbar":
 				{
 					"enabled": true,
-					"hidden": true,
+					"hidden": false,
 					"toolbar_width": 50,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",
 					"allow_target_blank": false,
 					"default_url":
 					{
-						"pathname": "service.parchotels.it",
+						"pathname": "example.com",
 						"protocol": "https"
 					},
 					"create_on_open": true
@@ -118,7 +126,7 @@
 					"enabled": true,
 					"extension": "autoupdate",
 					"auto_download": false,
-					"ask_update_on_start": false,
+					"ask_update_on_start": true,
 					"update_mode":
 					{
 						"mode": "long_press",
@@ -132,14 +140,14 @@
 	"default_data":
 	{
 		"fullscreen": false,
-		"autostart": false,
+		"autostart": true,
 		"autorestart": false,
 		"autoreload": false,
 		"allow_navigation": true,
 		"webpages":
 		[
 			{
-				"pathname": "service.parchotels.it",
+				"pathname": "example.com",
 				"protocol": "https"
 			}
 		]

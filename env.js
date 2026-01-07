@@ -4,7 +4,7 @@ const { app } = require('electron');
 class Env
 {
 	static ROOT_LOCATION;		// set in main.js
-	static IS_EXECUTABLE = app.isPackaged || true;
+	static IS_EXECUTABLE = app?.isPackaged;
 	static DEBUG_MODE = true;
 	static get VERBOSE() {return this.DEBUG_MODE};
 	static ALWAYS_RECONFIGURE_EXTENSIONS = false;

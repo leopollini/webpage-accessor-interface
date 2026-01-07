@@ -58,7 +58,7 @@ class Splashscreen extends require('../../lib/BaseModule')
     setSplash()
     {
         this.splash.setBounds({x: 0, y: 0  , height: this.window.getContentBounds().height, width: this.window.getContentBounds().width});
-        TabsManager.setTab("splashscreen");
+        TabsManager.setTab("splashscreen", false);
         setTimeout(() => { this.is_splashscreen = true; }, 500);
     }
 

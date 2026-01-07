@@ -61,6 +61,7 @@ class PackageCreator
 
 	clearConfigs()
 	{
+		console.log("DATA: ", app.data);
 		if (Env.CLEAR_CONFS_ON_RESTART == 'ask' && !app.data.clear_confs_set)
 		{
 			switch (dialog.showMessageBoxSync({
@@ -72,16 +73,19 @@ class PackageCreator
 				message: 'Clear old configurations? (debug mode)'
 			}))
 			{
-				case 1:
-					return ;
-				case 2:
-					app.data.clear_confs_set = false;
-				case 3:
-					app.data.clear_confs_set = true;
-					return ;
+			default:	// same as 'No'
+			case 1:
+				return ;
+			case 2:
+				app.data.clear_confs_set = true;
+				break ;
+			case 3:
+				app.data.clear_confs_set = false;
+				return ;
 			}
 		}
 		console.log("### CLEARING OLD CONFIGURATIONS ###");
+		app.data = {clear_conf_set: app.data.clear_confs_set};
 		try {
 			if (fs.existsSync(path.joinConfigDir())) {
 				fs.readdirSync(path.joinConfigDir()).forEach(entry => {
@@ -109,7 +113,7 @@ class PackageCreator
 		const filePaths = dialog.showOpenDialogSync({
 			title: "Select Config File",
 			buttonLabel: "Load",
-			defaultPath: path.joinAppData(SAMPLE_CONFIGS_DIR),
+			defaultPath: Env.IS_EXECUTABLE ? path.joinAppData(SAMPLE_CONFIGS_DIR) : path.joinRootDir(SAMPLE_CONFIGS_DIR),
 			properties: ["openFile"],
 			filters: [{ name: "JSON Files", extensions: ["json"] }]
 		});
@@ -128,7 +132,8 @@ class PackageCreator
 
 	unpackSampleConfigs()
 	{
-		fs.cp(path.joinRootDir(SAMPLE_CONFIGS_DIR), path.joinAppData(SAMPLE_CONFIGS_DIR), { recursive: true, force: true }, () => {});
+		if (Env.IS_EXECUTABLE)
+			fs.cp(path.joinRootDir(SAMPLE_CONFIGS_DIR), path.joinAppData(SAMPLE_CONFIGS_DIR), { recursive: true, force: true }, () => {});
 	}
 
 	ensureAppDirectories()

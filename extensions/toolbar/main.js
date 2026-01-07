@@ -70,7 +70,7 @@ class Toolbar extends BaseModule
 	
 	late_setup()
 	{
-		if (this.tab)
+		if (this.tab && !this.__conf.hidden)
 		{
 			// this.tab.webContents.on('before-input-event', (event, input) => {
 			// 	if (input.key)
@@ -124,7 +124,7 @@ class Toolbar extends BaseModule
 
 	async setActiveTab(index) {
 		if (index < 0 || index >= Toolbar.tabs_count) return ;
-		TabsManager.setTab(/*index == 0 ? 'main' : */'tab_' + index, null);
+		TabsManager.setTab(/*index == 0 ? 'main' : */'tab_' + index, true);
 		// mainWindow.webContents.send("tab-switched", { index });
 	}
 
