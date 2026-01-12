@@ -19,14 +19,16 @@ app.app_info = {};
 
 Env.ROOT_LOCATION = __dirname;
 
-try {
-	console.log(
-		'Is Executable TESTS',
-		app.isPackaged,
-		!!process.env.APPIMAGE,
-		require('path').extname(app.getPath('exe')).toLowerCase() === '.exe'
-	);
-} catch {}
+// console.log(process.env.APPIMAGE)
+// console.log(fs.existsSync(path.joinRootDir('build/icons/png/512x512.png')))
+// try {
+// 	console.log(
+// 		'Is Executable TESTS',
+// 		app.isPackaged,
+// 		!!process.env.APPIMAGE,
+// 		require('path').extname(app.getPath('exe')).toLowerCase() === '.exe'
+// 	);
+// } catch {}
 console.log('app root is at', __dirname);
 console.log('AppData is at', path.appDataDir);
 console.log('Printing Env', Env);

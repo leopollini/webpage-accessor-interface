@@ -45,7 +45,7 @@
 				"splashscreen": {
 					"enabled": true,
 					"extension": "splashscreen",
-					"splash_timeout": 5,
+					"splash_timeout": 50,
 					"splash_url": {
 						"pathname": "google.com",
 						"protocol": "https"
@@ -73,7 +73,7 @@
 					"extension": "toolbar",
 					"allow_target_blank": false,
 					"default_url": {
-						"pathname": "google.com",
+						"pathname": "service.parchotels.it",
 						"protocol": "https"
 					},
 					"create_on_open": true
@@ -107,7 +107,7 @@
 					"ask_update_on_start": true,
 					"update_mode": {
 						"mode": "long_press",
-						"duration": 5
+						"duration": 1
 					}
 				}
 			}
@@ -115,7 +115,7 @@
 	},
 
 	"default_data": {
-		"fullscreen": false,
+		"fullscreen": true,
 		"autostart": true,
 		"autorestart": false,
 		"autoreload": false,

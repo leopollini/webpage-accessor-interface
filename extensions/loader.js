@@ -24,13 +24,11 @@ class Loader2 {
 		// load modules -> no setup
 		fs.readdirSync(EXT_LOAD_DIR).forEach(function (ext) {
 			const main = path.join(EXT_LOAD_DIR, ext, 'main.js');
-			// console.log("ASDASDAS", ext);
 			// console.log("\t at", main_dir);
 			if (!fs.existsSync(main)) return;
 
 			// if (Env.DEBUG_MODE)
 			//     console.log("loading", kleur.green(main));
-			// modules.push(main);
 			modules[ext] = main;
 		});
 
@@ -39,7 +37,8 @@ class Loader2 {
 			this.loadModule(ext);
 		}
 
-		Loader2.allowGetPreloadData();
+		// deprecated
+		// Loader2.allowGetPreloadData()
 		return [...enabled_modules];
 	}
 
@@ -50,54 +49,12 @@ class Loader2 {
 		});
 	}
 
-	static allowGetPreloadData() {
-		ipcMain.handle('preload-get-extension-conf', async (event, ext) => {
-			if (ext.indexOf('..') > 0 || ext.indexOf('/') > 0) {
-				console.log(
-					'detected ill request from extension:',
-					'"' + kleur.yellow(ext) + '"',
-					'returning'
-				);
-				return { nice_try: 'lol' };
-			}
-			const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-			await sleep(1000);
-
-			if (!fs.existsSync(path.joinConfigDir(ext + '.json'))) {
-				console.log('Requested config file does not exist.');
-				return {};
-			}
-			const res = JSON.parse(
-				fs.readFileSync(path.joinConfigDir(ext + '.json'))
-			);
-			if (Env.VERBOSE)
-				console.log(
-					ext,
-					"requested config info at '" +
-						path.joinConfigDir(ext + '.json') +
-						"'",
-					'sending',
-					res
-				);
-			return res;
-		});
-		// ipcMain.handle('preload-get-extension-conf', async (event, ext) => {await fs.readFile(path.joinConfigDir(ext + '.json'));});
-	}
-
 	static loadModule(ext) {
 		let mod;
 		try {
-			if (!ext || !modules[ext])
-				return console.log(
-					kleur.red('Error:'),
-					ext,
-					'is not a module!!'
-				);
+			if (!ext || !modules[ext]) return console.log(kleur.red('Error:'), ext, 'is not a module!!');
 			const ModuleClass = require(modules[ext]);
-			if (
-				typeof ModuleClass !== typeof function () {} ||
-				Object.getPrototypeOf(ModuleClass) !== BaseModule
-			) {
+			if (typeof ModuleClass !== typeof function () {} || Object.getPrototypeOf(ModuleClass) !== BaseModule) {
 				throw new BaseModule.ModuleError('Not a module');
 			}
 			mod = new ModuleClass();
@@ -110,6 +67,40 @@ class Loader2 {
 			} else console.log('Module not loaded:', e);
 		}
 	}
+	// It appears that preload modules can still access local files, so this is useless P:
+	// static allowGetPreloadData() {
+	// 	ipcMain.handle('preload-get-extension-conf', async (event, ext) => {
+	// 		if (ext.indexOf('..') > 0 || ext.indexOf('/') > 0) {
+	// 			console.log(
+	// 				'detected ill request from extension:',
+	// 				'"' + kleur.yellow(ext) + '"',
+	// 				'returning'
+	// 			);
+	// 			return { nice_try: 'lol' };
+	// 		}
+	// 		const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+	// 		await sleep(1000);
+
+	// 		if (!fs.existsSync(path.joinConfigDir(ext + '.json'))) {
+	// 			console.log('Requested config file does not exist.');
+	// 			return {};
+	// 		}
+	// 		const res = JSON.parse(
+	// 			fs.readFileSync(path.joinConfigDir(ext + '.json'))
+	// 		);
+	// 		if (Env.VERBOSE)
+	// 			console.log(
+	// 				ext,
+	// 				"requested config info at '" +
+	// 					path.joinConfigDir(ext + '.json') +
+	// 					"'",
+	// 				'sending',
+	// 				res
+	// 			);
+	// 		return res;
+	// 	});
+	// 	// ipcMain.handle('preload-get-extension-conf', async (event, ext) => {await fs.readFile(path.joinConfigDir(ext + '.json'));});
+	// }
 }
 
 // class Loader

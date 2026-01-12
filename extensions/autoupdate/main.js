@@ -1,11 +1,9 @@
 const { dialog, app } = require('electron');
 const { autoUpdater } = require('electron-updater');
-const path = require('../../lib/path2');
-const { HOME_BIN_LINUX } = require('../../lib/Constants');
-const fs = require('fs');
 const ipcChannel = require('../../lib/icpChannel');
 const Env = require('../../env');
 const BaseModule = require('../../lib/BaseModule');
+const fs  = require('fs');
 
 // WARNING: THIS SCRIPT WILL CHANGE THE MACHINE'S STARTUP BEHAVIOUR.
 // TO DISABLE REMOVE .desktop FILE
@@ -16,7 +14,7 @@ class Autoupdater extends BaseModule {
 	DOWNLOAD_PATH = '';
 
 	updateFunction = () => {
-		this.log('autoupdater not configured');
+		dialog.showErrorBox('Autoupdater not available',':(',)
 	};
 
 	setup() {
@@ -27,10 +25,10 @@ class Autoupdater extends BaseModule {
 		autoUpdater.autoDownload = this.getAppData().auto_downalod == true; // ask first
 		autoUpdater.autoInstallOnAppQuit = true; // install after app closes
 
+		ipcChannel.newMainHandler('usr-check-for-updates', () => this.tryUpdate());
+
 		if (!Env.IS_EXECUTABLE) {
-			throw new BaseModule.LoadError(
-				'Updater not running: this is app is not packaged!'
-			);
+			throw new BaseModule.LoadError('Updater not running: this is app is not packaged!');
 		}
 		this.log('Starting update checks');
 
@@ -46,19 +44,20 @@ class Autoupdater extends BaseModule {
 					buttons: ['Yes', 'Later'],
 				})
 				.then((result) => {
-					if (result.response === 0) autoUpdater.downloadUpdate();
+					if (result.response === 0)
+						{
+							try {fs.rmdirSync(path.joinAppData('build'))} // clean build so next run is build
+							catch (e) {}
+							autoUpdater.downloadUpdate();
+						}
 					else this.warn('User refused to update');
 				});
 		});
 		if (Env.VERBOSE)
 			autoUpdater.on('download-progress', (progressObj) => {
-				const logMsg = `Download speed: ${
-					progressObj.bytesPerSecond
-				} - ${progressObj.percent.toFixed(2)}%`;
+				const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
 				this.log(logMsg);
-				this.window.setTitle(
-					`Downloading update... ${progressObj.percent.toFixed(0)}%`
-				);
+				this.window.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
 			});
 
 		autoUpdater.on('update-downloaded', (info) => {
@@ -71,15 +70,12 @@ class Autoupdater extends BaseModule {
 
 		autoUpdater.on('update-not-available', () => {
 			this.log('No updates available.');
-			dialog.showErrorBox('No updated available', `Check again later :)`);
+			dialog.showErrorBox('No updates available', `Check again later :)`);
 		});
 
 		autoUpdater.on('error', (err) => {
 			this.err('Updater error:', err);
-			dialog.showErrorBox(
-				'Update Error',
-				err == null ? 'unknown' : (err.stack || err).toString()
-			);
+			dialog.showErrorBox('Update Error', err == null ? 'unknown' : (err.stack || err).toString());
 		});
 	}
 
@@ -88,12 +84,11 @@ class Autoupdater extends BaseModule {
 	late_setup() {
 		if (this.__conf.ask_update_on_start != false) {
 			this.log('Checking for updates...');
-			this.updateFunction();
+			this.tryUpdate();
 		}
-		ipcChannel.newMainHandler('usr-check-for-updates', () =>
-			this.updateFunction()
-		);
 	}
+
+	tryUpdate() {try {this.updateFunction();} catch (e) {this.err(e);}}
 }
 
 module.exports = Autoupdater;

@@ -4,21 +4,32 @@ const fs = require('fs');
 const kleur = require('kleur');
 const {
 	EXT_CONFIGS_DIR,
-	LINUX_AUTOSTART_LOCATION,
+	LINUX_AUTOSTART_DIR,
+	LINUX_APPIMAGE_DIR,
 	HOME_BIN_LINUX,
 	DATA_FILE_PATH,
 	SAMPLE_CONFIGS_DIR,
 } = require('./lib/Constants');
 const Env = require('./env');
 const { findAppArg } = require('./lib/utils');
+const createDesktopShortcut = require('create-desktop-shortcuts');
 
 class PackageCreator {
 	static CONF_FILE_PATH = Env.IS_EXECUTABLE ? path.joinAppData('config.json') : path.join(__dirname, 'config.json');
 	static DATA_FILE_PATH = path.joinConfigDir(DATA_FILE_PATH);
 	static PC_SUCCESS = false;
+	static IS_BUILD_RUN = false;
 
 	constructor() {
 		this.ensureAppDirectories();
+
+		// extract build components
+		if (!fs.existsSync(path.joinAppData('build')))
+		{
+			PackageCreator.IS_BUILD_RUN = true;
+			fs.mkdirSync(path.joinAppData('build'));
+			fs.cpSync(path.joinRootDir('build'), path.joinAppData('build'), {recursive: true, force: true})
+		}
 
 		// loads config file
 		try {
@@ -32,7 +43,6 @@ class PackageCreator {
 			return;
 		}
 		// load data file, if present
-
 		if (fs.existsSync(PackageCreator.DATA_FILE_PATH)) {
 			try {
 				app.data = JSON.parse(fs.readFileSync(PackageCreator.DATA_FILE_PATH));
@@ -40,31 +50,48 @@ class PackageCreator {
 				console.log('Main: could not load data file. Reconfiguring data.json. Error was:', e);
 			}
 		}
+		this.configs_cleared = false;
 		if (Env.CLEAR_CONFS_ON_RESTART && app.data.clear_confs_set !== false) this.clearConfigs();
 		console.log('### CONFIGURING PACKAGES ###');
-
-		// console.log(conf);
 
 		this.createConfigurations();
 
 		this.conf.app_info.version = app.getVersion();
 		this.conf.app_info.last_configured = Date.now();
 		// the object's unpacking order is VERY important: first the incoming data from the config file, then whatever whas set in data.json before launching, then the incoming app info, then some extra info.
-		let data_file_content = {
+		app.data = {
 			...this.conf.default_data,
 			...app.data,
 			...this.conf.app_info,
 			is_configured: true,
 		};
+		console.log(app.data);
 		try {
-			fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(data_file_content, null, 4));
+			fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(app.data, null, 4));
 		} catch (e) {
 			console.log('Could not create data.json file:', e);
 		}
+		this.createDesktopFile();
 		console.log('### CONFIGURATION FINISHED ###');
-		app.data = data_file_content;
 		PackageCreator.PC_SUCCESS = true;
 		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
+	}
+
+	createDesktopFile()
+	{
+		if (PackageCreator.IS_BUILD_RUN && Env.IS_EXECUTABLE && process.env.APPIMAGE)
+		{
+			const shortcutsCreated = createDesktopShortcut({
+				linux: {
+					filePath: process.env.APPIMAGE,
+					outputPath: LINUX_APPIMAGE_DIR,
+					name: app.data.app_name,
+					icon: path.joinAppData('build/icons/png/512x512.png'),
+					description: 'Webpage Accessor',
+					categories: ['Utility', 'Development'],
+				}
+			});
+		}
 	}
 
 	clearConfigs() {
@@ -73,27 +100,27 @@ class PackageCreator {
 			switch (
 				dialog.showMessageBoxSync({
 					type: 'question',
-					buttons: ['Yes', 'No', 'Clear Always', 'Never Clear'],
+					buttons: ['Yes', 'No'], //, 'Clear Always', 'Never Clear'],
 					defaultId: 0,
 					cancelId: 1,
 					title: 'Debug',
 					message: 'Clear old configurations? (debug mode)',
 				})
 			) {
-				default:
+				case 0:
 					break;
-				case 1:
+				default:
 					return;
 				case 2:
-					app.data.clear_confs_set = true;
+					app.data.clear_conf_set = true;
 					break;
 				case 3:
-					app.data.clear_confs_set = false;
+					app.data.clear_conf_set = false;
 					return;
 			}
 		}
 		console.log('### CLEARING OLD CONFIGURATIONS ###');
-		app.data = { clear_conf_set: app.data.clear_confs_set };
+		this.configs_cleared = true;
 		try {
 			if (fs.existsSync(path.joinConfigDir())) {
 				fs.readdirSync(path.joinConfigDir()).forEach((entry) => {
@@ -141,13 +168,14 @@ class PackageCreator {
 	}
 
 	unpackSampleConfigs() {
-		if (Env.IS_EXECUTABLE)
-			fs.cp(
-				path.joinRootDir(SAMPLE_CONFIGS_DIR),
-				path.joinAppData(SAMPLE_CONFIGS_DIR),
-				{ recursive: true, force: true },
-				() => {}
-			);
+		// if (Env.IS_EXECUTABLE)
+		console.log("Cloning sample configs (from", path.joinRootDir(SAMPLE_CONFIGS_DIR), "to", path.joinAppData(SAMPLE_CONFIGS_DIR) + ")")
+		fs.cpSync(
+			path.joinRootDir(SAMPLE_CONFIGS_DIR),
+			path.joinAppData(SAMPLE_CONFIGS_DIR),
+			{ recursive: true, force: true },
+			() => {}
+		);
 	}
 
 	ensureAppDirectories() {
@@ -161,7 +189,7 @@ class PackageCreator {
 		});
 
 		// Not inside AppData
-		[LINUX_AUTOSTART_LOCATION, HOME_BIN_LINUX].forEach((dir) => {
+		[LINUX_AUTOSTART_DIR, HOME_BIN_LINUX].forEach((dir) => {
 			dir = path.join(dir);
 			if (!fs.existsSync(dir)) {
 				fs.mkdirSync(dir, { recursive: true });

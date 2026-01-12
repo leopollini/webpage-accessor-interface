@@ -7,7 +7,7 @@ class Autoupdate_preload extends require('../../lib/BasePreload.js') {
 
 	setup() {
 		if (this.__conf.update_mode.mode == 'long_press') {
-			this.update_click_timeout = this.__conf.update_mode;
+			this.update_click_timeout = this.__conf.update_mode.duration;
 
 			// bad check: frequent false positives.
 			window.addEventListener('pointerdown', () => {

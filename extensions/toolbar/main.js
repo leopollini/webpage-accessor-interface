@@ -42,6 +42,7 @@ class Toolbar extends BaseModule {
 				...Env.WEBVIEW_DEFAULT_PREFERENCES,
 			},
 		});
+		this.tab.devtools_detach = true;
 		Toolbar.toolbar_tab = this.tab;
 		this.tab.tab_id = 'toolbar';
 

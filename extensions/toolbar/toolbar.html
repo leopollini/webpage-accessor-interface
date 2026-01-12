@@ -20,19 +20,31 @@
 			position: relative;
 
     		flex-shrink: 1;
+    		flex-grow: 1;
 			
 			max-width: 100px;        /* limit tab width */
+			min-width: 25px;        /* limit tab width */
 			white-space: nowrap;      /* prevent wrapping */
 			overflow: hidden;         /* hide overflow */
 			text-overflow: ellipsis;  /* show "..." for long text */
+		}
+		.tab-icon {
+			height: 25px;
+			flex-shrink: 1; /* Ensures the icon stays a square */
+			position: absolute;
+			left: 2px;
+			top: 0px;
+			margin-right: 10px;
 		}
 		.tab.active {
 			text-overflow: ellipsis;  /* show "..." for long text */
 			background: white;
 
     		flex-shrink: 0;
+    		flex-grow: 0;
 
 			border-bottom: 0px solid white;
+			min-width: 100px;        /* limit tab width */
 			max-width: 200px;        /* limit tab width */
 		}
 		.tab .close {
@@ -112,19 +124,26 @@ async function createTab({title, success, id}) {
 	tabEl.id = id;
 	tabEl.textContent = title;
 	tabEl.dataset.index = tabCount++;
-	const closeBtn = document.createElement('span');
-	closeBtn.textContent = '×';
-	closeBtn.classList.add('close');
-	tabEl.buttonEl = closeBtn
-	tabEl.appendChild(tabEl.buttonEl);
+
+	tabEl.closeBtnEl = document.createElement('span');
+	tabEl.closeBtnEl.textContent = '×';
+	tabEl.closeBtnEl.classList.add('close');
+	
+	tabEl.appendChild(tabEl.closeBtnEl);
 	tabBar.insertBefore(tabEl, activeTab ? activeTab.nextSibling : newTabBtn);
     tabs.push(tabEl);
+
+	tabEl.icon = document.createElement('img')
+	tabEl.icon.src = "https://www.google.com/s2/favicons?domain=google.com&sz=64"
+	tabEl.icon.alt = ""
+	tabEl.icon.classList.add('tab-icon')
+	tabEl.prepend(tabEl.icon)
 
 	// event handlers
 	tabEl.addEventListener("click", () => {
 		activateTab(tabEl);
 	});
-	closeBtn.addEventListener('click', (e) => {
+	tabEl.closeBtnEl.addEventListener('click', (e) => {
 		e.stopPropagation();
 		closeTab(tabEl);
 	});
@@ -138,9 +157,9 @@ function renameTab({id, new_title})
 	tabs.forEach(tabEl => {
 		if (tabEl.id === id && tabEl)
 		{
-			tabEl.removeChild(tabEl.buttonEl);
+			tabEl.removeChild(tabEl.closeBtnEl);
 			tabEl.textContent = new_title;
-			tabEl.appendChild(tabEl.buttonEl);
+			tabEl.appendChild(tabEl.closeBtnEl);
 		}
 	});
 }

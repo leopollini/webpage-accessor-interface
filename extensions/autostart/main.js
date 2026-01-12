@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('../../lib/path2');
 const { notStrictEqual } = require('assert');
-const { LINUX_AUTOSTART_LOCATION } = require('../../lib/Constants');
+const { LINUX_AUTOSTART_DIR, LINUX_APPIMAGE_DIR } = require('../../lib/Constants');
 const BaseModule = require('../../lib/BaseModule');
 const Env = require('../../env');
 
@@ -14,54 +14,27 @@ class Autostarter extends BaseModule {
 	do_autostart;
 
 	setup_linux() {
-		this.do_autostart = this.getAppData().autostart && !Env.DEBUG_MODE;
-		this.log('setting autostart to', this.do_autostart);
-		this.autostart_function = () => {
-			const file_content =
-				`[Desktop Entry]
-Name=` +
-				this.getAppConfig().app_info.app_name +
-				`
-Comment=webpage accessor
-Type=Application
-Exec=` +
-				this.getAppConfig().app_info.app_executable;
-			const desktop_file_dir = path.join(
-				LINUX_AUTOSTART_LOCATION,
-				this.__conf.desktop_filename
-			);
+		if (this.getAppData().autostart && !Env.DEBUG_MODE)
+		{
+			if (!fs.existsSync(LINUX_APPIMAGE_DIR))
+				throw new BaseModule.LoadError("desktop file does not exist")
 			try {
-				if (fs.existsSync(desktop_file_dir))
-					fs.rmSync(desktop_file_dir);
-				fs.writeFileSync(desktop_file_dir, file_content);
-				this.log('desktop file created');
-			} catch (e) {
-				throw new BaseModule.LoadError(
-					'could not create desktop file at ' +
-						desktop_file_dir +
-						'(' +
-						e +
-						')'
+				fs.cpSync(
+					LINUX_APPIMAGE_DIR,
+					LINUX_AUTOSTART_DIR,
+					{recursive: true, force: true}
 				);
 			}
-		};
+			catch (e) {
+				throw new BaseModule.LoadError(`${e}`);
+			}
+		}
 	}
 
 	setup_windows() {
-		this.autostart_function = function () {
-			app.setLoginItemSettings({
-				openAtLogin: true,
-			});
-		};
-	}
-
-	late_setup() {
-		this.update_desktop_file();
-	}
-
-	update_desktop_file() {
-		if (this.do_autostart == true && this.autostart_function)
-			this.autostart_function();
+		app.setLoginItemSettings({
+			openAtLogin: true,
+		});
 	}
 }
 

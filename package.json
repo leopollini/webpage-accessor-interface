@@ -1,6 +1,6 @@
 {
 	"name": "webpage_accessor",
-	"version": "0.0.39",
+	"version": "0.0.59",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
 		"name": "Leonardo Pollini",
@@ -31,12 +31,11 @@
 			"category": "Utility",
 			"icon": "build/icons/png"
 		},
-		"win":
-		{
+		"win": {
 			"signAndEditExecutable": false,
-			"certificateFile": null,
-			"certificatePassword": null,
-			"target": "nsis",
+			"target": [
+				"portable"
+			],
 			"icon": "build/icons/win"
 		},
 		"publish": {
@@ -60,6 +59,8 @@
 	"dependencies": {
 		"autoupdate": "^1.0.1",
 		"chalk": "^5.6.2",
+		"create-desktop-shortcut": "^1.0.0",
+		"create-desktop-shortcuts": "^1.11.1",
 		"dialog": "^0.3.1",
 		"electron-updater": "^6.6.2",
 		"fs": "^0.0.1-security",

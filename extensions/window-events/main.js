@@ -25,7 +25,7 @@ class WindowSetup extends BaseModule {
 		checkActiveModules();
 	}
 	ctrlD(tab) {
-		tab.webContents.toggleDevTools();
+		tab.webContents.toggleDevTools(tab.devtools_detach ? {mode: 'detach'} : {});
 	}
 	ctrlW(tab) {
 		console.log(
