@@ -1,16 +1,13 @@
 const path = require('./lib/path2');
 const { app, WebContentsView, BaseWindow, screen } = require('electron');
 const url = require('url');
-const fs = require('fs');
 const Env = require('./env');
 const pc = require('./PackageCreator');
-const { DATA_FILE_PATH: DATA_CONF_PATH } = require('./lib/Constants');
 const TabsManager = require('./lib/TabsManager');
 const Loader = require('./extensions/loader');
 const kleur = require('kleur');
 const Toolbar = require('./extensions/toolbar/main');
 
-// During first execution create all config files
 app.args = process.argv.slice(3);
 app.conf = {};
 app.data = {};
@@ -38,8 +35,7 @@ async function createMainWindow() {
 	new pc();
 
 	if (!pc.PC_SUCCESS) return;
-	if (Env.DEBUG_MODE && app.data && app.data.version)
-		console.log('### WELCOME TO VERSION', app.data.version, '###');
+	if (Env.DEBUG_MODE && app.data && app.data.version) console.log('### WELCOME TO VERSION', app.data.version, '###');
 
 	const { height, width } = screen.getPrimaryDisplay().workAreaSize;
 	app.displaySize = { height: height, width: width };
@@ -66,19 +62,13 @@ async function createMainWindow() {
 		if (app.data.webpages.length != 0) {
 			if (new Toolbar().isActive())
 				for (let i = 0; i < app.data.webpages.length; i++) {
-					const PAGE_URL =
-						app.data &&
-						app.data.webpages[i] &&
-						url.format(app.data.webpages[i]);
+					const PAGE_URL = app.data && app.data.webpages[i] && url.format(app.data.webpages[i]);
 					console.log('## Creating tab at', PAGE_URL);
 					new Toolbar().requestNewTab(PAGE_URL);
 				}
 			else {
-				// Only one tab since there is no Toolbar :(
-				const PAGE_URL =
-					app.data &&
-					app.data.webpages[0] &&
-					url.format(app.data.webpages[0]);
+				// Only one tab since Toolbar is missing :(
+				const PAGE_URL = app.data && app.data.webpages[0] && url.format(app.data.webpages[0]);
 				console.log('Loading page:', PAGE_URL);
 				const mainTab = new WebContentsView({
 					webPreferences: {
@@ -102,14 +92,8 @@ async function createMainWindow() {
 function checkActiveModules() {
 	console.log('CHECKING ACTIVE MODULES:');
 	app.enabled_modules.forEach(function (mod) {
-		mod.log(
-			mod.isActive()
-				? kleur.yellow('true')
-				: kleur.red('false') +
-						' (' +
-						(mod.fail_reason ? mod.fail_reason : 'unknown') +
-						')'
-		);
+		const stat = mod.getStatus();
+		mod.log(stat, mod.fail_reason ? '(' + mod.fail_reason + ')' : '');
 	});
 	console.log('DONE CHECK');
 }

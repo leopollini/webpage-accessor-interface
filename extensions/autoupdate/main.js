@@ -3,7 +3,8 @@ const { autoUpdater } = require('electron-updater');
 const ipcChannel = require('../../lib/icpChannel');
 const Env = require('../../env');
 const BaseModule = require('../../lib/BaseModule');
-const fs  = require('fs');
+const fs = require('fs');
+const path = require('../../lib/path2');
 
 // WARNING: THIS SCRIPT WILL CHANGE THE MACHINE'S STARTUP BEHAVIOUR.
 // TO DISABLE REMOVE .desktop FILE
@@ -14,7 +15,8 @@ class Autoupdater extends BaseModule {
 	DOWNLOAD_PATH = '';
 
 	updateFunction = () => {
-		dialog.showErrorBox('Autoupdater not available',':(',)
+		if (!Env.DEBUG_MODE) dialog.showErrorBox('Autoupdater not available', ':(');
+		this.warn('Autoupdater not available :(');
 	};
 
 	setup() {
@@ -44,13 +46,14 @@ class Autoupdater extends BaseModule {
 					buttons: ['Yes', 'Later'],
 				})
 				.then((result) => {
-					if (result.response === 0)
-						{
-							try {fs.rmdirSync(path.joinAppData('build'))} // clean build so next run is build
-							catch (e) {}
-							autoUpdater.downloadUpdate();
+					if (result.response === 0) {
+						try {
+							fs.rmdirSync(path.joinAppData('build'));
+						} catch (e) {
+							// clean build so next run is build
 						}
-					else this.warn('User refused to update');
+						autoUpdater.downloadUpdate();
+					} else this.warn('User refused to update');
 				});
 		});
 		if (Env.VERBOSE)
@@ -62,6 +65,10 @@ class Autoupdater extends BaseModule {
 
 		autoUpdater.on('update-downloaded', (info) => {
 			this.log('Linking executable...');
+
+			// Remove build folder for clean reinstall
+			if (fs.existsSync(path.joinAppData('build')))
+				fs.rmSync(path.joinAppData('build'));
 
 			this.log('Installing');
 
@@ -88,7 +95,13 @@ class Autoupdater extends BaseModule {
 		}
 	}
 
-	tryUpdate() {try {this.updateFunction();} catch (e) {this.err(e);}}
+	tryUpdate() {
+		try {
+			this.updateFunction();
+		} catch (e) {
+			this.err(e);
+		}
+	}
 }
 
 module.exports = Autoupdater;

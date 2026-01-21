@@ -2,24 +2,24 @@ const BaseModule = require('../lib/BaseModule');
 const path = require('../lib/path2');
 const fs = require('fs');
 const kleur = require('kleur');
-const Env = require('../env');
-const { ipcMain } = require('electron');
 const TabsManager = require('../lib/TabsManager');
 
 const EXT_LOAD_DIR = __dirname;
 
 const modules = {};
-const enabled_modules = new Set();
 
-class Loader2 {
+module.exports = class Loader2 {
 	mainWindow = null;
 	mainTab = null;
 	data = null;
+	enabled_modules;
+
 	// 'data' shoud be app.data
 	static load(data) {
 		this.mainWindow = TabsManager.mainWindow;
 		this.mainTab = TabsManager.getActiveTab();
 		this.data = data;
+		this.enabled_modules = new Set();
 
 		// load modules -> no setup
 		fs.readdirSync(EXT_LOAD_DIR).forEach(function (ext) {
@@ -39,12 +39,12 @@ class Loader2 {
 
 		// deprecated
 		// Loader2.allowGetPreloadData()
-		return [...enabled_modules];
+		return [...this.enabled_modules];
 	}
 
 	static lateLoad() {
 		// Module late start
-		enabled_modules.forEach(function (module) {
+		this.enabled_modules.forEach(function (module) {
 			if (module.isActive()) module.__late_start();
 		});
 	}
@@ -58,15 +58,18 @@ class Loader2 {
 				throw new BaseModule.ModuleError('Not a module');
 			}
 			mod = new ModuleClass();
-			enabled_modules.add(mod);
+			this.enabled_modules.add(mod);
 			mod.__start(this.mainWindow, this.mainTab, this.data, ext);
 		} catch (e) {
 			if (e instanceof BaseModule.ModuleError) {
 				console.log('Module not loaded: ' + e);
-				if (mod) mod.fail_reason = e;
+				if (mod) {
+					mod.failed(e);
+				}
 			} else console.log('Module not loaded:', e);
 		}
 	}
+
 	// It appears that preload modules can still access local files, so this is useless P:
 	// static allowGetPreloadData() {
 	// 	ipcMain.handle('preload-get-extension-conf', async (event, ext) => {
@@ -101,34 +104,4 @@ class Loader2 {
 	// 	});
 	// 	// ipcMain.handle('preload-get-extension-conf', async (event, ext) => {await fs.readFile(path.joinConfigDir(ext + '.json'));});
 	// }
-}
-
-// class Loader
-// {
-//     static load(enabled_modules, mainWindow, mainTab) {
-//         fs.readdirSync(EXT_LOAD_DIR).forEach(function (ext)
-//         {
-//             const fullpath = path.join(EXT_LOAD_DIR, ext);
-
-//             if (Env.DEBUG_MODE)
-//                 console.log("loading", kleur.green(ext));
-//             try
-//             {
-//                 const ModuleClass = require(fullpath);
-//                 if (typeof(ModuleClass) !== typeof(function () {}) || Object.getPrototypeOf(ModuleClass) !== BaseModule) { console.log(kleur.grey("Not loading " + ext + ": not a module")); return } ;
-//                 const t = new ModuleClass()
-//                 enabled_modules.push(t);
-//                 t.__start(mainWindow, mainTab);
-//             }
-//             catch (e)
-//             {
-//                 console.log("Module not loaded:", e);
-//             }
-//         });
-//         enabled_modules.forEach(function (module) {
-//             if (module.isActive()) module.__late_start();
-//         });
-//     }
-// }
-
-module.exports = Loader2;
+};

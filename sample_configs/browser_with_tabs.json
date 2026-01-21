@@ -105,6 +105,15 @@
 					"update_mode": {
 						"mode": "none (on restart)"
 					}
+				},
+				"remote-controls":
+				{
+					"enabled": true,
+					"extension": "remote-controls",
+					"log_level": "full",
+					"keepalive": 10,
+					"timeout": 1,
+					"max_retries": 25
 				}
 			}
 		}

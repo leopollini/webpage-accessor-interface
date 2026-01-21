@@ -21,7 +21,7 @@
 
 	"configuration": {
 		"touchscreen_config": {
-			"enabled": true,
+			"enabled": false,
 			"remap_to_pointeraction": true,
 			"disable_physical_keyboard": false,
 			"disable_virtual_keyboard": false,
@@ -35,7 +35,6 @@
 					}
 				},
 				"keyboard_config": {
-					"not_created_yet": "lol",
 					"enabled": false,
 					"whitelist": false,
 					"blacklist": [],
@@ -43,9 +42,9 @@
 				},
 				"mouse_config": {},
 				"splashscreen": {
-					"enabled": true,
+					"enabled": false,
 					"extension": "splashscreen",
-					"splash_timeout": 50,
+					"splash_timeout": 5,
 					"splash_url": {
 						"pathname": "google.com",
 						"protocol": "https"
@@ -58,7 +57,7 @@
 			"actions": {
 				"webpage_filter": {
 					"enabled": true,
-					"hosts_whitelist": ["parchotels", "google"],
+					"hosts_whitelist": ["google"],
 					"hosts_blacklist": [],
 					"webpages_whitelist": [],
 					"webpages_blacklist": [],
@@ -71,9 +70,9 @@
 					"toolbar_width": 50,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",
-					"allow_target_blank": false,
+					"allow_target_blank": true,
 					"default_url": {
-						"pathname": "service.parchotels.it",
+						"pathname": "google.com",
 						"protocol": "https"
 					},
 					"create_on_open": true
@@ -96,34 +95,39 @@
 					"structure_id": [1, 2, 3, 4]
 				},
 				"autostart": {
-					"enabled": true,
-					"desktop_filename": "webpage_accessor.desktop",
 					"extension": "autostart"
 				},
 				"autoupdate": {
 					"enabled": true,
 					"extension": "autoupdate",
-					"auto_download": false,
+					"auto_download": true,
 					"ask_update_on_start": true,
 					"update_mode": {
-						"mode": "long_press",
-						"duration": 1
+						"mode": "none (on restart)"
 					}
+				},
+				"remote-controls": {
+					"enabled": true,
+					"extension": "remote-controls",
+					"log_level": "full",
+					"keepalive": 10,
+					"conn_timeout": 2,
+					"max_retries": 2,
+					"host": "127.0.0.1",
+					"port": 8080,
+					"ping": 10
 				}
 			}
 		}
 	},
 
 	"default_data": {
-		"fullscreen": true,
-		"autostart": true,
+		"fullscreen": false,
+		"autostart": false,
 		"autorestart": false,
 		"autoreload": false,
 		"allow_navigation": true,
 		"webpages": [],
-		"other_wwebpages": {
-			"pathname": "example.com",
-			"protocol": "https"
-		}
+		"terminal_id": 6967420
 	}
 }

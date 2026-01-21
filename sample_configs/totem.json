@@ -67,7 +67,7 @@
 				},
 				"toolbar": {
 					"enabled": true,
-					"hidden": false,
+					"hidden": true,
 					"toolbar_width": 50,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",

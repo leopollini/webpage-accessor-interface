@@ -34,7 +34,7 @@ class WebpageFilter extends BaseModule {
 
 	// false -> page OK. true -> page NOT OK.
 	isBadPage(page_info) {
-		this.warn('page info:', page_info);
+		// this.warn('page info:', page_info);
 		let host = page_info.host;
 		const host_split = host.split('.');
 		if (host_split.length > 2) host = host_split.slice(1, host_split.length - 1).join('');
@@ -46,7 +46,7 @@ class WebpageFilter extends BaseModule {
 			return false;
 		};
 		let res = check();
-		this.warn('detected host:', (res ? kleur.bold().red : kleur.green)(host));
+		this.log('detected host:', (res ? kleur.bold().red : kleur.green)(host));
 		return res;
 	}
 }

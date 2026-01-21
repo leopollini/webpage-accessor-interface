@@ -1,7 +1,7 @@
 // Here be only static defined variables used for debugging purposes
 const { app } = require('electron');
 
-const FORCE_EXE = true;
+const FORCE_EXE = false;
 const FORCE_VERBOSE = true
 
 class Env {
@@ -14,7 +14,7 @@ class Env {
 	static ALWAYS_RECONFIGURE_EXTENSIONS = false;
 	static CREATE_CONF_FOR_DISABLED_EXTENSIONS = true;
 	static CLEAR_CONFS_ON_RESTART =
-		!this.IS_EXECUTABLE && this.DEBUG_MODE || true; // || 'ask';
+		!this.IS_EXECUTABLE && this.DEBUG_MODE || 'ask';
 	static WEBVIEW_DEFAULT_PREFERENCES = {
 		contextIsolation: true,
 		nodeIntegration: false,
