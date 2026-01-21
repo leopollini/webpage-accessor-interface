@@ -17,6 +17,7 @@ class Toolbar extends BaseModule {
 	static tabs_count = 0;
 	track_active_tab = false;
 	first_avoided = false;
+	hidden = false;
 
 	onNewTabCreated(new_tab, old_tab) {
 		new_tab.webContents.setWindowOpenHandler((details) => {
@@ -53,14 +54,16 @@ class Toolbar extends BaseModule {
 			})
 		);
 
-		this.warn({ height: this.__conf.toolbar_width });
-		if (this.__conf.default_url.protocol == 'file')
-			this.__conf.default_url.pathname = path.join(
+		this.default_page = this.__data.webpages[0]
+		this.log(this.default_page)
+		if (this.default_page.protocol == 'file')
+			this.default_page.pathname = path.join(
 				__dirname,
-				this.__conf.default_url.pathname
+				this.default_page.pathname
 			);
 
-		if (this.__conf.hidden != true) {
+		this.hidden = (this.__conf.hidden === true)
+		if (!this.hidden) {
 			TabsManager.newSideTab(this.tab, 'toolbar', {
 				height: this.__conf.toolbar_width,
 			});
@@ -72,7 +75,7 @@ class Toolbar extends BaseModule {
 		// fs.watch(__dirname, (event) => {if (event == "change") {this.tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
 
 		icpChannel.newMainHandler('created-tab', (_, tab_url) =>
-			this.createNewTab(url.format(this.__conf.default_url))
+			this.createNewTab(url.format(this.default_page))
 		);
 		icpChannel.newMainHandler('switch-tab', (_, index) =>
 			this.setActiveTab(index)
@@ -85,26 +88,17 @@ class Toolbar extends BaseModule {
 	}
 
 	late_setup() {
-		if (this.tab && !this.__conf.hidden) {
-			// this.tab.webContents.on('before-input-event', (event, input) => {
-			// 	if (input.key)
-			// 	{
-			// 		this.warn("forwarding event to active tab");
-			// 		TabsManager.getActiveTab().webContents.send('before-input-event', input);
-			// 		event.preventDefault();
-			// 	}
-			// });
-			new (require('../window-events/main'))().onNewTabCreated(this.tab);
-			if (
-				this.__data.webpages.length == 0 &&
-				this.__conf.create_on_open == true
-			)
+		if (this.tab) {
+			if (!this.hidden)
+				new (require('../window-events/main'))().onNewTabCreated(this.tab);
+			if (this.__data.webpages.length == 0 && this.__conf.create_on_open == true)
 				this.requestNewTab();
 		}
 	}
 
 	// this method can be called from ANYWHERE (after initialization), thanks to the singleton behaviour of the modules.
-	async requestNewTab(req_url = this.__conf.default_url) {
+	// usage: new Toolbar().requestNewTab(url);
+	async requestNewTab(req_url = this.default_page.pathname) {
 		icpChannel.sendSignalToRender(
 			'create-tab',
 			this.tab,
@@ -147,7 +141,7 @@ class Toolbar extends BaseModule {
 		});
 		const tab_url = force_url
 			? requested_url
-			: url.format(this.__conf.default_url);
+			: url.format(this.default_page);
 		newTab.webContents.loadURL(tab_url);
 		this.log(
 			'Created new tab at url:',

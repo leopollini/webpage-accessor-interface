@@ -5,6 +5,7 @@ const FORCE_EXE = false;
 const FORCE_VERBOSE = true
 
 class Env {
+	static LINUX_DESKTOPFILE_PATH; // assigned in PackageCreator.js
 	static ROOT_LOCATION; // set in main.js
 	static IS_EXECUTABLE = app?.isPackaged || FORCE_EXE;
 	static DEBUG_MODE = !this.IS_EXECUTABLE && true;
@@ -13,8 +14,7 @@ class Env {
 	}
 	static ALWAYS_RECONFIGURE_EXTENSIONS = false;
 	static CREATE_CONF_FOR_DISABLED_EXTENSIONS = true;
-	static CLEAR_CONFS_ON_RESTART =
-		!this.IS_EXECUTABLE && this.DEBUG_MODE || 'ask';
+	static CLEAR_CONFS_ON_RESTART = !this.IS_EXECUTABLE; // && 'ask';
 	static WEBVIEW_DEFAULT_PREFERENCES = {
 		contextIsolation: true,
 		nodeIntegration: false,

@@ -6,10 +6,7 @@ const BaseModule = require('../../lib/BaseModule');
 const fs = require('fs');
 const path = require('../../lib/path2');
 
-// WARNING: THIS SCRIPT WILL CHANGE THE MACHINE'S STARTUP BEHAVIOUR.
-// TO DISABLE REMOVE .desktop FILE
-// WILL TAKE EFFECT ONLY ON BUILD MODE, NOT ON DEV MODE
-class Autoupdater extends BaseModule {
+module.exports = class Autoupdate extends BaseModule {
 	MODULE_NAME = 'autoupdate';
 	EXECUTABLE_NAME = '';
 	DOWNLOAD_PATH = '';
@@ -38,37 +35,39 @@ class Autoupdater extends BaseModule {
 
 		autoUpdater.on('update-available', (info) => {
 			this.log(`Update available: ${info.version}`);
-			dialog
-				.showMessageBox(this.window, {
-					type: 'info',
-					title: 'Update Available',
-					message: `Version ${info.version} is available. Download now?`,
-					buttons: ['Yes', 'Later'],
-				})
-				.then((result) => {
-					if (result.response === 0) {
-						try {
-							fs.rmdirSync(path.joinAppData('build'));
-						} catch (e) {
-							// clean build so next run is build
-						}
-						autoUpdater.downloadUpdate();
-					} else this.warn('User refused to update');
-				});
+			if (!this.__conf.silent)
+				dialog
+					.showMessageBox(this.window, {
+						type: 'info',
+						title: 'Update Available',
+						message: `Version ${info.version} is available. Download now?`,
+						buttons: ['Yes', 'Later'],
+					})
+					.then((result) => {
+						if (result.response === 0) {
+							try {
+								fs.rmdirSync(path.joinAppData('builds'));
+							} catch (e) {
+								// clean build so next run is built
+							}
+							autoUpdater.downloadUpdate();
+						} else this.warn('User refused to update');
+					});
+			else if (this.__conf.auto_downalod == true)
+				autoUpdater.downloadUpdate();
 		});
-		if (Env.VERBOSE)
-			autoUpdater.on('download-progress', (progressObj) => {
-				const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
-				this.log(logMsg);
-				this.window.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
-			});
+		autoUpdater.on('download-progress', (progressObj) => {
+			const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
+			this.log(logMsg);
+			this.window.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
+		});
 
 		autoUpdater.on('update-downloaded', (info) => {
 			this.log('Linking executable...');
 
 			// Remove build folder for clean reinstall
-			if (fs.existsSync(path.joinAppData('build')))
-				fs.rmSync(path.joinAppData('build'));
+			if (fs.existsSync(path.joinAppData('builds')))
+				fs.rmSync(path.joinAppData('builds'),{ recursive: true, force: true });
 
 			this.log('Installing');
 
@@ -77,19 +76,22 @@ class Autoupdater extends BaseModule {
 
 		autoUpdater.on('update-not-available', () => {
 			this.log('No updates available.');
-			dialog.showErrorBox('No updates available', `Check again later :)`);
+			if (!this.__conf.silent)
+				dialog.showErrorBox('No updates available', `Check again later :)`);
 		});
 
 		autoUpdater.on('error', (err) => {
 			this.err('Updater error:', err);
-			dialog.showErrorBox('Update Error', err == null ? 'unknown' : (err.stack || err).toString());
+			if (!this.__conf.silent)
+				dialog.showErrorBox('Update Error', err == null ? 'unknown' : (err.stack || err).toString());
+			this.fail_reason = err.toString();
 		});
 	}
 
 	setup_windows() {}
 
 	late_setup() {
-		if (this.__conf.ask_update_on_start != false) {
+		if (this.__conf.check_update_on_start != false) {
 			this.log('Checking for updates...');
 			this.tryUpdate();
 		}
@@ -100,8 +102,7 @@ class Autoupdater extends BaseModule {
 			this.updateFunction();
 		} catch (e) {
 			this.err(e);
+			this.fail_reason = e.toString();
 		}
 	}
 }
-
-module.exports = Autoupdater;

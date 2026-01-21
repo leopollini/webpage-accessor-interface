@@ -126,7 +126,7 @@
 					"enabled": true,
 					"extension": "autoupdate",
 					"auto_download": false,
-					"ask_update_on_start": false,
+					"check_update_on_start": false,
 					"update_mode":
 					{
 						"mode": "long_press",

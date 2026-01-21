@@ -49,6 +49,17 @@
 						"pathname": "google.com",
 						"protocol": "https"
 					}
+				},
+				"remote-controls": {
+					"enabled": true,
+					"extension": "remote-controls",
+					"log_level": "full",
+					"keepalive": 10,
+					"conn_timeout": 2,
+					"max_retries": 2,
+					"host": "127.0.0.1",
+					"port": 8080,
+					"ping": 10
 				}
 			}
 		},
@@ -101,7 +112,7 @@
 					"enabled": true,
 					"extension": "autoupdate",
 					"auto_download": true,
-					"ask_update_on_start": true,
+					"check_update_on_start": true,
 					"update_mode": {
 						"mode": "none (on restart)"
 					}

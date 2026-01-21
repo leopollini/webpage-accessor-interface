@@ -15,7 +15,7 @@ class WebpageFilter extends BaseModule {
 
 	onNewTabCreated(newTab) {
 		let checker = (event, req_url) => {
-			this.warn('Checking url:', req_url);
+			// this.warn('Checking url:', req_url);
 			let parsed = url.parse(req_url)
 			if (this.isBadPage(parsed)) {
 				event.preventDefault();

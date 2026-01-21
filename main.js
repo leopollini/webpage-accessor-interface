@@ -17,7 +17,7 @@ app.app_info = {};
 Env.ROOT_LOCATION = __dirname;
 
 // console.log(process.env.APPIMAGE)
-// console.log(fs.existsSync(path.joinRootDir('build/icons/png/512x512.png')))
+// console.log(fs.existsSync(path.joinRootDir('builds/icons/png/512x512.png')))
 // try {
 // 	console.log(
 // 		'Is Executable TESTS',
@@ -39,7 +39,7 @@ async function createMainWindow() {
 
 	const { height, width } = screen.getPrimaryDisplay().workAreaSize;
 	app.displaySize = { height: height, width: width };
-	// console.log('######## ICON FILE>', fs.existsSync( path.join(__dirname, 'build/icons/icon.png'),));
+	// console.log('######## ICON FILE>', fs.existsSync( path.join(__dirname, 'builds/icons/icon.png'),));
 	const mainWindow = new BaseWindow({
 		tabbingIdentifier: 'myTabs',
 		title: app.app_info.app_name || 'Electron',
@@ -47,7 +47,7 @@ async function createMainWindow() {
 		height: height / 2,
 		fullscreenable: true,
 		autoHideMenuBar: true,
-		icon: path.join(__dirname, 'build/icons/icon.png'),
+		icon: path.join(__dirname, 'builds/icons/icon.png'),
 	});
 	TabsManager.setup(mainWindow);
 

@@ -5,14 +5,12 @@ const kleur = require('kleur');
 const {
 	EXT_CONFIGS_DIR,
 	LINUX_AUTOSTART_DIR,
-	LINUX_APPIMAGE_DIR,
 	HOME_BIN_LINUX,
 	DATA_FILE_PATH,
 	SAMPLE_CONFIGS_DIR,
 } = require('./lib/Constants');
 const Env = require('./env');
 const { findAppArg } = require('./lib/utils');
-const createDesktopShortcut = require('create-desktop-shortcuts');
 
 class PackageCreator {
 	static CONF_FILE_PATH = Env.IS_EXECUTABLE ? path.joinAppData('config.json') : path.join(__dirname, 'config.json');
@@ -24,11 +22,11 @@ class PackageCreator {
 		this.ensureAppDirectories();
 
 		// extract build components
-		if (!fs.existsSync(path.joinAppData('build')))
+		if (!fs.existsSync(path.joinAppData('builds')))
 		{
 			PackageCreator.IS_BUILD_RUN = true;
-			fs.mkdirSync(path.joinAppData('build'));
-			fs.cpSync(path.joinRootDir('build'), path.joinAppData('build'), {recursive: true, force: true})
+			fs.mkdirSync(path.joinAppData('builds'));
+			fs.cpSync(path.joinRootDir('builds'), path.joinAppData('builds'), {recursive: true, force: true})
 		}
 
 		// loads config file
@@ -79,19 +77,25 @@ class PackageCreator {
 
 	createDesktopFile()
 	{
-		if (PackageCreator.IS_BUILD_RUN && Env.IS_EXECUTABLE && process.env.APPIMAGE)
+		// Linux only
+		Env.LINUX_DESKTOPFILE_PATH = path.join(app.getPath('home'), '.local/share/applications', app.data.app_name+".desktop" );
+		let success = false;
+		const cmd = `sh -c "${process.env.APPIMAGE} --no-sandbox"`;
+		if (Env.IS_EXECUTABLE && process.env.APPIMAGE)
 		{
-			const shortcutsCreated = createDesktopShortcut({
-				linux: {
-					filePath: process.env.APPIMAGE,
-					outputPath: LINUX_APPIMAGE_DIR,
-					name: app.data.app_name,
-					icon: path.joinAppData('build/icons/png/512x512.png'),
-					description: 'Webpage Accessor',
-					categories: ['Utility', 'Development'],
-				}
-			});
+			fs.writeFileSync(Env.LINUX_DESKTOPFILE_PATH,
+`#!/user/bin/env xdg-open
+[Desktop Entry]
+Version=${app.data.version}
+Type=Application
+Terminal=false
+Exec=${cmd}
+Name=${app.data.app_name}
+Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
+			);
 		}
+		console.log(`## Desktopfile ${success ? kleur.green().bold('succesfully') : kleur.red().bold('not')} created at`, Env.LINUX_DESKTOPFILE_PATH, `, command is "${cmd}"`)
+		// Not required for Windows since .exe installer does that
 	}
 
 	clearConfigs() {

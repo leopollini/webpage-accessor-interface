@@ -2,30 +2,31 @@ const kleur = require('kleur');
 const BaseModule = require('../../lib/BaseModule');
 const net = require('node:net');
 const { dialog, app } = require('electron');
-const BaseLogger = require('../../lib/BaseLogger');
+const { BaseLogger } = require('../../lib/BaseLogger');
+const Autoupdate = require('../autoupdate/main');
 
 class SocketLogger extends BaseLogger {
 	sock;
-	constructor(s) {
+	constructor(s, log_level) {
 		super();
 		this.sock = s;
-	}
-	log(module_name, message, highlight) {
-		this.sock.write(`\nLOG|${(highlight ? kleur.bold().green : kleur.green)(module_name)}: ${message.join(' ')}`);
-	}
-	warn(module_name, message, highlight) {
-		this.sock.write(`\nWARN|${(highlight ? kleur.bold().yellow : kleur.yellow)(module_name)}: ${message.join(' ')}`);
-	}
-	err(module_name, message, highlight) {
-		this.sock.write(`\nERR|${(highlight ? kleur.bold().red : kleur.red)(module_name)}: ${message.join(' ')}`);
+		
+		switch (log_level) {
+			default:
+			case 'LOG':
+				this.log = (module_name, message, highlight) => this.sock.write(`LOG|${(highlight ? kleur.bold().green : kleur.green)(module_name)}: ${message.join(' ')}\n`);
+			case 'WARNING':
+				this.warn = (module_name, message, highlight) => this.sock.write(`WARN|${(highlight ? kleur.bold().yellow : kleur.yellow)(module_name)}: ${message.join(' ')}\n`);
+			case "ERROR":
+				this.err = (module_name, message, highlight) => this.sock.write(`ERR|${(highlight ? kleur.bold().red : kleur.red)(module_name)}: ${message.join(' ')}\n`);
+		}
 	}
 }
 
 module.exports = class RemoteControls extends BaseModule {
 	MODULE_NAME = 'remote-controls';
-	status = 'connecting...';
 	required_modules = [];
-	HIGHLIGHT = true;
+	// HIGHLIGHT = true;
 
 	sock;
 	connected = false;
@@ -34,13 +35,15 @@ module.exports = class RemoteControls extends BaseModule {
 
 	setup() {
 		this.sock = new net.Socket();
-		this.sockLogger = new SocketLogger(this.sock);
+		// socket setup takes place in late_setup
+		this.sockLogger = new SocketLogger(this.sock, this.__conf.log_level);
+		// this.status = kleur.blue('connecting...');
 	}
 
 	setupSocket() {
 		this.sock.connect(this.__conf.port, this.__conf.host, () => {
 			this.log('Connected to server');
-			this.sock.write('Hello I am ' + this.__data.terminal_id);
+			this.sock.write('Hello I am ' + this.__data.terminal_id + '\n');
 			this.connected = true;
 			this.sock.setKeepAlive(true, this.__conf.ping ? this.__conf.ping * 1000 : 10000);
 			this.failed_retries = 0;
@@ -66,6 +69,7 @@ module.exports = class RemoteControls extends BaseModule {
 			} else {
 				this.err('Socket error:', err.code);
 				this.fail_reason = err;
+				this.connected = false;
 			}
 		});
 	}
@@ -88,7 +92,7 @@ module.exports = class RemoteControls extends BaseModule {
 					})
 					.then((result) => {
 						this.log(result);
-						this.sock.write('OK');
+						this.sock.write('OK\n');
 						app.exit();
 					});
 				break;
@@ -102,7 +106,7 @@ module.exports = class RemoteControls extends BaseModule {
 						buttons: ['Ok', 'Complain'],
 					})
 					.then();
-				this.sock.write('OK');
+				this.sock.write('OK\n');
 				break;
 			case 'MSG':
 				this.log(`You got a message from Server: '${content.join(' ').trim()}'`);
@@ -114,11 +118,16 @@ module.exports = class RemoteControls extends BaseModule {
 						buttons: ['Ok'],
 					})
 					.then();
-				this.sock.write('OK');
+				this.sock.write('OK\n');
 				break;
 			case 'ID':
 				this.log('Server has requested your id');
-				this.sock.write(parseInt(this.__data.terminal_id).toString() + 'OK');
+				this.sock.write(parseInt(this.__data.terminal_id).toString() + 'OK\n');
+				break;
+			case 'UPDATE':
+				this.log('Server has requested to update app');
+				new Autoupdate().tryUpdate();
+				this.sock.write('OK\n');
 				break;
 		}
 	}

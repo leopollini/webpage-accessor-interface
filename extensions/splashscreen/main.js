@@ -32,7 +32,7 @@ class Splashscreen extends require('../../lib/BaseModule') {
 		setInterval(() => {
 			if (this.is_splashscreen) return;
 			if (Env.VERBOSE) this.log('splash_check');
-			if (!this.inputed) this.setSplash();
+			if (!this.inputed) try {this.setSplash();} catch {} // to hide errors at async app destruction
 			this.inputed = false;
 		}, this.__conf.splash_timeout * 750);
 
@@ -50,8 +50,6 @@ class Splashscreen extends require('../../lib/BaseModule') {
 
 	setSplash() {
 		this.splash.setBounds({
-			x: 0,
-			y: 0,
 			height: this.window.getContentBounds().height,
 			width: this.window.getContentBounds().width,
 		});
