@@ -10,15 +10,24 @@ class SocketLogger extends BaseLogger {
 	constructor(s, log_level) {
 		super();
 		this.sock = s;
-		
+
 		switch (log_level) {
 			default:
 			case 'LOG':
-				this.log = (module_name, message, highlight) => this.sock.write(`LOG|${(highlight ? kleur.bold().green : kleur.green)(module_name)}: ${message.join(' ')}\n`);
+				this.log = (module_name, message, highlight) =>
+					this.sock.write(
+						`LOG|${(highlight ? kleur.bold().green : kleur.green)(module_name)}: ${message.join(' ')}\n`,
+					);
 			case 'WARNING':
-				this.warn = (module_name, message, highlight) => this.sock.write(`WARN|${(highlight ? kleur.bold().yellow : kleur.yellow)(module_name)}: ${message.join(' ')}\n`);
-			case "ERROR":
-				this.err = (module_name, message, highlight) => this.sock.write(`ERR|${(highlight ? kleur.bold().red : kleur.red)(module_name)}: ${message.join(' ')}\n`);
+				this.warn = (module_name, message, highlight) =>
+					this.sock.write(
+						`WARN|${(highlight ? kleur.bold().yellow : kleur.yellow)(module_name)}: ${message.join(' ')}\n`,
+					);
+			case 'ERROR':
+				this.err = (module_name, message, highlight) =>
+					this.sock.write(
+						`ERR|${(highlight ? kleur.bold().red : kleur.red)(module_name)}: ${message.join(' ')}\n`,
+					);
 		}
 	}
 }
@@ -37,7 +46,8 @@ module.exports = class RemoteControls extends BaseModule {
 		this.sock = new net.Socket();
 		// socket setup takes place in late_setup
 		this.sockLogger = new SocketLogger(this.sock, this.__conf.log_level);
-		// this.status = kleur.blue('connecting...');
+		this.status = kleur.blue('connecting...');
+		if (!this.__conf.conn_timeout) this.__conf.conn_timeout = 1;
 	}
 
 	setupSocket() {
@@ -64,13 +74,13 @@ module.exports = class RemoteControls extends BaseModule {
 		this.sock.on('error', (err) => {
 			if (err.code == 'ECONNREFUSED') {
 				this.warn('Socket could not connect (refused)');
-				this.failed_retries++;
 				this.connected = false;
 			} else {
 				this.err('Socket error:', err.code);
 				this.fail_reason = err;
 				this.connected = false;
 			}
+			this.failed_retries++;
 		});
 	}
 

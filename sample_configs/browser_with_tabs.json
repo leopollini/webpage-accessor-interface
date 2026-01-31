@@ -117,8 +117,7 @@
 						"mode": "none (on restart)"
 					}
 				},
-				"remote-controls":
-				{
+				"remote-controls": {
 					"enabled": true,
 					"extension": "remote-controls",
 					"log_level": "full",
@@ -136,6 +135,12 @@
 		"autorestart": false,
 		"autoreload": false,
 		"allow_navigation": true,
-		"webpages": []
+		"webpages": [
+			{
+				"pathname": "service.parchotels.it",
+				"protocol": "https"
+			}
+		],
+		"terminal_id": 6967420
 	}
 }

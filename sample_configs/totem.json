@@ -109,8 +109,9 @@
 					"keepalive": 10,
 					"conn_timeout": 2,
 					"max_retries": 2,
-					"host": "192.168.6.151",
-					"port": 8080
+					"host": "localhost",
+					"port": 8080,
+					"other_hosts": ["192.168.6.151"]
 				}
 			}
 		}

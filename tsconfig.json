@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		/* Basic Options */
+		"target": "ESNext", // Allows modern JS features
+		"module": "CommonJS", // Electron main process requires CommonJS
+		"lib": ["ESNext", "DOM"], // DOM is needed for Renderer/Preload scripts
+		"outDir": "./extensions", // Where your compiled .js files will go
+		"rootDir": "./extensions_src", // Where your source .ts files live
+
+		/* Strictness & Safety */
+		"strict": true, // Enables all strict type-checking options
+		"noImplicitAny": true, // Forces you to define types for dynamic imports
+		"moduleResolution": "node", // Helps TS find modules in node_modules
+
+		/* Compatibility */
+		"esModuleInterop": true, // Fixes issues with importing CommonJS modules
+		"skipLibCheck": true, // Speeds up build by skipping type check of d.ts files
+		"forceConsistentCasingInFileNames": true, // Important for cross-platform (Windows vs Mac)
+
+		/* Advanced */
+		"resolveJsonModule": true, // Useful if your modules have .json config files
+		"removeComments": false, // Useful for debugging
+		"sourceMap": true // Essential for debugging .ts files in DevTools
+	},
+	"include": ["extensions_src/**/*"], // Ensures all files in src/ are compiled
+	"exclude": ["node_modules", "dist"] // Don't look at these
+}
