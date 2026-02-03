@@ -46,7 +46,7 @@ module.exports = class RemoteControls extends BaseModule {
 		this.sock = new net.Socket();
 		// socket setup takes place in late_setup
 		this.sockLogger = new SocketLogger(this.sock, this.__conf.log_level);
-		this.status = kleur.blue('connecting...');
+		this.ENTRY_STATUS = kleur.blue('connecting...');
 		if (!this.__conf.conn_timeout) this.__conf.conn_timeout = 1;
 	}
 
@@ -157,5 +157,5 @@ module.exports = class RemoteControls extends BaseModule {
 		}
 	}
 
-	onNewTabCreated(newTab) {}
+	on_new_tab_created(newTab) {}
 };

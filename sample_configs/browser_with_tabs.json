@@ -57,7 +57,7 @@
 					"keepalive": 10,
 					"conn_timeout": 2,
 					"max_retries": 2,
-					"host": "127.0.0.1",
+					"host": "192.168.178.41",
 					"port": 8080,
 					"ping": 10
 				}
@@ -68,7 +68,7 @@
 			"actions": {
 				"webpage_filter": {
 					"enabled": true,
-					"hosts_whitelist": ["google"],
+					"hosts_whitelist": [],
 					"hosts_blacklist": [],
 					"webpages_whitelist": [],
 					"webpages_blacklist": [],
@@ -78,7 +78,7 @@
 				"toolbar": {
 					"enabled": true,
 					"hidden": false,
-					"toolbar_width": 50,
+					"toolbar_width": 60,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",
 					"allow_target_blank": true,

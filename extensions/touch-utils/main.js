@@ -19,7 +19,7 @@ class DoubleClick extends require('../../lib/BaseModule') {
 
 	setup() {}
 
-	onNewTabCreated(newTab) {
+	on_new_tab_created(newTab) {
 		newTab.webContents.on('input-event', (event, input) => {
 			// if (input.type != 'mouseMove' && Env.VERBOSE)
 			//     this.log("sending an", input.type);
@@ -59,22 +59,15 @@ class DoubleClick extends require('../../lib/BaseModule') {
 			app.commandLine.appendSwitch('enable-pointer-events');
 		}
 
-		if (
-			this.__conf.disable_physical_keyboard == true &&
-			this.__conf.disable_virtual_keyboard == true
-		) {
+		if (this.__conf.disable_physical_keyboard == true && this.__conf.disable_virtual_keyboard == true) {
 			this.warn('disabling keyboard');
 			newTab.webContents.on('before-input-event', (event, input) => {
-				if (input.type === 'keyDown' || input.type === 'keyUp')
-					event.preventDefault();
+				if (input.type === 'keyDown' || input.type === 'keyUp') event.preventDefault();
 			});
 		} else if (this.__conf.disable_physical_keyboard == true) {
 			this.warn('disabling physical keyboard');
 			newTab.webContents.on('before-input-event', (event, input) => {
-				if (
-					(!this.mouseHasLeft && input.type === 'keyDown') ||
-					input.type === 'keyUp'
-				) {
+				if ((!this.mouseHasLeft && input.type === 'keyDown') || input.type === 'keyUp') {
 					event.preventDefault();
 					this.warn('prevented by physical secutiry');
 				}
@@ -82,10 +75,7 @@ class DoubleClick extends require('../../lib/BaseModule') {
 		} else if (this.__conf.disable_virtual_keyboard == true) {
 			this.warn('disabling virtual keyboard');
 			newTab.webContents.on('before-input-event', (event, input) => {
-				if (
-					(this.mouseHasLeft && input.type === 'keyDown') ||
-					input.type === 'keyUp'
-				) {
+				if ((this.mouseHasLeft && input.type === 'keyDown') || input.type === 'keyUp') {
 					event.preventDefault();
 					this.warn('prevented by virtual secutiry');
 				}
@@ -97,14 +87,10 @@ class DoubleClick extends require('../../lib/BaseModule') {
 	}
 
 	async looseDoubleClickCheck(input, event) {
-		if (Date.now() > this.lstLeftPress + this.__conf.doubleclick_max_delay)
-			return;
+		if (Date.now() > this.lstLeftPress + this.__conf.doubleclick_max_delay) return;
 		const dx = input.x - this.lstLeftPos.x;
 		const dy = input.y - this.lstLeftPos.y;
-		if (
-			(dx != 0 || dy != 0) &&
-			dx * dx + dy * dy < this.__conf.doubleclick_sqr_radius
-		) {
+		if ((dx != 0 || dy != 0) && dx * dx + dy * dy < this.__conf.doubleclick_sqr_radius) {
 			this.tab.webContents.send('double-click2', {
 				x: input.x,
 				y: input.y,

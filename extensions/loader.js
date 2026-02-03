@@ -8,47 +8,48 @@ const EXT_LOAD_DIR = __dirname;
 
 const modules = {};
 
+// looks for available modules and loads them. Is a static class
 module.exports = class Loader2 {
 	mainWindow = null;
 	mainTab = null;
 	data = null;
 	enabled_modules;
 
-	// 'data' shoud be app.data
+	// 'data' should be the contents of data.json
 	static load(data) {
 		this.mainWindow = TabsManager.mainWindow;
 		this.mainTab = TabsManager.getActiveTab();
 		this.data = data;
 		this.enabled_modules = new Set();
 
-		// load modules -> no setup
+		// look for valid modules: DOES NOT SETUP
 		fs.readdirSync(EXT_LOAD_DIR).forEach(function (ext) {
 			const main = path.join(EXT_LOAD_DIR, ext, 'main.js');
 			// console.log("\t at", main_dir);
 			if (!fs.existsSync(main)) return;
-
 			// if (Env.DEBUG_MODE)
 			//     console.log("loading", kleur.green(main));
 			modules[ext] = main;
 		});
 
-		// setup all loaded modules
+		// setup all valid found modules
 		for (const ext in modules) {
 			this.loadModule(ext);
 		}
 
-		// deprecated
-		// Loader2.allowGetPreloadData()
 		return [...this.enabled_modules];
 	}
 
 	static lateLoad() {
 		// Module late start
 		this.enabled_modules.forEach(function (module) {
-			if (module.isActive()) module.__late_start();
+			if (module.isActive?.()) module.__late_start();
 		});
 	}
 
+	// does some checks before tryinc to call module.__start() -> setup()
+	// If this function is reached by an invalid module, the error is saved in the object and
+	// dumped upon checkActiveModules(), even if it is not actually a BaseModule inheritor
 	static loadModule(ext) {
 		let mod;
 		try {
@@ -64,44 +65,10 @@ module.exports = class Loader2 {
 			if (e instanceof BaseModule.ModuleError) {
 				console.log('Module not loaded: ' + e);
 				if (mod) {
+					mod.failed = BaseModule.prototype.failed;
 					mod.failed(e);
 				}
 			} else console.log('Module not loaded:', e);
 		}
 	}
-
-	// It appears that preload modules can still access local files, so this is useless P:
-	// static allowGetPreloadData() {
-	// 	ipcMain.handle('preload-get-extension-conf', async (event, ext) => {
-	// 		if (ext.indexOf('..') > 0 || ext.indexOf('/') > 0) {
-	// 			console.log(
-	// 				'detected ill request from extension:',
-	// 				'"' + kleur.yellow(ext) + '"',
-	// 				'returning'
-	// 			);
-	// 			return { nice_try: 'lol' };
-	// 		}
-	// 		const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-	// 		await sleep(1000);
-
-	// 		if (!fs.existsSync(path.joinConfigDir(ext + '.json'))) {
-	// 			console.log('Requested config file does not exist.');
-	// 			return {};
-	// 		}
-	// 		const res = JSON.parse(
-	// 			fs.readFileSync(path.joinConfigDir(ext + '.json'))
-	// 		);
-	// 		if (Env.VERBOSE)
-	// 			console.log(
-	// 				ext,
-	// 				"requested config info at '" +
-	// 					path.joinConfigDir(ext + '.json') +
-	// 					"'",
-	// 				'sending',
-	// 				res
-	// 			);
-	// 		return res;
-	// 	});
-	// 	// ipcMain.handle('preload-get-extension-conf', async (event, ext) => {await fs.readFile(path.joinConfigDir(ext + '.json'));});
-	// }
 };

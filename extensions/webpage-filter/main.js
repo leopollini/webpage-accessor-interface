@@ -13,10 +13,10 @@ class WebpageFilter extends BaseModule {
 		if (this.__conf.hosts_whitelist) this.log('Host whitelist:', this.__conf.hosts_whitelist);
 	}
 
-	onNewTabCreated(newTab) {
+	on_new_tab_created(newTab) {
 		let checker = (event, req_url) => {
 			// this.warn('Checking url:', req_url);
-			let parsed = url.parse(req_url)
+			let parsed = url.parse(req_url);
 			if (this.isBadPage(parsed)) {
 				event.preventDefault();
 				dialog.showMessageBox(this.window, {

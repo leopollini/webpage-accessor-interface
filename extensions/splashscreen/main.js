@@ -32,7 +32,10 @@ class Splashscreen extends require('../../lib/BaseModule') {
 		setInterval(() => {
 			if (this.is_splashscreen) return;
 			if (Env.VERBOSE) this.log('splash_check');
-			if (!this.inputed) try {this.setSplash();} catch {} // to hide errors at async app destruction
+			if (!this.inputed)
+				try {
+					this.setSplash();
+				} catch {} // to hide errors at async app destruction
 			this.inputed = false;
 		}, this.__conf.splash_timeout * 750);
 
@@ -41,7 +44,7 @@ class Splashscreen extends require('../../lib/BaseModule') {
 		// setTimeout(TabsManager.setTab, 5000, mainTab);
 	}
 
-	onNewTabCreated(newTab) {
+	on_new_tab_created(newTab) {
 		newTab.webContents.on('input-event', (e, input) => {
 			this.inputed = true;
 		});
@@ -61,8 +64,7 @@ class Splashscreen extends require('../../lib/BaseModule') {
 
 	removeSplash() {
 		this.is_splashscreen = false;
-		if (TabsManager.activeTabName == this.splash.tab_id)
-			TabsManager.unsetTab();
+		if (TabsManager.activeTabName == this.splash.tab_id) TabsManager.unsetTab();
 	}
 }
 

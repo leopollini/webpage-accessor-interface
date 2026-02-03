@@ -21,15 +21,48 @@ class PackageCreator {
 	constructor() {
 		this.ensureAppDirectories();
 
-		// extract build components
-		if (!fs.existsSync(path.joinAppData('builds')))
-		{
-			PackageCreator.IS_BUILD_RUN = true;
-			fs.mkdirSync(path.joinAppData('builds'));
-			fs.cpSync(path.joinRootDir('builds'), path.joinAppData('builds'), {recursive: true, force: true})
+		this.extractBuildComponents();
+
+		if (this.loadConfigFileAndDataFile()) return;
+
+		if (Env.CLEAR_CONFS_ON_RESTART && app.data.clear_confs_set !== false) this.clearConfigs();
+		console.log('### CONFIGURING PACKAGES ###');
+
+		this.createConfigurations();
+
+		this.conf.app_info.version = app.getVersion();
+		this.conf.app_info.last_configured = Date.now();
+		// the object's unpacking order is VERY important: first the incoming data from the (eventually new) config file,
+		// then whatever whas set in data.json before launching, then the incoming app info, then some extra info.
+		app.data = {
+			...this.conf.default_data,
+			...app.data,
+			...this.conf.app_info,
+			is_configured: true,
+		};
+		if (Env.DEBUG_MODE) console.log(app.data);
+
+		// Save the data.json file
+		try {
+			fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(app.data, null, 4));
+		} catch (e) {
+			console.log('Could not create data.json file:', e);
 		}
 
-		// loads config file
+		console.log('### CONFIGURATION FINISHED ###');
+		PackageCreator.PC_SUCCESS = true;
+	}
+
+	extractBuildComponents() {
+		if (!fs.existsSync(path.joinAppData('builds'))) {
+			PackageCreator.IS_BUILD_RUN = true;
+			fs.mkdirSync(path.joinAppData('builds'));
+			fs.cpSync(path.joinRootDir('builds'), path.joinAppData('builds'), { recursive: true, force: true });
+		}
+	}
+
+	// returns False in case of success, True in case of problems with config file
+	loadConfigFileAndDataFile() {
 		try {
 			const config_file_content = fs.readFileSync(PackageCreator.CONF_FILE_PATH);
 			this.conf = JSON.parse(config_file_content);
@@ -38,9 +71,9 @@ class PackageCreator {
 			console.log('Main: could not load config file:' + e);
 			if (e.message.includes('ENOENT') && this.requestConfig()) return new PackageCreator(); // try again
 			app.quit();
-			return;
+			return true;
 		}
-		// load data file, if present
+
 		if (fs.existsSync(PackageCreator.DATA_FILE_PATH)) {
 			try {
 				app.data = JSON.parse(fs.readFileSync(PackageCreator.DATA_FILE_PATH));
@@ -48,55 +81,9 @@ class PackageCreator {
 				console.log('Main: could not load data file. Reconfiguring data.json. Error was:', e);
 			}
 		}
-		this.configs_cleared = false;
-		if (Env.CLEAR_CONFS_ON_RESTART && app.data.clear_confs_set !== false) this.clearConfigs();
-		console.log('### CONFIGURING PACKAGES ###');
-
-		this.createConfigurations();
-
-		this.conf.app_info.version = app.getVersion();
-		this.conf.app_info.last_configured = Date.now();
-		// the object's unpacking order is VERY important: first the incoming data from the config file, then whatever whas set in data.json before launching, then the incoming app info, then some extra info.
-		app.data = {
-			...this.conf.default_data,
-			...app.data,
-			...this.conf.app_info,
-			is_configured: true,
-		};
-		console.log(app.data);
-		try {
-			fs.writeFileSync(PackageCreator.DATA_FILE_PATH, JSON.stringify(app.data, null, 4));
-		} catch (e) {
-			console.log('Could not create data.json file:', e);
-		}
-		this.createDesktopFile();
-		console.log('### CONFIGURATION FINISHED ###');
-		PackageCreator.PC_SUCCESS = true;
-		// fs.writeFileSync(PackageCreator.CONF_FILE_PATH, JSON.stringify(this.conf, null, 2));
+		return false;
 	}
 
-	createDesktopFile()
-	{
-		// Linux only
-		Env.LINUX_DESKTOPFILE_PATH = path.join(app.getPath('home'), '.local/share/applications', app.data.app_name+".desktop" );
-		let success = false;
-		const cmd = `sh -c "${process.env.APPIMAGE} --no-sandbox"`;
-		if (Env.IS_EXECUTABLE && process.env.APPIMAGE)
-		{
-			fs.writeFileSync(Env.LINUX_DESKTOPFILE_PATH,
-`#!/user/bin/env xdg-open
-[Desktop Entry]
-Version=${app.data.version}
-Type=Application
-Terminal=false
-Exec=${cmd}
-Name=${app.data.app_name}
-Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
-			);
-		}
-		console.log(`## Desktopfile ${success ? kleur.green().bold('succesfully') : kleur.red().bold('not')} created at`, Env.LINUX_DESKTOPFILE_PATH, `, command is "${cmd}"`)
-		// Not required for Windows since .exe installer does that
-	}
 
 	clearConfigs() {
 		console.log('DATA: ', app.data);
@@ -124,7 +111,6 @@ Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
 			}
 		}
 		console.log('### CLEARING OLD CONFIGURATIONS ###');
-		this.configs_cleared = true;
 		try {
 			if (fs.existsSync(path.joinConfigDir())) {
 				fs.readdirSync(path.joinConfigDir()).forEach((entry) => {
@@ -142,6 +128,7 @@ Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
 		}
 	}
 
+	// This asks the user to chose a config file from the Samples folder
 	requestConfig() {
 		// Choose a new config file for the app
 		this.unpackSampleConfigs();
@@ -173,12 +160,17 @@ Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
 
 	unpackSampleConfigs() {
 		// if (Env.IS_EXECUTABLE)
-		console.log("Cloning sample configs (from", path.joinRootDir(SAMPLE_CONFIGS_DIR), "to", path.joinAppData(SAMPLE_CONFIGS_DIR) + ")")
+		console.log(
+			'Cloning sample configs (from',
+			path.joinRootDir(SAMPLE_CONFIGS_DIR),
+			'to',
+			path.joinAppData(SAMPLE_CONFIGS_DIR) + ')',
+		);
 		fs.cpSync(
 			path.joinRootDir(SAMPLE_CONFIGS_DIR),
 			path.joinAppData(SAMPLE_CONFIGS_DIR),
 			{ recursive: true, force: true },
-			() => {}
+			() => {},
 		);
 	}
 
@@ -202,6 +194,7 @@ Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
 		});
 	}
 
+	// If configurations are already present, this function eventually updates them with new parameters from the config file.
 	createConfigurations() {
 		Object.entries(this.conf.configuration).forEach(([name, conf]) => {
 			this.loadConfiguration(conf, name);
@@ -234,7 +227,7 @@ Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
 				'actions for',
 				kleur.grey(name),
 				'because',
-				kleur.red('disabled')
+				kleur.red('disabled'),
 			);
 		Object.entries(actions).forEach(([name, ext]) => {
 			this.loadExtension({ ...env, ...ext }, name, depth);
@@ -249,7 +242,7 @@ Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
 				'extension',
 				kleur.grey(name),
 				'because',
-				kleur.red('disabled')
+				kleur.red('disabled'),
 			);
 
 		if (ext.actions) {
@@ -263,7 +256,7 @@ Icon=${path.joinAppData('builds/icons/png/512x512.png')}`
 				'extension',
 				kleur.grey(name),
 				'because configuration is',
-				kleur.red('missing')
+				kleur.red('missing'),
 			);
 		if (!Env.ALWAYS_RECONFIGURE_EXTENSIONS && fs.existsSync(path.joinConfigDir(ext.extension + '.json'))) {
 			// return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because is already configured');

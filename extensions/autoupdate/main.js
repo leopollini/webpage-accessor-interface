@@ -31,7 +31,13 @@ module.exports = class Autoupdate extends BaseModule {
 		}
 		this.log('Starting update checks');
 
-		this.updateFunction = () => autoUpdater.checkForUpdates();
+		this.updateFunction = () => {
+			try {
+				autoUpdater.checkForUpdates();
+			} catch {
+				dialog.showErrorBox('release error', 'This version does not have a release file');
+			}
+		}
 
 		autoUpdater.on('update-available', (info) => {
 			this.log(`Update available: ${info.version}`);

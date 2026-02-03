@@ -2,13 +2,11 @@ const { WebContentsView } = require('electron');
 const path = require('../../lib/path2');
 const TabsManager = require('../../lib/TabsManager');
 const url = require('url');
-const fs = require('fs');
 const icpChannel = require('../../lib/icpChannel');
 const Env = require('../../env');
-const { getPageTitle } = require('../../lib/utils');
+const { getPageTitle, getFavIco } = require('../../lib/utils');
 const BaseModule = require('../../lib/BaseModule');
 const kleur = require('kleur');
-const ipcChannel = require('../../lib/icpChannel');
 
 // Sample Module. Plase copy-paste this file into new module's main folder
 class Toolbar extends BaseModule {
@@ -19,7 +17,7 @@ class Toolbar extends BaseModule {
 	first_avoided = false;
 	hidden = false;
 
-	onNewTabCreated(new_tab, old_tab) {
+	on_new_tab_created(new_tab, old_tab) {
 		new_tab.webContents.setWindowOpenHandler((details) => {
 			this.log('preventing window creation by opening new tab at', details.url);
 			if (this.__conf.allow_target_blank == true) this.requestNewTab(details.url);
@@ -37,7 +35,6 @@ class Toolbar extends BaseModule {
 				...Env.WEBVIEW_DEFAULT_PREFERENCES,
 			},
 		});
-		this.tab.devtools_detach = true;
 		Toolbar.toolbar_tab = this.tab;
 		this.tab.tab_id = 'toolbar';
 
@@ -69,13 +66,12 @@ class Toolbar extends BaseModule {
 		icpChannel.newMainHandler('created-tab', (_, tab_url) => this.createNewTab(url.format(this.default_page)));
 		icpChannel.newMainHandler('switch-tab', (_, index) => this.setActiveTab(index));
 		icpChannel.newMainHandler('closed-tab', (_, index) => this.closeTab(TabsManager.idToName(index)));
-
-		// this.tab.webContents.openDevTools({mode: 'detach'});
 	}
 
 	late_setup() {
 		if (this.tab) {
-			if (!this.hidden) new (require('../window-events/main'))().onNewTabCreated(this.tab);
+			this.tab.devtools_detach = true;
+			if (!this.hidden) new (require('../window-events/main'))().on_new_tab_created(this.tab);
 			if (this.__data.webpages.length == 0 && this.__conf.create_on_open == true) this.requestNewTab();
 		}
 	}
@@ -114,10 +110,12 @@ class Toolbar extends BaseModule {
 		newTab.webContents.loadURL(tab_url);
 		this.log('Created new tab at url:', tab_url, 'name:', 'tab_' + Toolbar.tabs_count);
 		this.setTitleTracker(newTab);
+		this.warn(url.parse(tab_url));
 		return {
 			success: await TabsManager.newTab(newTab, 'tab_' + Toolbar.tabs_count++),
 			title: await getPageTitle(newTab.webContents),
 			id: newTab.tab_id,
+			favico_url: await getFavIco(url.parse(tab_url).pathname)
 		};
 	}
 

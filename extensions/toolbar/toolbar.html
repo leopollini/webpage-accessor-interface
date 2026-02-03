@@ -4,15 +4,20 @@
 	<meta charset="UTF-8">
 	<title>My Electron Tab Manager</title>
 	<style>
-		/* Basic styling for tab bar + views */
 		#tabBar {
 			display: flex;
 			overflow-x: scroll;
 			background: #eee;
 			padding: 4px;
 		}
+		#tabBar::-webkit-scrollbar {
+			display: none;
+		}
+		.nonselectable {
+			user-select: none;
+		}
 		.tab {
-			padding: 4px 8px;
+			padding: 4px 30px;
 			margin-right: 4px;
 			background: #ddd;
 			border-radius: 4px 4px 0 0;
@@ -23,17 +28,17 @@
     		flex-grow: 1;
 			
 			max-width: 100px;        /* limit tab width */
-			min-width: 25px;        /* limit tab width */
+			min-width: 10px;        /* limit tab width */
 			white-space: nowrap;      /* prevent wrapping */
 			overflow: hidden;         /* hide overflow */
 			text-overflow: ellipsis;  /* show "..." for long text */
 		}
 		.tab-icon {
-			height: 25px;
+			height: 20px;
 			flex-shrink: 1; /* Ensures the icon stays a square */
 			position: absolute;
-			left: 2px;
-			top: 0px;
+			left: 3px;
+			top: 3px;
 			margin-right: 10px;
 		}
 		.tab.active {
@@ -79,11 +84,11 @@
 	</style>
 </head>
 <body>
-	<div id="tabBar">
+	<div id="tabBar", class="nonselectable">
 		<!-- tabs will be injected here -->
-		<button id="newTabBtn", class="button-close">+ New Tab</button>
+		<button id="newTabBtn", class="button-close nonselectable">+ New Tab</button>
 	</div>
-	<div id="viewContainer"></div>
+	<div id="viewContainer", class="nonselectable"></div>
 
 	<script>
 
@@ -102,7 +107,7 @@ let tabCount = 0;
 function newTabFunction()
 {
 	console.log("new tab requested");
-	requestNewTab('asdasdasdasd');
+	requestNewTab('This should never display and should never influence anything');
 }
 
 newTabBtn.addEventListener('click', newTabFunction, {once: true});
@@ -116,11 +121,12 @@ async function requestNewTab(content)
 	newTabBtn.addEventListener('click', newTabFunction, {once: true});
 }
 
-async function createTab({title, success, id}) {
+async function createTab({title, success, id, favico_url}) {
 	// create tab element
 	if (success != true) return console.log('page creation not succesful');
 	const tabEl = document.createElement('div');
 	tabEl.classList.add('tab');
+	tabEl.classList.add('nonselectable');
 	tabEl.id = id;
 	tabEl.textContent = title;
 	tabEl.dataset.index = tabCount++;
@@ -128,15 +134,19 @@ async function createTab({title, success, id}) {
 	tabEl.closeBtnEl = document.createElement('span');
 	tabEl.closeBtnEl.textContent = '×';
 	tabEl.closeBtnEl.classList.add('close');
+	tabEl.classList.add('nonselectable');
 	
 	tabEl.appendChild(tabEl.closeBtnEl);
 	tabBar.insertBefore(tabEl, activeTab ? activeTab.nextSibling : newTabBtn);
     tabs.push(tabEl);
 
 	tabEl.icon = document.createElement('img')
-	tabEl.icon.src = "https://www.google.com/s2/favicons?domain=google.com&sz=64"
+	console.log("AAAAAAAAAAAAAAAAA", favico_url)
+	tabEl.icon.onerror = () => tabEl.icon.style = 'padding-right: 2px;';
+	tabEl.icon.src = favico_url; 			// hoping it actually exists
 	tabEl.icon.alt = ""
 	tabEl.icon.classList.add('tab-icon')
+	tabEl.classList.add('nonselectable');
 	tabEl.prepend(tabEl.icon)
 
 	// event handlers
