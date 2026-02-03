@@ -1,5 +1,4 @@
 const { checkActiveModules } = require('../../main');
-const Env = require('../../env');
 const TabsManager = require('../../lib/TabsManager');
 const Toolbar = require('../toolbar/main');
 const BaseModule = require('../../lib/BaseModule');
@@ -28,10 +27,8 @@ class WindowSetup extends BaseModule {
 		checkActiveModules();
 	}
 	ctrlD(tab) {
-		if (tab.devtools_detach)
-			tab.webContents.openDevTools({mode: 'detach'});
-		else
-			tab.webContents.toggleDevTools();
+		if (tab.devtools_detach) tab.webContents.openDevTools({ mode: 'detach' });
+		else tab.webContents.toggleDevTools();
 	}
 	ctrlW(tab) {
 		console.log('pressed ctrl+w on tab', tab?.tab_id, 'closing', TabsManager.getActiveTab()?.tab_id);

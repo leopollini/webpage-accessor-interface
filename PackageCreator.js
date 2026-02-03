@@ -256,7 +256,7 @@ class PackageCreator {
 				'extension',
 				kleur.grey(name),
 				'because configuration is',
-				kleur.red('missing'),
+				kleur.red('empty'),
 			);
 		if (!Env.ALWAYS_RECONFIGURE_EXTENSIONS && fs.existsSync(path.joinConfigDir(ext.extension + '.json'))) {
 			// return this.betterLog(depth + 1, kleur.yellow('Ignoring'),'extension', kleur.grey(name), 'because is already configured');

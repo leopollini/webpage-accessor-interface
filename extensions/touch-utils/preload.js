@@ -34,7 +34,8 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js') {
 
 		// long press to rightclick
 		window.addEventListener('gestureLongTap', (e) => {
-			sendMouseEvent('contextmenu', e);
+			// sendMouseEvent('contextmenu', e);
+			ipcChannel.sendSignalToMain('context-menu');
 			sendMouseEvent('pointerdown', e);
 		});
 
@@ -48,8 +49,7 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js') {
 			if (this.lastTouchedObject && Date.now() < this.touchTime + 1000)
 				this.lastTouchedObject.dispatchEvent(dblClickEvent);
 			else document.dispatchEvent(dblClickEvent);
-			if (Env.VERBOSE)
-				console.log('received doubleclick from main process');
+			if (Env.VERBOSE) console.log('received doubleclick from main process');
 		});
 
 		// appends bubble dedicated style

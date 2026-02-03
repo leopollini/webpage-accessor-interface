@@ -4,7 +4,7 @@ const TabsManager = require('../../lib/TabsManager');
 const url = require('url');
 const icpChannel = require('../../lib/icpChannel');
 const Env = require('../../env');
-const { getPageTitle, getFavIco } = require('../../lib/utils');
+const { getPageTitle } = require('../../lib/utils');
 const BaseModule = require('../../lib/BaseModule');
 const kleur = require('kleur');
 
@@ -64,8 +64,10 @@ class Toolbar extends BaseModule {
 		// fs.watch(__dirname, (event) => {if (event == "change") {this.tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
 
 		icpChannel.newMainHandler('created-tab', (_, tab_url) => this.createNewTab(url.format(this.default_page)));
-		icpChannel.newMainHandler('switch-tab', (_, index) => this.setActiveTab(index));
 		icpChannel.newMainHandler('closed-tab', (_, index) => this.closeTab(TabsManager.idToName(index)));
+		icpChannel.newMainHandler('switch-tab', async (_, index) => {
+			this.setActiveTab(index);
+		});
 	}
 
 	late_setup() {
@@ -109,20 +111,20 @@ class Toolbar extends BaseModule {
 		const tab_url = force_url ? requested_url : url.format(this.default_page);
 		newTab.webContents.loadURL(tab_url);
 		this.log('Created new tab at url:', tab_url, 'name:', 'tab_' + Toolbar.tabs_count);
-		this.setTitleTracker(newTab);
-		this.warn(url.parse(tab_url));
+		this.setContentsUpdateTracker(newTab);
+		this.warn(new url.URL(tab_url));
 		return {
 			success: await TabsManager.newTab(newTab, 'tab_' + Toolbar.tabs_count++),
 			title: await getPageTitle(newTab.webContents),
 			id: newTab.tab_id,
-			favico_url: await getFavIco(url.parse(tab_url).pathname)
+			host: new url.URL(tab_url).host,
 		};
 	}
 
 	async setActiveTab(index) {
 		if (index < 0 || index >= Toolbar.tabs_count) return;
 		TabsManager.setTab(/*index == 0 ? 'main' : */ 'tab_' + index, true);
-		// mainWindow.webContents.send("tab-switched", { index });
+		this.backgroundColorChange(TabsManager.getActiveTab());
 	}
 
 	closeTab(tab_name) {
@@ -131,18 +133,36 @@ class Toolbar extends BaseModule {
 		this.focusToolbar();
 	}
 
-	setTitleTracker(tab) {
+	setContentsUpdateTracker(tab) {
+		// every time navigation
+		tab.webContents.on('did-finish-load', () => {
+			this.backgroundColorChange(tab);
+		});
 		tab.webContents.on('page-title-updated', (e, new_title) => {
 			if (tab == TabsManager.getActiveTab()) this.window.setTitle(new_title);
 			icpChannel.sendSignalToRender('rename-tab', this.tab, {
 				id: tab.tab_id,
 				new_title: new_title,
+				host: new url.URL(tab.webContents.getURL()).host,
 			});
 		});
 	}
 
 	focusToolbar() {
 		this.tab.webContents.focus();
+	}
+
+	async backgroundColorChange(tab)
+	{
+		if (tab == TabsManager.getActiveTab()) {
+			const col = await TabsManager.getActiveTab().webContents.executeJavaScript(
+				'window.getComputedStyle(document.body).backgroundColor;',
+			);
+			if (tab == TabsManager.getActiveTab())
+				icpChannel.sendSignalToRender('update-bg', this.tab, {
+					bg_color: col,
+				});
+		}
 	}
 }
 

@@ -1,5 +1,4 @@
 const { app } = require('electron');
-const Env = require('../../env');
 
 // radial double-click
 class DoubleClick extends require('../../lib/BaseModule') {

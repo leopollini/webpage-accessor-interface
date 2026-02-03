@@ -39,21 +39,21 @@ async function startApplication() {
 
 	if (Env.DEBUG_MODE) checkActiveModules();
 
-	loadDefaultWebpage();
+	await loadDefaultWebpage();
 
 	// After all extensions have been started, call LateSetup on every on every extension
 	console.log('Calling lateSetup...');
 	Loader.lateLoad();
 }
 
-function loadDefaultWebpage() {
+async function loadDefaultWebpage() {
 	try {
 		if (app.data.webpages.length != 0) {
 			if (new Toolbar().isActive())
 				for (let i = 0; i < app.data.webpages.length; i++) {
 					const PAGE_URL = app.data && app.data.webpages[i] && url.format(app.data.webpages[i]);
 					console.log('## Creating tab at', PAGE_URL);
-					new Toolbar().requestNewTab(PAGE_URL);
+					await new Toolbar().requestNewTab(PAGE_URL);
 				}
 			else {
 				// Only one tab since Toolbar is missing :(
@@ -70,7 +70,7 @@ function loadDefaultWebpage() {
 			}
 		} else console.log('No default page');
 	} catch (error) {
-		console.log('lel.');
+		console.log('could not load default page.');
 	}
 }
 
@@ -79,7 +79,7 @@ function createMainWindow() {
 	app.displaySize = { height: height, width: width };
 	return new BaseWindow({
 		tabbingIdentifier: 'myTabs',
-		title: app.app_info.app_name || 'Electron',
+		title: app.data.window_title || app.app_info.app_name || 'Electron',
 		width: width / 2,
 		height: height / 2,
 		fullscreenable: true,

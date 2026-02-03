@@ -1,5 +1,4 @@
 const url = require('url');
-const Toolbar = require('../toolbar/main');
 const BaseModule = require('../../lib/BaseModule');
 const kleur = require('kleur');
 const { dialog } = require('electron');
@@ -16,7 +15,7 @@ class WebpageFilter extends BaseModule {
 	on_new_tab_created(newTab) {
 		let checker = (event, req_url) => {
 			// this.warn('Checking url:', req_url);
-			let parsed = url.parse(req_url);
+			let parsed = new url.URL(req_url);
 			if (this.isBadPage(parsed)) {
 				event.preventDefault();
 				dialog.showMessageBox(this.window, {
