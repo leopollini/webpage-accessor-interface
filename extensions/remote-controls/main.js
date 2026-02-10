@@ -82,6 +82,8 @@ module.exports = class RemoteControls extends BaseModule {
 			}
 			this.failed_retries++;
 		});
+
+		app.on('window-all-closed', () => this.sock.write('Gon'));
 	}
 
 	parseRequest(data) {

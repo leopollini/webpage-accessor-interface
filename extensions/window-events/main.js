@@ -41,8 +41,6 @@ class WindowSetup extends BaseModule {
 
 	setup() {
 		if (this.__conf.start_with_dev_tools == true && this.tab) this.tab.webContents.toggleDevTools();
-
-		if (this.getAppData().fullscreen == true) this.window.setFullScreen(true);
 	}
 }
 

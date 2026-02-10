@@ -1,6 +1,6 @@
+const { app } = require('electron');
 const fs = require('fs');
 const path = require('../../lib/path2');
-const { notStrictEqual } = require('assert');
 const { LINUX_AUTOSTART_DIR } = require('../../lib/Constants');
 const BaseModule = require('../../lib/BaseModule');
 const Env = require('../../env');
@@ -42,8 +42,8 @@ class Autostarter extends BaseModule {
 
 	createDesktopFile() {
 		// Linux only
-		if (!Env.IS_EXECUTABLE || !process.env.APPIMAGE) return
-		
+		if (!Env.IS_EXECUTABLE || !process.env.APPIMAGE) return;
+
 		Env.LINUX_DESKTOPFILE_PATH = path.join(
 			app.getPath('home'),
 			'.local/share/applications',

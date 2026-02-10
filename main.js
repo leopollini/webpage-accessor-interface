@@ -31,6 +31,7 @@ async function startApplication() {
 	if (Env.DEBUG_MODE && app.data && app.data.version) console.log('### WELCOME TO VERSION', app.data.version, '###');
 
 	const mainWindow = createMainWindow();
+	if (app.data.fullscreen == true) mainWindow.setFullScreen(true);
 	TabsManager.setup(mainWindow);
 
 	console.log('Loading extensions...');

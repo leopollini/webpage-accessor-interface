@@ -25,7 +25,8 @@ class PackageCreator {
 
 		if (this.loadConfigFileAndDataFile()) return;
 
-		if (Env.CLEAR_CONFS_ON_RESTART && app.data.clear_confs_set !== false) this.clearConfigs();
+		if ((Env.CLEAR_CONFS_ON_RESTART || app.args.includes('--clear')) && app.data.clear_confs_set !== false)
+			this.clearConfigs();
 		console.log('### CONFIGURING PACKAGES ###');
 
 		this.createConfigurations();
@@ -83,7 +84,6 @@ class PackageCreator {
 		}
 		return false;
 	}
-
 
 	clearConfigs() {
 		console.log('DATA: ', app.data);

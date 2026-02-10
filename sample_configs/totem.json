@@ -21,7 +21,7 @@
 
 	"configuration": {
 		"touchscreen_config": {
-			"enabled": true,
+			"enabled": false,
 			"remap_to_pointeraction": true,
 			"actions": {
 				"enlarged_doubleclick": {
@@ -48,7 +48,7 @@
 			"actions": {
 				"toolbar": {
 					"enabled": true,
-					"hidden": true,
+					"hidden": false,
 					"toolbar_width": 50,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",

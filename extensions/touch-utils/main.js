@@ -16,7 +16,9 @@ class DoubleClick extends require('../../lib/BaseModule') {
 	//// Constructor trace, please leave commented, unless necessary.
 	// constructor(window, tab) { super(window, tab); }
 
-	setup() {}
+	setup() {
+		global.stage
+	}
 
 	on_new_tab_created(newTab) {
 		newTab.webContents.on('input-event', (event, input) => {
