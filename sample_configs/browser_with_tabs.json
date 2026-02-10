@@ -77,7 +77,7 @@
 				},
 				"toolbar": {
 					"enabled": true,
-					"hidden": false,
+					"hidden": true,
 					"toolbar_width": 53,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",
@@ -141,7 +141,7 @@
 		"allow_navigation": true,
 		"webpages": [
 			{
-				"pathname": "google.com",
+				"pathname": "",
 				"protocol": "https"
 			}
 		],

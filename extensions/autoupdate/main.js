@@ -27,7 +27,7 @@ module.exports = class Autoupdate extends BaseModule {
 		ipcChannel.newMainHandler('usr-check-for-updates', () => this.tryUpdate());
 
 		if (!Env.IS_EXECUTABLE) {
-			throw new BaseModule.LoadError('Updater not running: this is app is not packaged!');
+			throw new BaseModule.LoadError('this is app is not packaged!');
 		}
 		this.log('Starting update checks');
 

@@ -34,6 +34,7 @@ class SocketLogger extends BaseLogger {
 
 module.exports = class RemoteControls extends BaseModule {
 	MODULE_NAME = 'remote-controls';
+	ENTRY_STATUS = kleur.blue('connecting...');
 	required_modules = [];
 	// HIGHLIGHT = true;
 
@@ -46,7 +47,6 @@ module.exports = class RemoteControls extends BaseModule {
 		this.sock = new net.Socket();
 		// socket setup takes place in late_setup
 		this.sockLogger = new SocketLogger(this.sock, this.__conf.log_level);
-		this.ENTRY_STATUS = kleur.blue('connecting...');
 		if (!this.__conf.conn_timeout) this.__conf.conn_timeout = 1;
 	}
 

@@ -13,7 +13,7 @@ class Env {
 		return this.DEBUG_MODE || FORCE_VERBOSE;
 	}
 	static ALWAYS_RECONFIGURE_EXTENSIONS = false;
-	static CREATE_CONF_FOR_DISABLED_EXTENSIONS = true;
+	static CREATE_CONF_FOR_DISABLED_EXTENSIONS = false;
 	static CLEAR_CONFS_ON_RESTART = !this.IS_EXECUTABLE; // && 'ask';
 	static WEBVIEW_DEFAULT_PREFERENCES = {
 		contextIsolation: true,

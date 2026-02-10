@@ -20,7 +20,7 @@ class Toolbar extends BaseModule {
 	on_new_tab_created(new_tab, old_tab) {
 		new_tab.webContents.setWindowOpenHandler((details) => {
 			this.log('preventing window creation by opening new tab at', details.url);
-			if (this.__conf.allow_target_blank == true) this.requestNewTab(details.url);
+			// if (this.__conf.allow_target_blank == true) this.requestNewTab(details.url);
 			this.focusToolbar();
 			return { action: 'deny' };
 		});
