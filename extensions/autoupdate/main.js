@@ -77,7 +77,7 @@ module.exports = class Autoupdate extends BaseModule {
 
 			this.log('Installing');
 
-			autoUpdater.quitAndInstall();
+			autoUpdater.quitAndInstall(false, true);
 		});
 
 		autoUpdater.on('update-not-available', () => {

@@ -38,13 +38,13 @@ async function startApplication() {
 	app.enabled_modules = Loader.load(app.data);
 	console.log('Extensions loaded!');
 
-	if (Env.DEBUG_MODE) checkActiveModules();
-
 	await loadDefaultWebpage();
 
 	// After all extensions have been started, call LateSetup on every on every extension
 	console.log('Calling lateSetup...');
 	Loader.lateLoad();
+
+	if (Env.DEBUG_MODE) checkActiveModules();
 }
 
 async function loadDefaultWebpage() {

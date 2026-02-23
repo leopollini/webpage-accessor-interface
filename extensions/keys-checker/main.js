@@ -19,16 +19,13 @@ class LocalKeysCheck extends require('../../lib/BaseModule') {
 
 		this.log('Loaded local id:', this.machine_id);
 
-		this.warn('ip addressen:', this.getIpAddr());
+		this.warn('ip addressen:', this.getIpAddr(1));
 
 		this.askStructureId();
 	}
 
 	async getInfo() {
-		this.log(
-			this.tab.webContents.getURL(),
-			'is trying to access local keys info'
-		);
+		this.log(this.tab.webContents.getURL(), 'is trying to access local keys info');
 		return {
 			machine_id: this.machine_id,
 			structure_id: this.__conf.structure_id,
@@ -36,9 +33,9 @@ class LocalKeysCheck extends require('../../lib/BaseModule') {
 		};
 	}
 
-	getIpAddr() {
+	getIpAddr(max_networks = 99) {
 		const ifaces = os.networkInterfaces();
-		let ipAdresse = {};
+		let ipAdresse = [];
 		Object.keys(ifaces).forEach(function (ifname) {
 			let alias = 0;
 			ifaces[ifname].forEach(function (iface) {
@@ -47,10 +44,10 @@ class LocalKeysCheck extends require('../../lib/BaseModule') {
 					return;
 				}
 
-				if (alias < 1) {
+				if (alias < max_networks) {
 					// this interface has only one ipv4 adress
 					// console.log(ifname, iface.address);
-					ipAdresse = iface.address;
+					ipAdresse.push(iface.address);
 				} else {
 					// console.log(ifname + ':' + alias, iface.address);
 					// this single interface has multiple ipv4 addresses
@@ -66,9 +63,7 @@ class LocalKeysCheck extends require('../../lib/BaseModule') {
 			dialog.showMessageBox(this.window, {
 				type: 'info',
 				title: 'Set structure id',
-				message: `Please set the app's structure id in ${
-					this.getAppDataDir() + this.MODULE_NAME + '.json'
-				}`,
+				message: `Please set the app's structure id in ${this.getAppDataDir() + this.MODULE_NAME + '.json'}`,
 				buttons: ['Ok'],
 			});
 	}

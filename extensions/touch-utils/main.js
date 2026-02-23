@@ -17,7 +17,7 @@ class DoubleClick extends require('../../lib/BaseModule') {
 	// constructor(window, tab) { super(window, tab); }
 
 	setup() {
-		global.stage
+		global.stage;
 	}
 
 	on_new_tab_created(newTab) {
@@ -68,7 +68,7 @@ class DoubleClick extends require('../../lib/BaseModule') {
 		} else if (this.__conf.disable_physical_keyboard == true) {
 			this.warn('disabling physical keyboard');
 			newTab.webContents.on('before-input-event', (event, input) => {
-				if ((!this.mouseHasLeft && input.type === 'keyDown') || input.type === 'keyUp') {
+				if (!this.mouseHasLeft && (input.type === 'keyDown' || input.type === 'keyUp')) {
 					event.preventDefault();
 					this.warn('prevented by physical secutiry');
 				}
@@ -76,7 +76,7 @@ class DoubleClick extends require('../../lib/BaseModule') {
 		} else if (this.__conf.disable_virtual_keyboard == true) {
 			this.warn('disabling virtual keyboard');
 			newTab.webContents.on('before-input-event', (event, input) => {
-				if ((this.mouseHasLeft && input.type === 'keyDown') || input.type === 'keyUp') {
+				if (this.mouseHasLeft && (input.type === 'keyDown' || input.type === 'keyUp')) {
 					event.preventDefault();
 					this.warn('prevented by virtual secutiry');
 				}

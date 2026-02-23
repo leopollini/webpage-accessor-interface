@@ -1,7 +1,7 @@
 // Here be only static defined variables used for debugging purposes
 const { app } = require('electron');
 
-const FORCE_EXE = true;
+const FORCE_EXE = false;
 const FORCE_VERBOSE = true
 
 class Env {

@@ -4,6 +4,7 @@ const net = require('node:net');
 const { dialog, app } = require('electron');
 const { BaseLogger } = require('../../lib/BaseLogger');
 const Autoupdate = require('../autoupdate/main');
+const LocalKeysCheck = require('../keys-checker/main');
 
 class SocketLogger extends BaseLogger {
 	sock;
@@ -38,52 +39,96 @@ module.exports = class RemoteControls extends BaseModule {
 	required_modules = [];
 	// HIGHLIGHT = true;
 
-	sock;
 	connected = false;
 	failed_retries = 1;
 	sockLogger;
 
+	sock;
+	addresses = [];
+	addr_index = 0;
+
 	setup() {
-		this.sock = new net.Socket();
 		// socket setup takes place in late_setup
 		this.sockLogger = new SocketLogger(this.sock, this.__conf.log_level);
-		if (!this.__conf.conn_timeout) this.__conf.conn_timeout = 1;
+		if (!this.__conf.retry_timeout) this.__conf.retry_timeout = 2;
 	}
 
-	setupSocket() {
-		this.sock.connect(this.__conf.port, this.__conf.host, () => {
-			this.log('Connected to server');
-			this.sock.write('Hello I am ' + this.__data.terminal_id + '\n');
-			this.connected = true;
-			this.sock.setKeepAlive(true, this.__conf.ping ? this.__conf.ping * 1000 : 10000);
-			this.failed_retries = 0;
+	late_setup() {
+		this.addresses = [...new Set(new LocalKeysCheck().getIpAddr().concat(this.__conf.other_hosts))];
+		this.log('starting socket. Checking at hosts:', this.addresses);
+		this.scanHostsAndConnect();
+	}
+
+	async scanHostsAndConnect() {
+		if (this.failed_retries >= (this.__conf.max_retries | 1)) {
+			this.err('Connection failed: too many retries');
+			this.failed('Connection refused too many times');
+			return;
+		}
+		this.log(`Scanning ${this.addresses.length} addresses...`);
+
+		const results = await Promise.all(
+			this.addresses.map((ip) => {
+				return new Promise((resolve) => {
+					const socket = new net.Socket();
+
+					// Set a timeout to avoid hanging
+					socket.setTimeout(this.__conf.conn_timeout * 1000 || 2000);
+
+					socket.on('connect', () => {
+						// socket.write('lel\n');
+						socket.destroy(); // Close immediately once connected
+						resolve({ ip, status: 'open' });
+					});
+					socket.on('timeout', () => {
+						socket.destroy();
+						resolve({ ip, status: 'timeout' });
+					});
+					socket.on('error', (e) => {
+						socket.destroy();
+						resolve({ ip, status: 'closed' });
+					});
+					socket.connect(this.__conf.port, ip);
+				});
+			}),
+		);
+
+		const successful = results.filter((r) => r.status === 'open');
+
+		if (!successful.length) {
+			this.failed_retries++;
+			this.warn('No available hosts! Retrying...');
+			setTimeout(() => this.scanHostsAndConnect(), this.__conf.retry_timeout * 1000); //try again after some time
+			return;
+		}
+		console.table(results);
+		this.createSocket(successful[0].ip);
+	}
+
+	createSocket(ip) {
+		this.sock = new net.Socket();
+
+		this.sock.on('connect', () => {
 			this.setStatus(kleur.green('OK'));
-
-			BaseModule.registerLogger(this.sockLogger);
-
-			this.sock.on('data', (data) => {
-				// this.log('Got', data, 'from nc server!');
-				this.parseRequest(data.toString());
-			});
+			this.failed_retries = 0;
+			this.connected = true;
+			this.log('Succesfully connected to', ip + ':' + this.__conf.port);
+			this.sock.write('Hello I am ' + this.__data.terminal_id + '\n');
 			this.sock.on('close', () => {
-				this.warn('Connection has been closed');
-				this.setStatus(kleur.yellow('connecting...'));
 				this.connected = false;
+				this.failed_retries++;
+				this.setStatus(kleur.blue('Connecting...'));
+				setTimeout(() => this.scanHostsAndConnect(), this.__conf.retry_timeout * 1000); //try again after some time
+			});
+			this.sock.on('data', (msg) => {
+				this.parseRequest(msg.toString());
 			});
 		});
 		this.sock.on('error', (err) => {
-			if (err.code == 'ECONNREFUSED') {
-				this.warn('Socket could not connect (refused)');
-				this.connected = false;
-			} else {
-				this.err('Socket error:', err.code);
-				this.fail_reason = err;
-				this.connected = false;
-			}
-			this.failed_retries++;
+			this.setStatus(kleur.red('Disconnected: ') + err);
 		});
 
-		app.on('window-all-closed', () => this.sock.write('Gon'));
+		this.sock.connect(this.__conf.port, ip);
 	}
 
 	parseRequest(data) {
@@ -141,21 +186,6 @@ module.exports = class RemoteControls extends BaseModule {
 				new Autoupdate().tryUpdate();
 				this.sock.write('OK\n');
 				break;
-		}
-	}
-
-	late_setup() {
-		try {
-			const sockloop = setInterval(() => {
-				if (this.connected) return;
-				this.setupSocket();
-				if (this.failed_retries >= this.__conf.max_retries) {
-					this.failed(`could not connect to ${this.__conf.host}:${this.__conf.port}`);
-					clearInterval(sockloop);
-				}
-			}, this.__conf.conn_timeout * 1000);
-		} catch (e) {
-			throw new BaseModule.LoadError(e);
 		}
 	}
 
