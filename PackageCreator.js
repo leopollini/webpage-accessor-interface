@@ -111,6 +111,7 @@ class PackageCreator {
 			}
 		}
 		console.log('### CLEARING OLD CONFIGURATIONS ###');
+		app.data = {}
 		try {
 			if (fs.existsSync(path.joinConfigDir())) {
 				fs.readdirSync(path.joinConfigDir()).forEach((entry) => {

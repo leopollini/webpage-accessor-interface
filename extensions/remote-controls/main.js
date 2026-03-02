@@ -54,7 +54,7 @@ module.exports = class RemoteControls extends BaseModule {
 	}
 
 	late_setup() {
-		this.addresses = [...new Set(new LocalKeysCheck().getIpAddr().concat(this.__conf.other_hosts))];
+		this.addresses = [...new Set(new LocalKeysCheck().getIpAddr().concat(this.__conf.hosts))];
 		this.log('starting socket. Checking at hosts:', this.addresses);
 		this.scanHostsAndConnect();
 	}

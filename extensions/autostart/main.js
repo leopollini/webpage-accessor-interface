@@ -4,6 +4,7 @@ const path = require('../../lib/path2');
 const { LINUX_AUTOSTART_DIR } = require('../../lib/Constants');
 const BaseModule = require('../../lib/BaseModule');
 const Env = require('../../env');
+const kleur = require('kleur');
 
 // WARNING: THIS SCRIPT WILL CHANGE THE MACHINE'S STARTUP BEHAVIOUR.
 // TO DISABLE REMOVE .desktop FILE

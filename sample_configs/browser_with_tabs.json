@@ -57,9 +57,14 @@
 					"keepalive": 10,
 					"conn_timeout": 2,
 					"max_retries": 2,
-					"host": "192.168.178.41",
+					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"],
 					"port": 8080,
-					"ping": 10
+					"ping": 10,
+					"valid_modes": ["allow", "deny"],
+					"mode": "allow",
+					"protocol": "http",
+					"endpoint": "/API_tests/webpage_accessor/remote-controls.php",
+					"source_of_validation": "localhost"
 				}
 			}
 		},
@@ -77,13 +82,13 @@
 				},
 				"toolbar": {
 					"enabled": true,
-					"hidden": true,
+					"hidden": false,
 					"toolbar_width": 53,
 					"toolbar_html": "toolbar.html",
 					"extension": "toolbar",
 					"allow_target_blank": true,
 					"default_url": {
-						"pathname": "google.com",
+						"pathname": "pms.parchotels.dev",
 						"protocol": "https"
 					},
 					"create_on_open": true
@@ -98,7 +103,7 @@
 					"start_with_dev_tools": true,
 					"extension": "window-events"
 				},
-				"startup_actions": {},
+				"startup-actions": {},
 				"keys-checker": {
 					"enabled": true,
 					"extension": "keys-checker",
@@ -120,10 +125,14 @@
 				"remote-controls": {
 					"enabled": true,
 					"extension": "remote-controls",
-					"log_level": "full",
+					"log_level": "WARNING",
 					"keepalive": 10,
-					"timeout": 1,
-					"max_retries": 25
+					"retry_timeout": 10,
+					"conn_timeout": 2,
+					"max_retries": 2, 
+					"host": "localhost",
+					"port": 8080,
+					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"]
 				},
 				"context-menu": {
 					"extension": "context-menu",
@@ -141,7 +150,7 @@
 		"allow_navigation": true,
 		"webpages": [
 			{
-				"pathname": "",
+				"pathname": "pms.parchotels.dev",
 				"protocol": "https"
 			}
 		],

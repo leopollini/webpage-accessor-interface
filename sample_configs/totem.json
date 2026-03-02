@@ -94,7 +94,11 @@
 					"max_retries": 2, 
 					"host": "localhost",
 					"port": 8080,
-					"other_hosts": ["192.168.6.151", "10.242.0.3"]
+					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"]
+				},
+				"context-menu": {
+					"extension": "context-menu",
+					"enabled": false
 				}
 			}
 		},
@@ -127,7 +131,7 @@
 		"allow_navigation": true,
 		"webpages": [
 			{
-				"pathname": "ww8.123moviesfree.net/",
+				"pathname": "service.parchotels.it",
 				"protocol": "https"
 			}
 		],
