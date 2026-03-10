@@ -16,14 +16,14 @@ module.exports = class ContextMenu extends BaseModule {
 			menu.append(
 				new MenuItem({
 					label: 'Back',
-					enabled: new_tab.webContents.canGoBack(),
+					enabled: new_tab.webContents.navigationHistory.canGoBack(),
 					click: () => new_tab.webContents.goBack(),
 				}),
 			);
 			menu.append(
 				new MenuItem({
 					label: 'Forward',
-					enabled: new_tab.webContents.canGoForward(),
+					enabled: new_tab.webContents.navigationHistory.canGoForward(),
 					click: () => new_tab.webContents.goForward(),
 				}),
 			);

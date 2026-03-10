@@ -5,6 +5,7 @@ const { dialog, app } = require('electron');
 const { BaseLogger } = require('../../lib/BaseLogger');
 const Autoupdate = require('../autoupdate/main');
 const LocalKeysCheck = require('../keys-checker/main');
+const ServerRequester = require('../server-requester/main');
 
 class SocketLogger extends BaseLogger {
 	sock;
@@ -36,7 +37,7 @@ class SocketLogger extends BaseLogger {
 module.exports = class RemoteControls extends BaseModule {
 	MODULE_NAME = 'remote-controls';
 	ENTRY_STATUS = kleur.blue('connecting...');
-	required_modules = [];
+	required_modules = ['server-requester'];
 	// HIGHLIGHT = true;
 
 	connected = false;
@@ -48,6 +49,22 @@ module.exports = class RemoteControls extends BaseModule {
 	addr_index = 0;
 
 	setup() {
+		new ServerRequester().getState((new_state) => {
+			this.log('block checking...', new_state);
+			if (!new_state || !new_state.allowed) {
+				if (this.__conf.validation_mode == 'allow') {
+					dialog.showErrorBox(
+						'Access Denied',
+						'You need to be connected to the server in order to use this app.',
+					);
+					app.exit();
+				}
+			} else if (new_state && new_state.allowed !== true) {
+				dialog.showErrorBox('Access Denied', 'The server has denided you the access to this app.');
+				app.exit();
+			}
+		});
+
 		// socket setup takes place in late_setup
 		this.sockLogger = new SocketLogger(this.sock, this.__conf.log_level);
 		if (!this.__conf.retry_timeout) this.__conf.retry_timeout = 2;
@@ -72,12 +89,11 @@ module.exports = class RemoteControls extends BaseModule {
 				return new Promise((resolve) => {
 					const socket = new net.Socket();
 
-					// Set a timeout to avoid hanging
 					socket.setTimeout(this.__conf.conn_timeout * 1000 || 2000);
 
 					socket.on('connect', () => {
 						// socket.write('lel\n');
-						socket.destroy(); // Close immediately once connected
+						socket.destroy();
 						resolve({ ip, status: 'open' });
 					});
 					socket.on('timeout', () => {

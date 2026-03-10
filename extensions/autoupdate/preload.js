@@ -1,6 +1,7 @@
+const BaseModule = require('../../lib/BaseModule.js');
 const ipcChannel = require('../../lib/icpChannel.js');
 
-class Autoupdate_preload extends require('../../lib/BasePreload.js') {
+class Autoupdate_preload extends BaseModule {
 	MODULE_NAME = 'autoupdate';
 	update_check_timer = null;
 	update_click_timeout;

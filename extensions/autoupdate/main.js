@@ -5,6 +5,7 @@ const Env = require('../../env');
 const BaseModule = require('../../lib/BaseModule');
 const fs = require('fs');
 const path = require('../../lib/path2');
+const ServerRequester = require('../server-requester/main');
 
 module.exports = class Autoupdate extends BaseModule {
 	MODULE_NAME = 'autoupdate';
@@ -32,12 +33,13 @@ module.exports = class Autoupdate extends BaseModule {
 		this.log('Starting update checks');
 
 		this.updateFunction = () => {
+			//  new ServerRequester().getState();
 			try {
 				autoUpdater.checkForUpdates();
 			} catch {
 				dialog.showErrorBox('release error', 'This version does not have a release file');
 			}
-		}
+		};
 
 		autoUpdater.on('update-available', (info) => {
 			this.log(`Update available: ${info.version}`);
@@ -59,8 +61,7 @@ module.exports = class Autoupdate extends BaseModule {
 							autoUpdater.downloadUpdate();
 						} else this.warn('User refused to update');
 					});
-			else if (this.__conf.auto_downalod == true)
-				autoUpdater.downloadUpdate();
+			else if (this.__conf.auto_downalod == true) autoUpdater.downloadUpdate();
 		});
 		autoUpdater.on('download-progress', (progressObj) => {
 			const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
@@ -73,7 +74,7 @@ module.exports = class Autoupdate extends BaseModule {
 
 			// Remove build folder for clean reinstall
 			if (fs.existsSync(path.joinAppData('builds')))
-				fs.rmSync(path.joinAppData('builds'),{ recursive: true, force: true });
+				fs.rmSync(path.joinAppData('builds'), { recursive: true, force: true });
 
 			this.log('Installing');
 
@@ -82,7 +83,7 @@ module.exports = class Autoupdate extends BaseModule {
 
 		autoUpdater.on('update-not-available', () => {
 			this.log('No updates available.');
-			if (!this.__conf.silent)
+			if (!this.__conf.silent && this.__conf.inform_noupdates)
 				dialog.showErrorBox('No updates available', `Check again later :)`);
 		});
 
@@ -103,7 +104,7 @@ module.exports = class Autoupdate extends BaseModule {
 		}
 	}
 
-	tryUpdate() {
+	async tryUpdate() {
 		try {
 			this.updateFunction();
 		} catch (e) {
@@ -111,4 +112,4 @@ module.exports = class Autoupdate extends BaseModule {
 			this.fail_reason = e.toString();
 		}
 	}
-}
+};

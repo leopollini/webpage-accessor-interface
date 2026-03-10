@@ -53,7 +53,9 @@ module.exports = class Loader2 {
 	static loadModule(ext) {
 		let mod;
 		try {
-			if (!ext || !modules[ext]) return console.log(kleur.red('Error:'), ext, 'is not a module!!');
+			if (!ext || !modules[ext])
+				return console.log(kleur.red('Error:'), ext, 'is not a module!! Valid modules:', modules);
+			if (mod in this.enabled_modules) return console.log(kleur.gray(ext + 'already loaded!'));
 			const ModuleClass = require(modules[ext]);
 			if (typeof ModuleClass !== typeof function () {} || Object.getPrototypeOf(ModuleClass) !== BaseModule) {
 				throw new BaseModule.ModuleError('Not a module');
@@ -63,12 +65,12 @@ module.exports = class Loader2 {
 			mod.__start(this.mainWindow, this.mainTab, this.data, ext);
 		} catch (e) {
 			if (e instanceof BaseModule.ModuleError) {
-				console.log('Module not loaded: ' + e);
+				console.log(`Module ${mod} not loaded: ` + e);
 				if (mod) {
 					mod.failed = BaseModule.prototype.failed;
 					mod.failed(e);
 				}
-			} else console.log('Module not loaded:', e);
+			} else console.log(`Module ${mod} not loaded:`, e);
 		}
 	}
 };

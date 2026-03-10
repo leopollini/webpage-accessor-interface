@@ -21,7 +21,7 @@
 
 	"configuration": {
 		"touchscreen_config": {
-			"enabled": false,
+			"enabled": "does not affect :(",
 			"remap_to_pointeraction": true,
 			"disable_physical_keyboard": false,
 			"disable_virtual_keyboard": false,
@@ -53,18 +53,27 @@
 				"remote-controls": {
 					"enabled": true,
 					"extension": "remote-controls",
-					"log_level": "full",
+					"log_level": "WARNING",
 					"keepalive": 10,
+					"retry_timeout": 10,
 					"conn_timeout": 2,
 					"max_retries": 2,
-					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"],
+					"host": "localhost",
 					"port": 8080,
-					"ping": 10,
-					"valid_modes": ["allow", "deny"],
-					"mode": "allow",
-					"protocol": "http",
-					"endpoint": "/API_tests/webpage_accessor/remote-controls.php",
-					"source_of_validation": "localhost"
+					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"],
+					"validation_mode": "deny",
+					"other_validation_modes": ["allow", "deny"]
+				},
+				"server-requester": {
+					"extension": "server-requester",
+					"endpoint": {
+						"path": "/webpage_accessor/remote-controls.php",
+						"protocol": "http"
+					},
+					"source_of_validation": "localhost",
+					"validation_modes": ["ip", "id"],
+					"validation_mode": "id",
+					"reload_interval": 5
 				}
 			}
 		},
@@ -116,23 +125,13 @@
 				"autoupdate": {
 					"enabled": true,
 					"extension": "autoupdate",
-					"auto_download": true,
 					"check_update_on_start": true,
 					"update_mode": {
 						"mode": "none (on restart)"
-					}
-				},
-				"remote-controls": {
-					"enabled": true,
-					"extension": "remote-controls",
-					"log_level": "WARNING",
-					"keepalive": 10,
-					"retry_timeout": 10,
-					"conn_timeout": 2,
-					"max_retries": 2, 
-					"host": "localhost",
-					"port": 8080,
-					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"]
+					},
+					"silent": false,
+					"auto_download": true,
+					"inform_noupdates": false
 				},
 				"context-menu": {
 					"extension": "context-menu",

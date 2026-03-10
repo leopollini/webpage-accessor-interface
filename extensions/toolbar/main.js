@@ -139,7 +139,7 @@ class Toolbar extends BaseModule {
 			this.backgroundColorChange(tab);
 		});
 		tab.webContents.on('page-title-updated', (e, new_title) => {
-			if (tab == TabsManager.getActiveTab()) this.window.setTitle(new_title);
+			if (tab == TabsManager.getActiveTab()) this.window?.setTitle?.(new_title);
 			icpChannel.sendSignalToRender('rename-tab', this.tab, {
 				id: tab.tab_id,
 				new_title: new_title,
@@ -152,8 +152,7 @@ class Toolbar extends BaseModule {
 		this.tab.webContents.focus();
 	}
 
-	async backgroundColorChange(tab)
-	{
+	async backgroundColorChange(tab) {
 		if (tab == TabsManager.getActiveTab()) {
 			const col = await TabsManager.getActiveTab().webContents.executeJavaScript(
 				'window.getComputedStyle(document.body).backgroundColor;',
