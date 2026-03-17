@@ -25,8 +25,8 @@ class PackageCreator {
 
 		if (this.loadConfigFileAndDataFile()) return;
 
-		if ((Env.CLEAR_CONFS_ON_RESTART || app.args.includes('--clear')) && app.data.clear_confs_set !== false)
-			this.clearConfigs();
+		if ((Env.CLEAR_CONFS_ON_RESTART || app.args.includes('clear-conf')) && app.data.clear_confs_set !== false)
+			PackageCreator.clearConfigs();
 		console.log('### CONFIGURING PACKAGES ###');
 
 		this.createConfigurations();
@@ -64,6 +64,8 @@ class PackageCreator {
 
 	// returns False in case of success, True in case of problems with config file
 	loadConfigFileAndDataFile() {
+		if (app.args.includes('clear-conf') && fs.existsSync(PackageCreator.CONF_FILE_PATH))
+			fs.rmSync(PackageCreator.CONF_FILE_PATH);
 		try {
 			const config_file_content = fs.readFileSync(PackageCreator.CONF_FILE_PATH);
 			this.conf = JSON.parse(config_file_content);
@@ -85,7 +87,7 @@ class PackageCreator {
 		return false;
 	}
 
-	clearConfigs() {
+	static clearConfigs() {
 		console.log('DATA: ', app.data);
 		if (Env.CLEAR_CONFS_ON_RESTART == 'ask' && !app.data.clear_confs_set && !app.args.includes('clear-conf')) {
 			switch (
@@ -133,7 +135,7 @@ class PackageCreator {
 	requestConfig() {
 		// Choose a new config file for the app
 		this.unpackSampleConfigs();
-		dialog.showErrorBox('Bad Config', `Please chose a valid config file.`);
+		dialog.showErrorBox('Bad Config', `Please choose a valid config file.`);
 		const filePaths = dialog.showOpenDialogSync({
 			title: 'Select Config File',
 			buttonLabel: 'Load',
@@ -150,6 +152,7 @@ class PackageCreator {
 		console.log('## new config file at', filePaths[0]);
 		// fs.rmSync(PackageCreator.CONF_FILE_PATH);
 		try {
+			// Since this is a link, it will track updated versions of the same config
 			fs.linkSync(filePaths[0], PackageCreator.CONF_FILE_PATH);
 		} catch {
 			console.log('Error: could not create link to', filePaths[0], '.');

@@ -12,18 +12,19 @@ module.exports = class Autoupdate extends BaseModule {
 	EXECUTABLE_NAME = '';
 	DOWNLOAD_PATH = '';
 
-	updateFunction = () => {
-		if (!Env.DEBUG_MODE) dialog.showErrorBox('Autoupdater not available', ':(');
-		this.warn('Autoupdater not available :(');
-	};
-
 	setup() {
+		this.updateFunction = () => {
+			if (!Env.DEBUG_MODE) dialog.showErrorBox('Autoupdater not available', ':(');
+			this.warn('Autoupdater not available :(');
+		};
+
 		this.EXECUTABLE_NAME = app.app_info.app_executable | 'webpage-accessor';
 		this.DOWNLOAD_PATH = app.getPath('downloads');
 
 		// You can control this behavior:
 		autoUpdater.autoDownload = this.getAppData().auto_downalod == true; // ask first
 		autoUpdater.autoInstallOnAppQuit = true; // install after app closes
+		autoUpdater.allowDowngrade = true;
 
 		ipcChannel.newMainHandler('usr-check-for-updates', () => this.tryUpdate());
 
@@ -33,17 +34,13 @@ module.exports = class Autoupdate extends BaseModule {
 		this.log('Starting update checks');
 
 		this.updateFunction = async () => {
-			const state = await new ServerRequester().getState();
-			if (!state?.path) {
-				throw new BaseModule.ModuleError('Could not fetch update version');
-			}
-			autoUpdater.setFeedURL(state.path);
-			this.log('Updater set to update from feed:', autoUpdater.getFeedURL());
-			try {
+			new ServerRequester().getState().then((state) => {
+				if (!state.path) {
+					throw new BaseModule.ModuleError('Could not fetch update version');
+				}
+				autoUpdater.setFeedURL(state.path);
 				autoUpdater.checkForUpdates();
-			} catch {
-				dialog.showErrorBox('Release Error', 'This version does not have a release file');
-			}
+			});
 		};
 
 		autoUpdater.on('update-available', (info) => {
@@ -54,10 +51,10 @@ module.exports = class Autoupdate extends BaseModule {
 						type: 'info',
 						title: 'Update Available',
 						message: `Version ${info.version} is available. Download now?`,
-						buttons: ['Yes', 'Later'],
+						buttons: ['Later', 'Yes'],
 					})
 					.then((result) => {
-						if (result.response === 0) {
+						if (result.response === 1) {
 							try {
 								fs.rmdirSync(path.joinAppData('builds'));
 							} catch (e) {
@@ -66,7 +63,10 @@ module.exports = class Autoupdate extends BaseModule {
 							autoUpdater.downloadUpdate();
 						} else this.warn('User refused to update');
 					});
-			else if (this.__conf.auto_downalod == true) autoUpdater.downloadUpdate();
+			else if (this.__conf.auto_download === true) {
+				autoUpdater.downloadUpdate();
+				dialog.showErrorBox('App update', 'The app will be restarted for an incoming update.');
+			}
 		});
 		autoUpdater.on('download-progress', (progressObj) => {
 			const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
@@ -110,11 +110,6 @@ module.exports = class Autoupdate extends BaseModule {
 	}
 
 	async tryUpdate() {
-		try {
-			this.updateFunction();
-		} catch (e) {
-			this.err(e);
-			this.fail_reason = e.toString();
-		}
+		await this.updateFunction();
 	}
 };

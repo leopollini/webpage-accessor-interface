@@ -23,7 +23,7 @@ exports.default = async function (configuration) {
     -n "${configuration.options.name || 'App'}" \
     -t http://timestamp.digicert.com \
     -in "${path}" \
-    -out "${path}.signed" && mv ${path}.signed ${path}`;
+    -out "${path}.signed" && mv "${path}.signed" "${path}"`;
 
 	try {
 		execSync(command, { stdio: 'inherit' });

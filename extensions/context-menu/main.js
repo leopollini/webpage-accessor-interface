@@ -1,8 +1,10 @@
 const BaseModule = require('../../lib/BaseModule');
-const { Menu, MenuItem, ipcMain } = require('electron');
+const { Menu, MenuItem, ipcMain, app } = require('electron');
 const TabsManager = require('../../lib/TabsManager');
 const ipcChannel = require('../../lib/icpChannel');
 const Toolbar = require('../toolbar/main');
+const Env = require('../../env');
+const Autoupdate = require('../autoupdate/main');
 
 module.exports = class ContextMenu extends BaseModule {
 	MODULE_NAME = 'context-menu';
@@ -17,14 +19,14 @@ module.exports = class ContextMenu extends BaseModule {
 				new MenuItem({
 					label: 'Back',
 					enabled: new_tab.webContents.navigationHistory.canGoBack(),
-					click: () => new_tab.webContents.goBack(),
+					click: () => new_tab.webContents.navigationHistory.goBack(),
 				}),
 			);
 			menu.append(
 				new MenuItem({
 					label: 'Forward',
 					enabled: new_tab.webContents.navigationHistory.canGoForward(),
-					click: () => new_tab.webContents.goForward(),
+					click: () => new_tab.webContents.navigationHistory.goForward(),
 				}),
 			);
 			menu.append(
@@ -107,5 +109,32 @@ module.exports = class ContextMenu extends BaseModule {
 
 			menu.popup();
 		});
+	}
+
+	late_setup() {
+		try {
+			if (Env.DEBUG_MODE)
+				Toolbar.toolbar_tab.webContents.on('context-menu', (e, params) => {
+					const menu = new Menu();
+					menu.append(
+						new MenuItem({
+							label: 'Clear Configurations',
+							click: () => {
+								require('../../PackageCreator').clearConfigs();
+								app.quit();
+							},
+						}),
+					);
+					menu.append(
+						new MenuItem({
+							label: 'Update check',
+							click: () => new Autoupdate().tryUpdate(),
+						}),
+					);
+					menu.popup();
+				});
+		} catch {
+			// Toolbar module missing
+		}
 	}
 };

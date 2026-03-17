@@ -17,9 +17,9 @@ class Autostarter extends BaseModule {
 
 		if (this.getAppData().autostart === true && !Env.DEBUG_MODE) {
 			if (!fs.existsSync(Env.LINUX_DESKTOPFILE_PATH))
-				throw new BaseModule.LoadError('desktop file does not exist');
+				throw new BaseModule.LoadError('desktop file was not created');
 			try {
-				fs.cpSync(Env.LINUX_DESKTOPFILE_PATH, LINUX_AUTOSTART_DIR, { recursive: true, force: true });
+				fs.cpSync(Env.LINUX_DESKTOPFILE_PATH, path.join(LINUX_AUTOSTART_DIR, app.data.app_name + '.desktop'));
 			} catch (e) {
 				throw new BaseModule.LoadError(`${e}`);
 			}
@@ -50,8 +50,8 @@ class Autostarter extends BaseModule {
 			'.local/share/applications',
 			app.data.app_name + '.desktop',
 		);
-		let success = false;
-		const cmd = `sh -c "${process.env.APPIMAGE} --no-sandbox"`;
+		this.log('creating Desktop file at', Env.LINUX_DESKTOPFILE_PATH);
+		const cmd = `${process.env.APPIMAGE} --no-sandbox`;
 		fs.writeFileSync(
 			Env.LINUX_DESKTOPFILE_PATH,
 			`#!/user/bin/env xdg-open
@@ -62,12 +62,6 @@ Terminal=false
 Exec=${cmd}
 Name=${app.data.app_name}
 Icon=${path.joinAppData('builds/icons/png/512x512.png')}`,
-		);
-
-		console.log(
-			`## Desktopfile ${success ? kleur.green().bold('succesfully') : kleur.red().bold('not')} created at`,
-			Env.LINUX_DESKTOPFILE_PATH,
-			`, command is "${cmd}"`,
 		);
 		// Not required for Windows since .exe installer does that
 	}

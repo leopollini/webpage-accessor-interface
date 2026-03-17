@@ -1,6 +1,6 @@
 {
 	"name": "webpage_accessor",
-	"version": "0.0.86",
+	"version": "0.0.87",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
 		"name": "Leonardo Pollini",
@@ -37,9 +37,6 @@
 			"signtoolOptions": {
 				"sign": "mysign.js"
 			}
-		},
-		"nsis": {
-			"include": "installer.nsh"
 		},
 		"publish": {
 			"provider": "github",

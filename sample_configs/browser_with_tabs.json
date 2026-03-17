@@ -58,9 +58,9 @@
 					"retry_timeout": 10,
 					"conn_timeout": 2,
 					"max_retries": 2,
-					"host": "10.64.0.71",
+					"host": "",
 					"port": 8080,
-					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"],
+					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3", "10.242.0.2"],
 					"validation_mode": "deny",
 					"other_validation_modes": ["allow", "deny"]
 				},
@@ -75,7 +75,7 @@
 					"validation_modes": ["ip", "id"],
 					"validation_mode": "id",
 					"reload_interval": 5,
-					"force_reload_interval": 5,
+					"force_reload_interval": 50,
 					"max_retries": 5,
 					"id_temp": "leo"
 				}
@@ -133,8 +133,8 @@
 					"update_mode": {
 						"mode": "none (on restart)"
 					},
-					"silent": false,
-					"auto_download": true,
+					"silent": true,
+					"auto_downalod": true,
 					"inform_noupdates": false
 				},
 				"context-menu": {
@@ -147,7 +147,7 @@
 
 	"default_data": {
 		"fullscreen": false,
-		"autostart": false,
+		"autostart": true,
 		"autorestart": false,
 		"autoreload": false,
 		"allow_navigation": true,

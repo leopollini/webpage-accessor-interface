@@ -112,7 +112,7 @@ class Toolbar extends BaseModule {
 		newTab.webContents.loadURL(tab_url);
 		this.log('Created new tab at url:', tab_url, 'name:', 'tab_' + Toolbar.tabs_count);
 		this.setContentsUpdateTracker(newTab);
-		this.warn(new url.URL(tab_url));
+		// this.warn(new url.URL(tab_url));
 		return {
 			success: await TabsManager.newTab(newTab, 'tab_' + Toolbar.tabs_count++),
 			title: await getPageTitle(newTab.webContents),

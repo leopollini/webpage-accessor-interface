@@ -9,7 +9,7 @@ const kleur = require('kleur');
 const Toolbar = require('./extensions/toolbar/main');
 
 // setup Globals
-app.args = process.argv.slice(3);
+app.args = process.argv.map((str) => str.replace(/^[-]+/, ''));
 app.conf = {};
 app.data = {};
 app.enabled_modules = [];
@@ -17,11 +17,20 @@ app.app_info = {};
 
 Env.ROOT_LOCATION = __dirname;
 
+
+if (app.args.includes('debug-mode')) {
+	Env.DEBUG_MODE = true;
+	console.log('Activated Debug mode');
+}
+
 // Infodump
-console.log('app root is at', __dirname);
-console.log('AppData is at', path.appDataDir);
-console.log('Printing Env', Env);
-console.log('config.json is at', PackageCreator.CONF_FILE_PATH);
+if (Env.DEBUG_MODE) {
+	console.log('app root is at', __dirname);
+	console.log('AppData is at', path.appDataDir);
+	console.log('Printing Env', Env);
+	console.log('config.json is at', PackageCreator.CONF_FILE_PATH);
+	console.log(app.args);
+}
 
 // Creates window, loads extensions and created default page
 async function startApplication() {
