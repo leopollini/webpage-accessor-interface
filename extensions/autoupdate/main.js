@@ -32,12 +32,17 @@ module.exports = class Autoupdate extends BaseModule {
 		}
 		this.log('Starting update checks');
 
-		this.updateFunction = () => {
-			//  new ServerRequester().getState();
+		this.updateFunction = async () => {
+			const state = await new ServerRequester().getState();
+			if (!state?.path) {
+				throw new BaseModule.ModuleError('Could not fetch update version');
+			}
+			autoUpdater.setFeedURL(state.path);
+			this.log("Updater set to update from feed:", autoUpdater.getFeedURL())
 			try {
 				autoUpdater.checkForUpdates();
 			} catch {
-				dialog.showErrorBox('release error', 'This version does not have a release file');
+				dialog.showErrorBox('Release Error', 'This version does not have a release file');
 			}
 		};
 

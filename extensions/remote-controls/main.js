@@ -50,8 +50,8 @@ module.exports = class RemoteControls extends BaseModule {
 
 	setup() {
 		new ServerRequester().getState((new_state) => {
-			this.log('block checking...', new_state);
-			if (!new_state || !new_state.allowed) {
+			// this.log('block checking...', new_state);
+			if (!new_state || new_state.allowed === undefined) {
 				if (this.__conf.validation_mode == 'allow') {
 					dialog.showErrorBox(
 						'Access Denied',
@@ -59,7 +59,8 @@ module.exports = class RemoteControls extends BaseModule {
 					);
 					app.exit();
 				}
-			} else if (new_state && new_state.allowed !== true) {
+				this.warn('Could not obtain information from server');
+			} else if (new_state && new_state.allowed === false) {
 				dialog.showErrorBox('Access Denied', 'The server has denided you the access to this app.');
 				app.exit();
 			}

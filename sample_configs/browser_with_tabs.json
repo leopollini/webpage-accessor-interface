@@ -58,22 +58,24 @@
 					"retry_timeout": 10,
 					"conn_timeout": 2,
 					"max_retries": 2,
-					"host": "localhost",
+					"host": "10.64.0.71",
 					"port": 8080,
 					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"],
 					"validation_mode": "deny",
 					"other_validation_modes": ["allow", "deny"]
 				},
 				"server-requester": {
+					"enabled": true,
 					"extension": "server-requester",
 					"endpoint": {
 						"path": "/webpage_accessor/remote-controls.php",
 						"protocol": "http"
 					},
-					"source_of_validation": "localhost",
+					"source_of_validation": "10.64.0.71",
 					"validation_modes": ["ip", "id"],
 					"validation_mode": "id",
-					"reload_interval": 5
+					"reload_interval": 5,
+					"id_temp": "leo"
 				}
 			}
 		},

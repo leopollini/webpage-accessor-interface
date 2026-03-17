@@ -1,6 +1,6 @@
 {
 	"name": "webpage_accessor",
-	"version": "0.0.82",
+	"version": "0.0.86",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
 		"name": "Leonardo Pollini",
@@ -11,7 +11,7 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "electron --trace-warnings . -- create_config_link reload-configs",
 		"start:autoupdate": "npx electronmon --trace-warnings .",
-		"build": "npm version patch --no-git-tag-version && electron-builder --publish=never",
+		"build": "electron-builder --publish=never",
 		"publish": "npm version patch --no-git-tag-version && electron-builder --publish=always"
 	},
 	"build": {

@@ -33,22 +33,20 @@ class ServerState {
 
 class ServerRequester extends BaseModule {
 	MODULE_NAME = 'server-requester';
-	IS_MINIMODULE = true;
+	// IS_MINIMODULE = true;
 	HIGHLIGHT = true;
 	ENTRY_STATUS = kleur.grey().bold('unsynced');
 
 	do_resync = true;
 
-	state = new ServerState(); // NOTHING INSIDE THIS IS GRANTED: server might always fail so be sure to prevent undefined behaviours
+	state = new ServerState();
 
 	setup() {
 		this.log('heloool');
 		setInterval(
 			() => {
-				if (!this.do_resync) {
-					this.setStatus(kleur.grey().bold('unsynced'));
-					this.do_resync = true;
-				}
+				this.setStatus(kleur.grey().bold('unsynced'));
+				this.do_resync = true;
 			},
 			this.__conf.reload_interval * 1000 || 2000,
 		);
@@ -67,7 +65,8 @@ class ServerRequester extends BaseModule {
 		this.log('current server state:', ServerState._state);
 
 		update_callback?.(ServerState._state);
-		return new ServerState(update_callback);
+		new ServerState(update_callback);
+		return ServerState._state;
 	}
 
 	async get_server_state(re = false) {
@@ -85,7 +84,7 @@ class ServerRequester extends BaseModule {
 		// }
 		// const uri = `${api_endpoint}?${query_string}`;
 		// (console.log('#####', uri), this.__conf.validation_mode);
-		let extra_info = { ip: '10.101.0.10', id: 'leo' };
+		let extra_info = { ip: '10.101.0.10', id: this.__conf.id_temp };
 
 		try {
 			const response = await fetch(api_endpoint, {
@@ -105,7 +104,7 @@ class ServerRequester extends BaseModule {
 			this.do_resync = true;
 			return (ServerState._state = {});
 		} catch (e) {
-			switch (e.cause.code) {
+			switch (e.cause?.code) {
 				case 'ECONNREFUSED':
 					this.err('Server is offline:' + e);
 					break;
