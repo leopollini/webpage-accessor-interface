@@ -52,6 +52,8 @@ module.exports = class RemoteControls extends BaseModule {
 		new ServerRequester().getState((new_state) => {
 			// this.log('block checking...', new_state);
 			if (!new_state || new_state.allowed === undefined) {
+				// server did not answer -> check locally
+				this.warn('Could not obtain information from server');
 				if (this.__conf.validation_mode == 'allow') {
 					dialog.showErrorBox(
 						'Access Denied',
@@ -59,11 +61,17 @@ module.exports = class RemoteControls extends BaseModule {
 					);
 					app.exit();
 				}
-				this.warn('Could not obtain information from server');
+				if (this.__conf.blocked === true) {
+					dialog.showErrorBox('Access Denied', 'You need to connect to the server to request access.');
+					app.exit();
+				}
 			} else if (new_state && new_state.allowed === false) {
+				// server requested a block -> save locally
 				dialog.showErrorBox('Access Denied', 'The server has denided you the access to this app.');
+				this.__conf.blocked = true;
+				this.saveExtensionConfig();
 				app.exit();
-			}
+			} else this.__conf.blocked = false;
 		});
 
 		// socket setup takes place in late_setup

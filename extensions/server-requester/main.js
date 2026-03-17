@@ -1,17 +1,9 @@
 const kleur = require('kleur');
 const BaseModule = require('../../lib/BaseModule');
 const { app } = require('electron');
-const eventBus = require('../../lib/EventBus');
 
 class ServerState {
-	static _state = {};
-
-	get state() {
-		return ServerState._state;
-	}
-	set state(_) {
-		return {};
-	}
+	static state = {};
 
 	constructor(update_callback) {
 		if (typeof update_callback == 'function') {
@@ -21,8 +13,8 @@ class ServerState {
 
 	// By calling this function you can register a callback to be called whenever the local server state is updated.
 	onSync(callback) {
-		eventBus.on('server:synched', () => {
-			callback(ServerState._state);
+		app.on('server:synched', () => {
+			callback(ServerState.state);
 		});
 	}
 
@@ -38,6 +30,8 @@ class ServerRequester extends BaseModule {
 	ENTRY_STATUS = kleur.grey().bold('unsynced');
 
 	do_resync = true;
+	autosync_loop;
+	failed_connections = 0;
 
 	state = new ServerState();
 
@@ -50,26 +44,28 @@ class ServerRequester extends BaseModule {
 			},
 			this.__conf.reload_interval * 1000 || 2000,
 		);
+		if (this.__conf.force_reload_interval)
+			this.autosync_loop = setInterval(async () => {
+				await this.get_serverstate();
+			}, this.__conf.force_reload_interval * 1000);
 	}
 
 	on_new_tab_created(newTab) {
 		this.newCtrlShortcut('s', () => this.getState(), newTab);
 	}
 
-	// pass a function to be called upon subsequent server updates
+	// accepts a function to be called upon subsequent server updates
 	async getState(update_callback) {
 		if (this.do_resync) {
-			await this.get_server_state();
-			eventBus.emit('server:synched');
+			await this.get_serverstate();
 		}
-		this.log('current server state:', ServerState._state);
+		this.log('current server state:', ServerState.state);
 
-		update_callback?.(ServerState._state);
-		new ServerState(update_callback);
-		return ServerState._state;
+		update_callback?.(ServerState.state);
+		return new ServerState(update_callback);
 	}
 
-	async get_server_state(re = false) {
+	async get_serverstate(re = false) {
 		this.log('refreshing server state');
 		this.do_resync = false;
 		const api_endpoint = `${this.__conf.endpoint.protocol}://${this.__conf.source_of_validation}/${this.__conf.endpoint.path}`;
@@ -99,10 +95,12 @@ class ServerRequester extends BaseModule {
 			} else {
 				this.setStatus(kleur.green('synced'));
 				this.log('Server state synced!');
-				return (ServerState._state = await response.json());
+				ServerState.state = await response.json();
+				app.emit('server:synched');
+				return ServerState.state;
 			}
 			this.do_resync = true;
-			return (ServerState._state = {});
+			return (ServerState.state = {});
 		} catch (e) {
 			switch (e.cause?.code) {
 				case 'ECONNREFUSED':
@@ -112,8 +110,9 @@ class ServerRequester extends BaseModule {
 					this.err('Server connection error:', e);
 			}
 			this.do_resync = true;
-			if (!re) return await this.get_server_state(true); // try another time
-			return (ServerState._state = {});
+			if (this.failed_connections++ > this.__conf.max_retries) clearInterval(this.autosync_loop);
+			if (!re) return await this.get_serverstate(true); // try another time
+			return (ServerState.state = {});
 		}
 	}
 }

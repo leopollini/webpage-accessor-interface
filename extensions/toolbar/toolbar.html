@@ -162,10 +162,10 @@
 		<div id="viewContainer" , class="nonselectable"></div>
 
 		<script>
-			window.manage_tabs.onDoCreateTab(createTab);
-			window.manage_tabs.onDoCloseTab(closeTabId);
-			window.manage_tabs.onRenameTab(renameTab);
-			window.manage_tabs.onBackgroundColorUpdated(updateBGColor);
+			window?.manage_tabs.onDoCreateTab(createTab);
+			window?.manage_tabs.onDoCloseTab(closeTabId);
+			window?.manage_tabs.onRenameTab(renameTab);
+			window?.manage_tabs.onBackgroundColorUpdated(updateBGColor);
 
 			const tabBar = document.getElementById('tabBar');
 			const viewContainer = document.getElementById('viewContainer');
@@ -183,14 +183,14 @@
 			newTabBtn.addEventListener('click', newTabFunction, { once: true });
 
 			async function requestNewTab(content) {
-				createTab(await window.manage_tabs.createdTab(content));
+				createTab(await window?.manage_tabs.createdTab(content));
 
 				newTabBtn.removeEventListener('click', newTabFunction); // for safety
 				newTabBtn.addEventListener('click', newTabFunction, { once: true });
 			}
 
 			async function updateTabIcon(tabEl, host) {
-				const favico_url = await window.manage_tabs.getFavicoUrl(host);
+				const favico_url = await window?.manage_tabs.getFavicoUrl(host);
 				console.log('UPDATING ICON:', favico_url);
 				if (!favico_url) {
 					tabEl.style.padding = '4px 8px';
@@ -265,7 +265,7 @@
 
 			async function activateTab(tabEl) {
 				console.log('switching to', parseInt(tabEl.dataset.index));
-				window.manage_tabs.switchTab(parseInt(tabEl.dataset.index));
+				window?.manage_tabs.switchTab(parseInt(tabEl.dataset.index));
 				activeTab?.classList.remove('active');
 				tabEl.classList.add('active');
 				activeTab = tabEl;
@@ -292,7 +292,7 @@
 
 			function closeTab(tabEl) {
 				console.log('closing tab', tabEl.dataset.index);
-				window.manage_tabs.closeTab(tabEl.dataset.index);
+				window?.manage_tabs.closeTab(tabEl.dataset.index);
 				removeTab(tabEl);
 			}
 		</script>

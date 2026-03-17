@@ -38,6 +38,9 @@
 				"sign": "mysign.js"
 			}
 		},
+		"nsis": {
+			"include": "installer.nsh"
+		},
 		"publish": {
 			"provider": "github",
 			"owner": "leopollini",

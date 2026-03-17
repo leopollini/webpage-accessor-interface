@@ -20,7 +20,7 @@ class WindowSetup extends BaseModule {
 	}
 
 	ctrlF(window) {
-		window.setFullScreen(!window.isFullScreen());
+		window?.setFullScreen(!window?.isFullScreen());
 		TabsManager.resized();
 	}
 	ctrlX() {

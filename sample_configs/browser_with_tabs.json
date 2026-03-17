@@ -42,11 +42,11 @@
 				},
 				"mouse_config": {},
 				"splashscreen": {
-					"enabled": false,
+					"enabled": true,
 					"extension": "splashscreen",
-					"splash_timeout": 5,
+					"splash_timeout": 30,
 					"splash_url": {
-						"pathname": "google.com",
+						"pathname": "w0.peakpx.com/wallpaper/407/567/HD-wallpaper-cat-black-background-cats-gatito-gato-gatos-kitties-kitty.jpg",
 						"protocol": "https"
 					}
 				},
@@ -71,10 +71,12 @@
 						"path": "/webpage_accessor/remote-controls.php",
 						"protocol": "http"
 					},
-					"source_of_validation": "10.64.0.71",
+					"source_of_validation": "10.242.0.2",
 					"validation_modes": ["ip", "id"],
 					"validation_mode": "id",
 					"reload_interval": 5,
+					"force_reload_interval": 5,
+					"max_retries": 5,
 					"id_temp": "leo"
 				}
 			}

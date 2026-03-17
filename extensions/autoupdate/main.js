@@ -38,7 +38,7 @@ module.exports = class Autoupdate extends BaseModule {
 				throw new BaseModule.ModuleError('Could not fetch update version');
 			}
 			autoUpdater.setFeedURL(state.path);
-			this.log("Updater set to update from feed:", autoUpdater.getFeedURL())
+			this.log('Updater set to update from feed:', autoUpdater.getFeedURL());
 			try {
 				autoUpdater.checkForUpdates();
 			} catch {
@@ -71,7 +71,7 @@ module.exports = class Autoupdate extends BaseModule {
 		autoUpdater.on('download-progress', (progressObj) => {
 			const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
 			this.log(logMsg);
-			this.window.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
+			this.window?.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
 		});
 
 		autoUpdater.on('update-downloaded', (info) => {

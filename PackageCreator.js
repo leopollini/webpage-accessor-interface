@@ -87,7 +87,7 @@ class PackageCreator {
 
 	clearConfigs() {
 		console.log('DATA: ', app.data);
-		if (Env.CLEAR_CONFS_ON_RESTART == 'ask' && !app.data.clear_confs_set) {
+		if (Env.CLEAR_CONFS_ON_RESTART == 'ask' && !app.data.clear_confs_set && !app.args.includes('clear-conf')) {
 			switch (
 				dialog.showMessageBoxSync({
 					type: 'question',
@@ -111,7 +111,7 @@ class PackageCreator {
 			}
 		}
 		console.log('### CLEARING OLD CONFIGURATIONS ###');
-		app.data = {}
+		app.data = {};
 		try {
 			if (fs.existsSync(path.joinConfigDir())) {
 				fs.readdirSync(path.joinConfigDir()).forEach((entry) => {
@@ -236,6 +236,7 @@ class PackageCreator {
 	}
 
 	loadExtension(ext, name, depth) {
+		ext.extension ||= name;
 		if (ext.enabled == false)
 			return this.betterLog(
 				depth + 1,

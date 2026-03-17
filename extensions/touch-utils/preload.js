@@ -21,10 +21,10 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js') {
 
 		// detect long press (trigger left-click + contextmenu) and
 		// detect touched item for events sent from main
-		window.addEventListener('pointerdown', (e) => this.clickStuff(e));
+		window?.addEventListener('pointerdown', (e) => this.clickStuff(e));
 
 		// same
-		window.addEventListener('pointerup', (event) => {
+		window?.addEventListener('pointerup', (event) => {
 			// Cancel timer on mouseup
 			if (this.longPressTimer) {
 				clearTimeout(this.longPressTimer);
@@ -33,7 +33,7 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js') {
 		});
 
 		// long press to rightclick
-		window.addEventListener('gestureLongTap', (e) => {
+		window?.addEventListener('gestureLongTap', (e) => {
 			// sendMouseEvent('contextmenu', e);
 			ipcChannel.sendSignalToMain('context-menu');
 			sendMouseEvent('pointerdown', e);
@@ -55,7 +55,7 @@ class TouchUtils_preload extends require('../../lib/BasePreload.js') {
 		// appends bubble dedicated style
 		if (document.head) this.styleSetup();
 		else
-			window.addEventListener('DOMContentLoaded', () => {
+			window?.addEventListener('DOMContentLoaded', () => {
 				this.styleSetup();
 			});
 	}

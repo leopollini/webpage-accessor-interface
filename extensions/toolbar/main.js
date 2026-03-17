@@ -155,7 +155,7 @@ class Toolbar extends BaseModule {
 	async backgroundColorChange(tab) {
 		if (tab == TabsManager.getActiveTab()) {
 			const col = await TabsManager.getActiveTab().webContents.executeJavaScript(
-				'window.getComputedStyle(document.body).backgroundColor;',
+				'window?.getComputedStyle(document.body).backgroundColor;',
 			);
 			if (tab == TabsManager.getActiveTab())
 				icpChannel.sendSignalToRender('update-bg', this.tab, {

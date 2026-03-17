@@ -2,7 +2,7 @@
 const { app } = require('electron');
 
 const FORCE_EXE = false;
-const FORCE_VERBOSE = true
+const FORCE_VERBOSE = true;
 
 class Env {
 	static LINUX_DESKTOPFILE_PATH; // assigned in PackageCreator.js
