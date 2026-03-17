@@ -79,6 +79,10 @@ module.exports = class RemoteControls extends BaseModule {
 	}
 
 	late_setup() {
+		this.up();
+	}
+
+	up() {
 		if (this.__conf.host) {
 			this.createSocket(this.__conf.host);
 		} else {

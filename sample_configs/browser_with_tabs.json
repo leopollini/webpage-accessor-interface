@@ -20,13 +20,13 @@
 	},
 
 	"configuration": {
-		"touchscreen_config": {
-			"enabled": "does not affect :(",
+		"touchscreen-config": {
+			"enabled": false,
 			"remap_to_pointeraction": true,
 			"disable_physical_keyboard": false,
 			"disable_virtual_keyboard": false,
 			"actions": {
-				"enlarged_doubleclick": {
+				"enlarged-doubleclick": {
 					"enabled": true,
 					"doubleclick_sqr_radius": 1600,
 					"doubleclick_max_delay": 500,
@@ -34,22 +34,81 @@
 						"lel": { "enabled": true, "extension": "touch-utils" }
 					}
 				},
-				"keyboard_config": {
+				"keyboard-config": {
 					"enabled": false,
 					"whitelist": false,
 					"blacklist": [],
 					"extension": "keyboard-config"
 				},
-				"mouse_config": {},
+				"mouse-config": {},
 				"splashscreen": {
 					"enabled": true,
 					"extension": "splashscreen",
-					"splash_timeout": 30,
+					"splash_timeout": 3,
 					"splash_url": {
 						"pathname": "w0.peakpx.com/wallpaper/407/567/HD-wallpaper-cat-black-background-cats-gatito-gato-gatos-kitties-kitty.jpg",
 						"protocol": "https"
 					}
+				}
+			}
+		},
+		"window-config": {
+			"enabled": true,
+			"actions": {
+				"toolbar": {
+					"enabled": true,
+					"hidden": false,
+					"toolbar_width": 53,
+					"toolbar_html": "toolbar.html",
+					"extension": "toolbar",
+					"allow_target_blank": true,
+					"default_url": {
+						"pathname": "pms.parchotels.dev",
+						"protocol": "https"
+					},
+					"create_on_open": true
 				},
+				"window-utils": {
+					"enable_shortcuts": true,
+					"hide_toolbar": true,
+					"start_with_dev_tools": true,
+					"extension": "window-events"
+				}
+			}
+		},
+		"navigation": {
+			"enabled": true,
+			"actions": {
+				"webpage-filter": {
+					"enabled": true,
+					"hosts_whitelist": [],
+					"hosts_blacklist": [],
+					"webpages_whitelist": [],
+					"webpages_blacklist": [],
+					"allow_navigation": true,
+					"extension": "webpage-filter"
+				},
+				"autoupdate": {
+					"enabled": true,
+					"extension": "autoupdate",
+					"check_update_on_start": true,
+					"update_mode": {
+						"mode": "none (on restart)"
+					},
+					"silent": true,
+					"auto_downalod": true,
+					"inform_noupdates": false,
+					"provider": "server",
+					"other_providers": [
+						"http://github.com/leopollini/webpage-accessor-interface/releases/latest/download",
+						"server (keyword)"
+					]
+				}
+			}
+		},
+		"remtote": {
+			"enabled": true,
+			"actions": {
 				"remote-controls": {
 					"enabled": true,
 					"extension": "remote-controls",
@@ -81,40 +140,12 @@
 				}
 			}
 		},
-		"other_actions": {
+		"other-actions": {
 			"enabled": true,
 			"actions": {
-				"webpage_filter": {
-					"enabled": true,
-					"hosts_whitelist": [],
-					"hosts_blacklist": [],
-					"webpages_whitelist": [],
-					"webpages_blacklist": [],
-					"allow_navigation": true,
-					"extension": "webpage-filter"
-				},
-				"toolbar": {
-					"enabled": true,
-					"hidden": false,
-					"toolbar_width": 53,
-					"toolbar_html": "toolbar.html",
-					"extension": "toolbar",
-					"allow_target_blank": true,
-					"default_url": {
-						"pathname": "pms.parchotels.dev",
-						"protocol": "https"
-					},
-					"create_on_open": true
-				},
 				"electron-api": {
 					"enabled": true,
 					"extension": "electronAPI"
-				},
-				"window-utils": {
-					"enable_shortcuts": true,
-					"hide_toolbar": true,
-					"start_with_dev_tools": true,
-					"extension": "window-events"
 				},
 				"startup-actions": {},
 				"keys-checker": {
@@ -126,25 +157,9 @@
 				"autostart": {
 					"extension": "autostart"
 				},
-				"autoupdate": {
-					"enabled": true,
-					"extension": "autoupdate",
-					"check_update_on_start": true,
-					"update_mode": {
-						"mode": "none (on restart)"
-					},
-					"silent": true,
-					"auto_downalod": true,
-					"inform_noupdates": false,
-					"provider": "server",
-					"other_providers": [
-						"http://github.com/leopollini/webpage-accessor-interface/releases/latest/download",
-						"server (keyword)"
-					]
-				},
 				"context-menu": {
-					"extension": "context-menu",
-					"enabled": true
+					"enabled": true,
+					"extension": "context-menu"
 				}
 			}
 		}

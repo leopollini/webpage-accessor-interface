@@ -4,7 +4,7 @@ const Env = require('../../env');
 const url = require('url');
 
 // Sample Module. Plase copy-paste this file into new module's main folder
-class Splashscreen extends require('../../lib/BaseModule') {
+module.exports = class Splashscreen extends require('../../lib/BaseModule') {
 	MODULE_NAME = 'splashscreen'; // MUST be the same as the 'extension' field in config.json
 	// required_modules = ['window-events'];
 
@@ -31,17 +31,10 @@ class Splashscreen extends require('../../lib/BaseModule') {
 		// Actual splash screen activation time is between 3/4 of the timeout value and 3/2 of the timeout value
 		setInterval(() => {
 			if (this.is_splashscreen) return;
-			if (Env.VERBOSE) this.log('splash_check');
-			if (!this.inputed)
-				try {
-					this.setSplash();
-				} catch {} // to hide errors at async app destruction
+			if (Env.VERBOSE) this.log('splash_check', this.inputed);
+			if (!this.inputed) this.setSplash();
 			this.inputed = false;
 		}, this.__conf.splash_timeout * 750);
-
-		// const mainTab = TabsManager.activeTabName;
-		// TabsManager.setNewTab(this.splash, "splash");
-		// setTimeout(TabsManager.setTab, 5000, mainTab);
 	}
 
 	on_new_tab_created(newTab) {
@@ -52,10 +45,6 @@ class Splashscreen extends require('../../lib/BaseModule') {
 	}
 
 	setSplash() {
-		this.splash.setBounds({
-			height: this.window?.getContentBounds().height,
-			width: this.window?.getContentBounds().width,
-		});
 		TabsManager.setTab('splashscreen', false);
 		setTimeout(() => {
 			this.is_splashscreen = true;
@@ -66,6 +55,4 @@ class Splashscreen extends require('../../lib/BaseModule') {
 		this.is_splashscreen = false;
 		if (TabsManager.activeTabName == this.splash.tab_id) TabsManager.unsetTab();
 	}
-}
-
-module.exports = Splashscreen;
+};

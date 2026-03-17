@@ -199,16 +199,27 @@ class PackageCreator {
 	}
 
 	// If configurations are already present, this function eventually updates them with new parameters from the config file.
+	// LEVEL 0
 	createConfigurations() {
 		Object.entries(this.conf.configuration).forEach(([name, conf]) => {
-			this.loadConfiguration(conf, name);
+			this.loadConfiguration(conf, name, 0, true);
 		});
 	}
 
-	loadConfiguration(conf, name, depth = 0) {
-		if (Object.keys(conf).length == 0 || (!Env.CREATE_CONF_FOR_DISABLED_EXTENSIONS && conf.enabled === false))
-			return this.betterLog(depth, kleur.yellow('Ignoring'), 'configuration of', kleur.grey(name));
-		this.betterLog(depth, 'Beginning configuration of', kleur.bold(kleur.blue(name)));
+	// LEVEL 1
+	loadConfiguration(conf, name, depth = 0, enabled) {
+		// this.betterLog(depth, 'loadconf:', enabled, conf.enabled, conf.enabled !== false && enabled);
+		enabled = conf.enabled !== false && enabled;
+		if (Object.keys(conf).length == 0 || !enabled)
+			this.betterLog(
+				depth,
+				'configuration of',
+				kleur.grey(name),
+				'is',
+				kleur.yellow('disabled') + ':',
+				'disabling recursively',
+			);
+		else this.betterLog(depth, 'Beginning configuration of', kleur.bold(kleur.blue(name)));
 		let env = { ...conf };
 		Reflect.deleteProperty(env, 'actions');
 		Reflect.deleteProperty(env, 'extension');
@@ -218,13 +229,16 @@ class PackageCreator {
 			});
 		}
 		// only actions xor extension allowed, not both
-		if (conf.actions) this.loadActions(conf.actions, env, name, depth);
-		else if (conf.extension) this.loadExtension({ ...env, ...conf.extension }, name, depth);
+		if (conf.actions) this.loadActions(conf.actions, env, name, depth, enabled);
+		else if (conf.extension) this.loadExtension({ ...env, ...conf.extension }, name, depth, enabled);
 		console.log('|\t'.repeat(depth) + '|__' + kleur.green(' done'));
 	}
 
-	loadActions(actions, env, name, depth) {
-		if (!Env.CREATE_CONF_FOR_DISABLED_EXTENSIONS && actions.enabled == false)
+	// LEVEL 2 -- being recursion to LEVEL 1
+	loadActions(actions, env, name, depth, enabled) {
+		// this.betterLog(depth, 'loadaction:', enabled, actions.enabled, actions.enabled !== false && enabled);
+		enabled = actions.enabled !== false && enabled;
+		if (!Env.CREATE_CONF_FOR_DISABLED_EXTENSIONS && enabled == false)
 			return this.betterLog(
 				depth,
 				kleur.yellow('Ignoring'),
@@ -234,24 +248,19 @@ class PackageCreator {
 				kleur.red('disabled'),
 			);
 		Object.entries(actions).forEach(([name, ext]) => {
-			this.loadExtension({ ...env, ...ext }, name, depth);
+			this.loadExtension({ ...env, ...ext }, name, depth, enabled);
 		});
 	}
 
-	loadExtension(ext, name, depth) {
+	// LEVEL 2.1 -- resolve
+	loadExtension(ext, name, depth, enabled) {
+		// this.betterLog(depth, 'loadext:', enabled, ext.enabled, ext.enabled !== false && enabled);
+		enabled = ext.enabled !== false && enabled;
 		ext.extension ||= name;
-		if (ext.enabled == false)
-			return this.betterLog(
-				depth + 1,
-				kleur.yellow('Ignoring'),
-				'extension',
-				kleur.grey(name),
-				'because',
-				kleur.red('disabled'),
-			);
+		if (enabled == false) return this.betterLog(depth + 1, kleur.grey(name), 'is', kleur.red('disabled'));
 
 		if (ext.actions) {
-			this.loadConfiguration(ext, name, depth + 1);
+			this.loadConfiguration(ext, name, depth + 1, enabled);
 			return;
 		}
 		if (!ext.extension)
