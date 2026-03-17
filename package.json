@@ -12,7 +12,8 @@
 		"start": "electron --trace-warnings . -- create_config_link reload-configs",
 		"start:autoupdate": "npx electronmon --trace-warnings .",
 		"build": "electron-builder --publish=never",
-		"publish": "npm version patch --no-git-tag-version && electron-builder --publish=always"
+		"publish": "electron-builder --publish=always && npm version patch --no-git-tag-version",
+		"publish-win": "electron-builder --publish=always --win && npm version patch --no-git-tag-version"
 	},
 	"build": {
 		"appId": "webpage_accessor",

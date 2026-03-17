@@ -34,13 +34,18 @@ module.exports = class Autoupdate extends BaseModule {
 		this.log('Starting update checks');
 
 		this.updateFunction = async () => {
-			new ServerRequester().getState().then((state) => {
-				if (!state.path) {
-					throw new BaseModule.ModuleError('Could not fetch update version');
-				}
-				autoUpdater.setFeedURL(state.path);
+			if (this.__conf.provider == 'server')
+				new ServerRequester().getState().then((state) => {
+					if (!state.path) {
+						throw new BaseModule.ModuleError('Could not fetch update version');
+					}
+					autoUpdater.setFeedURL(state.path);
+					autoUpdater.checkForUpdates();
+				});
+			else {
+				if (this.__conf.provider) autoUpdater.setFeedURL(this.__conf.provider);
 				autoUpdater.checkForUpdates();
-			});
+			} // if provider is not specified do nothing since GitHub is the default provider
 		};
 
 		autoUpdater.on('update-available', (info) => {
@@ -110,6 +115,6 @@ module.exports = class Autoupdate extends BaseModule {
 	}
 
 	async tryUpdate() {
-		await this.updateFunction();
+		await this.updateFunction().catch(this.failed);
 	}
 };

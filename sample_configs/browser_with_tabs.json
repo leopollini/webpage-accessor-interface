@@ -135,7 +135,12 @@
 					},
 					"silent": true,
 					"auto_downalod": true,
-					"inform_noupdates": false
+					"inform_noupdates": false,
+					"provider": "server",
+					"other_providers": [
+						"http://github.com/leopollini/webpage-accessor-interface/releases/latest/download",
+						"server (keyword)"
+					]
 				},
 				"context-menu": {
 					"extension": "context-menu",
