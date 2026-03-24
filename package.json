@@ -37,7 +37,8 @@
 			"icon": "builds/icons/win/icon.ico",
 			"signtoolOptions": {
 				"sign": "mysign.js"
-			}
+			},
+			"publisherName": "Leonardo Pollini (Parchotels)"
 		},
 		"publish": {
 			"provider": "github",

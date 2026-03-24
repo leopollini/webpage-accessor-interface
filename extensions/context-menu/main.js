@@ -107,6 +107,16 @@ module.exports = class ContextMenu extends BaseModule {
 			// 	}),
 			// );
 
+			// trol
+			menu.append(
+				new MenuItem({
+					label: 'Do Crash',
+					click: () => {
+						new_tab.webContents.forcefullyCrashRenderer();
+					},
+				}),
+			);
+
 			menu.popup();
 		});
 	}
@@ -129,6 +139,22 @@ module.exports = class ContextMenu extends BaseModule {
 						new MenuItem({
 							label: 'Update check',
 							click: () => new Autoupdate().tryUpdate(),
+						}),
+					);
+					menu.append(
+						new MenuItem({
+							label: 'Do bug',
+							click: () => {
+								throw new BaseModule.ModuleError('Some unhandled exception');
+							},
+						}),
+					);
+					menu.append(
+						new MenuItem({
+							label: 'Do Crash',
+							click: () => {
+								process.crash();
+							},
 						}),
 					);
 					menu.popup();

@@ -86,7 +86,7 @@ class ServerRequester extends BaseModule {
 		// }
 		// const uri = `${api_endpoint}?${query_string}`;
 		// (console.log('#####', uri), this.__conf.validation_mode);
-		let extra_info = { ip: '10.101.0.10', id: this.__conf.id_temp };
+		let extra_info = { ip: '10.101.0.10', id: this.__data.id };
 
 		try {
 			const response = await fetch(api_endpoint, {

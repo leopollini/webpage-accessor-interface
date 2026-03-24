@@ -71,21 +71,25 @@ module.exports = class BugReport extends BaseModule {
 	}
 
 	load_bugs() {
-		let res = {report_date: Date.toString(), from: this.__conf.id_temp};
-		
+		let res = { report_date: new Date().toISOString(), from: this.__data.id };
+
 		fs.readdirSync(this.report_temp_dir).forEach((rep) => {
 			const full_dir = path.join(this.report_temp_dir, rep);
-
+			this.log('send bug (at', full_dir + '}');
 		});
 	}
 
 	store_bug(event, type, details) {
 		this.err('BUG REPORT:\n\t', type, event);
 
-		fs.writeFileSync(path.join(this.report_temp_dir, type + '_' + Date.toString()), 
-		`#### BUG EVENT ####
-detected by: ${this.__data.id}
-		`
-	);
+		fs.writeFileSync(
+			path.join(this.report_temp_dir, type + '_' + new Date().toISOString().replace('/[:.]/g', '-') + '.txt'),
+			`#### BUG EVENT ####
+# detected by: ${this.__data.id}
+# date: ${new Date().toISOString()}
+
+# event: ${JSON.stringify(event, null, 2)}
+${details ? '#details: ' + details : ''}`.replace('\\n', '\n'),
+		);
 	}
 };

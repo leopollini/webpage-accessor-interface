@@ -22,7 +22,7 @@ class Autostarter extends BaseModule {
 			try {
 				fs.cpSync(Env.LINUX_DESKTOPFILE_PATH, path.join(LINUX_AUTOSTART_DIR, app.data.app_name + '.desktop'));
 			} catch (e) {
-				throw new BaseModule.LoadError(`${e}`);
+				throw new BaseModule.LoadError(e);
 			}
 			this.log('Autostart set!');
 		}
@@ -30,7 +30,7 @@ class Autostarter extends BaseModule {
 			try {
 				fs.rmSync(LINUX_AUTOSTART_DIR);
 			} catch (e) {
-				throw new BaseModule.LoadError(`${e}`);
+				throw new BaseModule.LoadError(e);
 			}
 			this.log('Autostart unset!');
 		}
