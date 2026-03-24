@@ -11,6 +11,7 @@ const kleur = require('kleur');
 // WILL TAKE EFFECT ONLY ON BUILD MODE, NOT ON DEV MODE
 class Autostarter extends BaseModule {
 	MODULE_NAME = 'autostart';
+	track_active_tab = false;
 
 	setup_linux() {
 		this.createDesktopFile();

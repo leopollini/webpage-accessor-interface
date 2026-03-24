@@ -8,6 +8,7 @@ class LocalKeysCheck extends require('../../lib/BaseModule') {
 	MODULE_NAME = 'keys-checker';
 	machine_id = null;
 	real_machine_id;
+	track_active_tab = false;
 
 	setup() {
 		ipcChannel.newMainHandler('get-info', async () => await this.getInfo());

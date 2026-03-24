@@ -38,6 +38,7 @@ module.exports = class RemoteControls extends BaseModule {
 	MODULE_NAME = 'remote-controls';
 	ENTRY_STATUS = kleur.blue('connecting...');
 	required_modules = ['server-requester'];
+	track_active_tab = false;
 	// HIGHLIGHT = true;
 
 	connected = false;
@@ -220,6 +221,4 @@ module.exports = class RemoteControls extends BaseModule {
 				break;
 		}
 	}
-
-	on_new_tab_created(newTab) {}
 };

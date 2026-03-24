@@ -27,7 +27,8 @@ const { app } = require('electron');
 class ServerRequester extends BaseModule {
 	MODULE_NAME = 'server-requester';
 	// IS_MINIMODULE = true;
-	HIGHLIGHT = true;
+	// HIGHLIGHT = true;
+	// track_active_tab = false;
 	ENTRY_STATUS = kleur.grey().bold('unsynced');
 
 	do_resync = true;

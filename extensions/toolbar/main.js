@@ -13,7 +13,7 @@ class Toolbar extends BaseModule {
 	MODULE_NAME = 'toolbar'; // MUST be the same as the 'extension' field in config.json
 	static toolbar_tab;
 	static tabs_count = 0;
-	track_active_tab = false;
+	// track_active_tab = false;
 	first_avoided = false;
 	hidden = false;
 
@@ -28,17 +28,17 @@ class Toolbar extends BaseModule {
 	}
 
 	setup() {
-		this.tab = new WebContentsView({
+		Toolbar.toolbar_tab = new WebContentsView({
 			webPreferences: {
 				preload: path.join(__dirname, '../single_preload.js'),
 				additionalArguments: ['--load-only=' + path.join(__dirname, 'toolbar_preload.js')],
 				...Env.WEBVIEW_DEFAULT_PREFERENCES,
 			},
 		});
-		Toolbar.toolbar_tab = this.tab;
-		this.tab.tab_id = 'toolbar';
+		Toolbar.toolbar_tab = Toolbar.toolbar_tab;
+		Toolbar.toolbar_tab.tab_id = 'toolbar';
 
-		this.tab.webContents.loadURL(
+		Toolbar.toolbar_tab.webContents.loadURL(
 			url.format({
 				pathname: path.join(__dirname, this.__conf.toolbar_html),
 				protocol: 'file',
@@ -53,15 +53,15 @@ class Toolbar extends BaseModule {
 
 		this.hidden = this.__conf.hidden === true;
 		if (!this.hidden) {
-			TabsManager.newSideTab(this.tab, 'toolbar', {
+			TabsManager.newSideTab(Toolbar.toolbar_tab, 'toolbar', {
 				height: this.__conf.toolbar_width,
 			});
 			TabsManager.newDefaultBounds({ y: this.__conf.toolbar_width });
 		}
 
-		// this.newCtrlShortcut('r', () => { this.tab.webContents.reload(); });
+		// this.newCtrlShortcut('r', () => { Toolbar.toolbar_tab.webContents.reload(); });
 
-		// fs.watch(__dirname, (event) => {if (event == "change") {this.tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
+		// fs.watch(__dirname, (event) => {if (event == "change") {Toolbar.toolbar_tab.webContents.reload(); this.log(this.__conf.toolbar_html, "has been modified! Reloading toolbar.")}});
 
 		icpChannel.newMainHandler('created-tab', (_, tab_url) => this.createNewTab(url.format(this.default_page)));
 		icpChannel.newMainHandler('closed-tab', (_, index) => this.closeTab(TabsManager.idToName(index)));
@@ -71,9 +71,9 @@ class Toolbar extends BaseModule {
 	}
 
 	late_setup() {
-		if (this.tab) {
-			this.tab.devtools_detach = true;
-			if (!this.hidden) new (require('../window-events/main'))().on_new_tab_created(this.tab);
+		if (Toolbar.toolbar_tab) {
+			Toolbar.toolbar_tab.devtools_detach = true;
+			if (!this.hidden) new (require('../window-events/main'))().on_new_tab_created(Toolbar.toolbar_tab);
 			if (this.__data.webpages.length == 0 && this.__conf.create_on_open == true) this.requestNewTab();
 		}
 	}
@@ -83,7 +83,7 @@ class Toolbar extends BaseModule {
 	async requestNewTab(req_url = this.default_page.pathname) {
 		icpChannel.sendSignalToRender(
 			'create-tab',
-			this.tab,
+			Toolbar.toolbar_tab,
 			await this.createNewTab(typeof req_url == 'string' ? req_url : url.format(req_url), true),
 		);
 	}
@@ -140,7 +140,7 @@ class Toolbar extends BaseModule {
 		});
 		tab.webContents.on('page-title-updated', (e, new_title) => {
 			if (tab == TabsManager.getActiveTab()) this.window?.setTitle?.(new_title);
-			icpChannel.sendSignalToRender('rename-tab', this.tab, {
+			icpChannel.sendSignalToRender('rename-tab', Toolbar.toolbar_tab, {
 				id: tab.tab_id,
 				new_title: new_title,
 				host: new url.URL(tab.webContents.getURL()).host,
@@ -149,7 +149,7 @@ class Toolbar extends BaseModule {
 	}
 
 	focusToolbar() {
-		this.tab.webContents.focus();
+		Toolbar.toolbar_tab.webContents.focus();
 	}
 
 	async backgroundColorChange(tab) {
@@ -158,7 +158,7 @@ class Toolbar extends BaseModule {
 				'window?.getComputedStyle(document.body).backgroundColor;',
 			);
 			if (tab == TabsManager.getActiveTab())
-				icpChannel.sendSignalToRender('update-bg', this.tab, {
+				icpChannel.sendSignalToRender('update-bg', Toolbar.toolbar_tab, {
 					bg_color: col,
 				});
 		}

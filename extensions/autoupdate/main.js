@@ -11,6 +11,7 @@ module.exports = class Autoupdate extends BaseModule {
 	MODULE_NAME = 'autoupdate';
 	EXECUTABLE_NAME = '';
 	DOWNLOAD_PATH = '';
+	track_active_tab = false;
 
 	setup() {
 		this.updateFunction = () => {

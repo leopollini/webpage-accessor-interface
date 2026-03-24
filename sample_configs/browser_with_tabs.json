@@ -31,7 +31,7 @@
 					"doubleclick_sqr_radius": 1600,
 					"doubleclick_max_delay": 500,
 					"actions": {
-						"lel": { "enabled": true, "extension": "touch-utils" }
+						"touch-utils": { "enabled": true, "extension": "touch-utils" }
 					}
 				},
 				"keyboard-config": {
@@ -103,11 +103,18 @@
 						"http://github.com/leopollini/webpage-accessor-interface/releases/latest/download",
 						"server (keyword)"
 					]
+				},
+				"context-menu": {
+					"enabled": true,
+					"extension": "context-menu"
 				}
 			}
 		},
-		"remtote": {
+		"remote": {
 			"enabled": true,
+			"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3", "10.242.0.2"],
+			"source_of_validation": "10.242.0.2",
+			"id_temp": "leo",
 			"actions": {
 				"remote-controls": {
 					"enabled": true,
@@ -119,7 +126,6 @@
 					"max_retries": 2,
 					"host": "",
 					"port": 8080,
-					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3", "10.242.0.2"],
 					"validation_mode": "deny",
 					"other_validation_modes": ["allow", "deny"]
 				},
@@ -130,13 +136,19 @@
 						"path": "/webpage_accessor/remote-controls.php",
 						"protocol": "http"
 					},
-					"source_of_validation": "10.242.0.2",
 					"validation_modes": ["ip", "id"],
 					"validation_mode": "id",
 					"reload_interval": 5,
 					"force_reload_interval": 50,
-					"max_retries": 5,
-					"id_temp": "leo"
+					"max_retries": 5
+				},
+				"bug-report": {
+					"extension": "bug-report",
+					"log_level": "ALL",
+					"endpoint": {
+						"path": "/webpage_accessor/bug-report.php",
+						"protocol": "http"
+					}
 				}
 			}
 		},
@@ -156,10 +168,6 @@
 				},
 				"autostart": {
 					"extension": "autostart"
-				},
-				"context-menu": {
-					"enabled": true,
-					"extension": "context-menu"
 				}
 			}
 		}
