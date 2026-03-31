@@ -277,8 +277,8 @@ class PackageCreator {
 			this.betterLog(depth + 1, 'extension', kleur.grey(name), 'already configured, adding extra content');
 			try {
 				ext = {
-					...ext,
-					...JSON.parse(fs.readFileSync(path.joinConfigDir(ext.extension + '.json'))),
+					...ext, // old content
+					...JSON.parse(fs.readFileSync(path.joinConfigDir(ext.extension + '.json'))), // new content (HAS PRECEDENCE)
 				};
 			} catch (e) {
 				this.betterLog(depth + 1, 'could not load original content. Overwriting.');

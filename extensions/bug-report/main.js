@@ -3,6 +3,7 @@ const BaseModule = require('../../lib/BaseModule');
 const fs = require('fs');
 const path = require('../../lib/path2');
 const { app } = require('electron');
+const ipcChannel = require('../../lib/icpChannel');
 
 module.exports = class BugReport extends BaseModule {
 	MODULE_NAME = 'bug-report';
@@ -12,6 +13,7 @@ module.exports = class BugReport extends BaseModule {
 
 	report_temp_dir = path.joinAppData('bug_reports');
 
+	// FULL PROCESS CRASH AND RENDERER CRASH CANNOT (currently BE DETECTED
 	setup() {
 		if (!fs.existsSync(this.report_temp_dir)) fs.mkdirSync(this.report_temp_dir);
 
@@ -34,6 +36,14 @@ module.exports = class BugReport extends BaseModule {
 		app.on('gpu-process-crashed', (e) => {
 			this.store_bug(e, 'GPUCrashed');
 		});
+
+		ipcChannel.newMainHandler('error:GenericError', (e) => {
+			this.store_bug(e, 'RendererGenericError');
+		});
+
+		ipcChannel.newMainHandler('error:UndanhledRejection', (e) => {
+			this.store_bug(e, 'RendererUnhandledRejection');
+		});
 	}
 
 	on_new_tab_created(new_tab) {
@@ -51,39 +61,55 @@ module.exports = class BugReport extends BaseModule {
 	}
 
 	async sync_server() {
-		const api_endpoint = `${this.__conf.endpoint.protocol}://${this.__conf.source_of_validation}/${this.__conf.endpoint.path}`;
-		const content = this.load_bugs();
+		const endpoint = `${this.__conf.endpoint.protocol}://${this.__conf.source_of_validation}/${this.__conf.endpoint.path}`;
+		let fail = false;
 
-		try {
-			const res = fetch(api_endpoint, {
-				method: 'POST',
-				cache: 'no-store',
-				body: content,
-			});
+		if (!fs.existsSync(this.report_temp_dir))
+			fs.mkdir(this.report_temp_dir);
 
-			if (!response.ok) {
-				this.setStatus(kleur.red('could not connect'));
-			} else {
-				this.setStatus(kleur.green('synced'));
-				this.log('Server state synced!');
+		this.log('Beginning server sync.');
+		fs.readdirSync(this.report_temp_dir).forEach(async (rep) => {
+			if (fail) return;
+			const report_path = path.join(this.report_temp_dir, rep);
+			if (fs.statSync(report_path).isDirectory(() => {})) return;
+			try {
+				this.log('Syncing', rep + '...');
+
+				const form = new FormData();
+				form.append('file', new File([fs.readFileSync(report_path)], rep), rep);
+
+				const res = await fetch(endpoint, {
+					method: 'POST',
+					body: form,
+				});
+
+				this.warn(await res.text());
+
+				if (!res.ok) {
+					this.err('failed.');
+					this.setStatus(kleur.red('could not connect'));
+					fail = true;
+				} else {
+					this.log('done.');
+					fs.rename(report_path, path.join(this.report_temp_dir, 'sent', rep), () => {});
+				}
+			} catch (e) {
+				this.err('failed:', e);
+				this.failed(e);
+				fail = true;
 			}
-		} catch {}
-	}
-
-	load_bugs() {
-		let res = { report_date: new Date().toISOString(), from: this.__data.id };
-
-		fs.readdirSync(this.report_temp_dir).forEach((rep) => {
-			const full_dir = path.join(this.report_temp_dir, rep);
-			this.log('send bug (at', full_dir + '}');
 		});
+		if (!fail) {
+			this.log('Synched!');
+			this.setStatus(kleur.green('OK'));
+		}
 	}
 
 	store_bug(event, type, details) {
 		this.err('BUG REPORT:\n\t', type, event);
 
 		fs.writeFileSync(
-			path.join(this.report_temp_dir, type + '_' + new Date().toISOString().replace('/[:.]/g', '-') + '.txt'),
+			path.join(this.report_temp_dir, new Date().toISOString().replace('/[:.]/g', '-') + '_' + type + '.txt'),
 			`#### BUG EVENT ####
 # detected by: ${this.__data.id}
 # date: ${new Date().toISOString()}

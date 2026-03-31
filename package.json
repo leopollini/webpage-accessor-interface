@@ -1,6 +1,6 @@
 {
 	"name": "webpage_accessor",
-	"version": "0.0.87",
+	"version": "0.0.90",
 	"description": "Electron tests for independant desktop web app",
 	"author": {
 		"name": "Leonardo Pollini",
@@ -37,8 +37,7 @@
 			"icon": "builds/icons/win/icon.ico",
 			"signtoolOptions": {
 				"sign": "mysign.js"
-			},
-			"publisherName": "Leonardo Pollini (Parchotels)"
+			}
 		},
 		"publish": {
 			"provider": "github",

@@ -63,7 +63,7 @@
 					"extension": "toolbar",
 					"allow_target_blank": true,
 					"default_url": {
-						"pathname": "pms.parchotels.dev",
+						"pathname": "pms.vpn.parchotels.it",
 						"protocol": "https"
 					},
 					"create_on_open": true
@@ -81,7 +81,8 @@
 			"actions": {
 				"webpage-filter": {
 					"enabled": true,
-					"hosts_whitelist": [],
+					"hosts_allowed": ["googleapis", "apis.google"],
+					"hosts_whitelist": ["parchotels"],
 					"hosts_blacklist": [],
 					"webpages_whitelist": [],
 					"webpages_blacklist": [],
@@ -144,7 +145,7 @@
 				},
 				"bug-report": {
 					"extension": "bug-report",
-					"log_level": "ALL",
+					"log_level": "FULL",
 					"endpoint": {
 						"path": "/webpage_accessor/bug-report.php",
 						"protocol": "http"

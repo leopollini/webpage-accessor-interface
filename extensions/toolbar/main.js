@@ -123,6 +123,7 @@ class Toolbar extends BaseModule {
 
 	async setActiveTab(index) {
 		if (index < 0 || index >= Toolbar.tabs_count) return;
+		TabsManager.resetTabSize();
 		TabsManager.setTab(/*index == 0 ? 'main' : */ 'tab_' + index, true);
 		this.backgroundColorChange(TabsManager.getActiveTab());
 	}
