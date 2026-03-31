@@ -1,26 +1,73 @@
 {
-  "name": "page_terminal_accessor",
-  "version": "1.0.0",
-  "description": "Electron tests for independant desktop web app",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron --trace-warnings .",
-    "start:autoupdate": "npx electronmon --trace-warnings .",
-    "build": "electron-builder"
-  },
-  "keywords": [
-    "electron",
-    "test",
-    "webapp"
-  ],
-  "author": "leonardo",
-  "license": "ISC",
-  "dependencies": {
-    "fs": "^0.0.1-security"
-  },
-  "devDependencies": {
-    "electron": "^37.2.5",
-    "electron-builder": "^26.0.12"
-  }
+	"name": "webpage_accessor",
+	"version": "0.0.90",
+	"description": "Electron tests for independant desktop web app",
+	"author": {
+		"name": "Leonardo Pollini",
+		"email": "leopollinik@gmail.com"
+	},
+	"main": "main.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "electron --trace-warnings . -- create_config_link reload-configs",
+		"start:autoupdate": "npx electronmon --trace-warnings .",
+		"build": "electron-builder --publish=never",
+		"publish": "electron-builder --publish=always && npm version patch --no-git-tag-version",
+		"publish-win": "electron-builder --publish=always --win && npm version patch --no-git-tag-version"
+	},
+	"build": {
+		"appId": "webpage_accessor",
+		"productName": "webpage_accessor",
+		"asar": false,
+		"asarUnpack": [
+			"extensions/*/**"
+		],
+		"linux": {
+			"target": [
+				"AppImage"
+			],
+			"executableArgs": [
+				"--no-sandbox"
+			],
+			"category": "Utility",
+			"icon": "builds/icons/png"
+		},
+		"win": {
+			"target": "nsis",
+			"icon": "builds/icons/win/icon.ico",
+			"signtoolOptions": {
+				"sign": "mysign.js"
+			}
+		},
+		"publish": {
+			"provider": "github",
+			"owner": "leopollini",
+			"repo": "webpage-accessor-interface"
+		}
+	},
+	"keywords": [
+		"electron",
+		"test",
+		"webapp"
+	],
+	"license": "ISC",
+	"devDependencies": {
+		"chalk": "^5.6.2",
+		"dialog": "^0.3.1",
+		"electron": "^37.4.0",
+		"electron-builder": "^26.0.12",
+		"electron-context-menu": "^4.1.1"
+	},
+	"dependencies": {
+		"autoupdate": "^1.0.1",
+		"chalk": "^5.6.2",
+		"create-desktop-shortcut": "^1.0.0",
+		"create-desktop-shortcuts": "^1.11.1",
+		"dialog": "^0.3.1",
+		"electron-updater": "^6.6.2",
+		"fs": "^0.0.1-security",
+		"kleur": "^4.1.5",
+		"node-machine-id": "^1.1.12",
+		"ws": "^8.19.0"
+	}
 }

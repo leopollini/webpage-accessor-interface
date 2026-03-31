@@ -1,0 +1,140 @@
+{
+	"app_info": {
+		"author": {
+			"name": "Leonardo Pollini",
+			"email": "leopollinik@gmail.com"
+		},
+		"electron_package": "package.json",
+		"app_name": "Webpage Accessor",
+		"app_executable": "webpage_accessor"
+	},
+
+	"log": {
+		"log_level": "WARNING",
+		"log_file": "log.log",
+		"actions": {
+			"theese are just some examples": "I cannot use comments in json :(",
+			"send_mail": {},
+			"end_session": {}
+		}
+	},
+
+	"configuration": {
+		"touchscreen_config": {
+			"enabled": true,
+			"remap_to_pointeraction": true,
+			"actions": {
+				"enlarged_doubleclick": {
+					"enabled": true,
+					"doubleclick_sqr_radius": 1600,
+					"doubleclick_max_delay": 500,
+					"disable_physical_keyboard": false,
+					"disable_virtual_keyboard": true,
+					"actions": {
+						"touch_utils": { "enabled": true, "extension": "touch-utils" }
+					}
+				},
+				"keyboard_config": {},
+				"mouse_config": {}
+			}
+		},
+		"window_config": {
+			"enabled": true,
+			"actions": {
+				"window_utils": {
+					"enable_shortcuts": true,
+					"start_with_dev_tools": false,
+					"extension": "window-events"
+				},
+				"splashscreen": {
+					"enabled": true,
+					"extension": "splashscreen",
+					"splash_timeout": 10,
+					"splash_url": {
+						"pathname": "w0.peakpx.com/wallpaper/407/567/HD-wallpaper-cat-black-background-cats-gatito-gato-gatos-kitties-kitty.jpg",
+						"protocol": "https"
+					}
+				}
+			}
+		},
+		"navigation": {
+			"enabled": true,
+			"actions": {
+				"toolbar": {
+					"enabled": true,
+					"hidden": true,
+					"toolbar_width": 50,
+					"toolbar_html": "toolbar.html",
+					"extension": "toolbar",
+					"allow_target_blank": true,
+					"create_on_open": true
+				},
+				"webpage_filter": {
+					"enabled": true,
+					"hosts_whitelist": ["google", "parchotels"],
+					"hosts_blacklist": [],
+					"webpages_whitelist": [],
+					"webpages_blacklist": [],
+					"allow_navigation": true,
+					"extension": "webpage-filter"
+				},
+				"keys_checker": {
+					"enabled": true,
+					"extension": "keys-checker",
+					"custom_id": false,
+					"structure_id": [1, 2, 3, 4]
+				},
+				"remote_controls": {
+					"enabled": true,
+					"extension": "remote-controls",
+					"log_level": "WARNING",
+					"keepalive": 10,
+					"retry_timeout": 10,
+					"conn_timeout": 2,
+					"max_retries": 2, 
+					"host": "localhost",
+					"port": 8080,
+					"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3"]
+				},
+				"context-menu": {
+					"extension": "context-menu",
+					"enabled": false
+				}
+			}
+		},
+		"other_actions": {
+			"enabled": true,
+			"actions": {
+				"autostart": {
+					"extension": "autostart",
+					"enabled": true
+				},
+				"autoupdate": {
+					"enabled": true,
+					"extension": "autoupdate",
+					"auto_download": true,
+					"silent": true,
+					"check_update_on_start": true,
+					"update_mode": {
+						"mode": "none (on restart)"
+					}
+				}
+			}
+		}
+	},
+
+	"default_data": {
+		"fullscreen": true,
+		"autostart": true,
+		"autorestart": false,
+		"autoreload": false,
+		"allow_navigation": true,
+		"webpages": [
+			{
+				"pathname": "service.parchotels.it",
+				"protocol": "https"
+			}
+		],
+		"terminal_id": 6967420
+	}
+}

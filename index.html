@@ -1,0 +1,68 @@
+<!doctype html>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<html>
+	<head>
+		<title>PHP Testen</title>
+	</head>
+	<body style="background: red">
+		hkdsjfhasfatbfwqgefjklm
+		<br />
+		<br />
+		<button id="readfile">read file please</button>
+		<text style="display: none" id="loltext">this shows up on pointerdown event</text>
+		<br />
+		<text style="display: none" id="loltext2">this shows up on doubleclick event</text>
+		<br />
+		<text style="display: none" id="loltext3">this shows up on rightclick event</text>
+		<br />
+		<br />
+		<text style="display: none" id="macid_t">I am </text> <text style="display: none" , id="macid"></text> <br />
+	</body>
+	<script>
+		$(function () {
+			$('#readfile').on('dblclick', async function () {
+				// alert(JSON.stringify(await window?.electronAPI.getLocalKey()));
+				$('#loltext2').show();
+			});
+
+			$('#readfile').on('pointerdown', function () {
+				$('#loltext').show();
+				if (window?.electronAPI.getLocalKey) {
+					console.log('Calling local keys');
+					let asd = window?.electronAPI.getLocalKey().then(function (terminfo) {
+						console.log('Got from electron:', terminfo);
+						if (!terminfo || !terminfo.machine_id) {
+							$('#macid').show().text('no terminal info');
+						} else {
+							$('#macid_t').show();
+							$('#macid').show().text(terminfo.machine_id);
+						}
+					});
+				} else {
+					$('#macid').show().text('terminal info not accessible');
+				}
+			});
+
+			$('#readfile').on('contextmenu', function (e) {
+				$('#loltext3').show();
+			});
+
+			$(document).on('pointerdown', function () {
+				console.log('pointer down.');
+			});
+			$(document).on('pointerup', function () {
+				console.log('pointer up.');
+			});
+			$(document).click(function () {
+				console.log('pointer click.');
+			});
+			$(document).on('pointermove', function () {
+				console.log('pointer move.');
+			});
+			$(document).on('dblclick', function () {
+				console.log('pointer double click.');
+			});
+		});
+	</script>
+</html>

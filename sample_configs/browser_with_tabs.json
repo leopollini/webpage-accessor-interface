@@ -1,0 +1,193 @@
+{
+	"app_info": {
+		"author": {
+			"name": "Leonardo Pollini",
+			"email": "leopollinik@gmail.com"
+		},
+		"electron_package": "package.json",
+		"app_name": "Webpage Accessor",
+		"app_executable": "webpage_accessor"
+	},
+
+	"log": {
+		"log_level": "WARNING",
+		"log_file": "log.log",
+		"actions": {
+			"theese are just some examples": "I cannot use comments in json :(",
+			"send_mail": {},
+			"end_session": {}
+		}
+	},
+
+	"configuration": {
+		"touchscreen-config": {
+			"enabled": false,
+			"remap_to_pointeraction": true,
+			"disable_physical_keyboard": false,
+			"disable_virtual_keyboard": false,
+			"actions": {
+				"enlarged-doubleclick": {
+					"enabled": true,
+					"doubleclick_sqr_radius": 1600,
+					"doubleclick_max_delay": 500,
+					"actions": {
+						"touch-utils": { "enabled": true, "extension": "touch-utils" }
+					}
+				},
+				"keyboard-config": {
+					"enabled": false,
+					"whitelist": false,
+					"blacklist": [],
+					"extension": "keyboard-config"
+				},
+				"mouse-config": {},
+				"splashscreen": {
+					"enabled": true,
+					"extension": "splashscreen",
+					"splash_timeout": 3,
+					"splash_url": {
+						"pathname": "w0.peakpx.com/wallpaper/407/567/HD-wallpaper-cat-black-background-cats-gatito-gato-gatos-kitties-kitty.jpg",
+						"protocol": "https"
+					}
+				}
+			}
+		},
+		"window-config": {
+			"enabled": true,
+			"actions": {
+				"toolbar": {
+					"enabled": true,
+					"hidden": false,
+					"toolbar_width": 53,
+					"toolbar_html": "toolbar.html",
+					"extension": "toolbar",
+					"allow_target_blank": true,
+					"default_url": {
+						"pathname": "pms.vpn.parchotels.it",
+						"protocol": "https"
+					},
+					"create_on_open": true
+				},
+				"window-utils": {
+					"enable_shortcuts": true,
+					"hide_toolbar": true,
+					"start_with_dev_tools": true,
+					"extension": "window-events"
+				}
+			}
+		},
+		"navigation": {
+			"enabled": true,
+			"actions": {
+				"webpage-filter": {
+					"enabled": true,
+					"hosts_allowed": ["googleapis", "apis.google"],
+					"hosts_whitelist": ["parchotels"],
+					"hosts_blacklist": [],
+					"webpages_whitelist": [],
+					"webpages_blacklist": [],
+					"allow_navigation": true,
+					"extension": "webpage-filter"
+				},
+				"autoupdate": {
+					"enabled": true,
+					"extension": "autoupdate",
+					"check_update_on_start": true,
+					"update_mode": {
+						"mode": "none (on restart)"
+					},
+					"silent": true,
+					"auto_downalod": true,
+					"inform_noupdates": false,
+					"provider": "server",
+					"other_providers": [
+						"http://github.com/leopollini/webpage-accessor-interface/releases/latest/download",
+						"server (keyword)"
+					]
+				},
+				"context-menu": {
+					"enabled": true,
+					"extension": "context-menu"
+				}
+			}
+		},
+		"remote": {
+			"enabled": true,
+			"hosts": ["192.168.6.151", "10.64.0.71", "10.242.0.3", "10.242.0.2"],
+			"source_of_validation": "10.242.0.2",
+			"id_temp": "leo",
+			"actions": {
+				"remote-controls": {
+					"enabled": true,
+					"extension": "remote-controls",
+					"log_level": "WARNING",
+					"keepalive": 10,
+					"retry_timeout": 10,
+					"conn_timeout": 2,
+					"max_retries": 2,
+					"host": "",
+					"port": 8080,
+					"validation_mode": "deny",
+					"other_validation_modes": ["allow", "deny"]
+				},
+				"server-requester": {
+					"enabled": true,
+					"extension": "server-requester",
+					"endpoint": {
+						"path": "/webpage_accessor/remote-controls.php",
+						"protocol": "http"
+					},
+					"validation_modes": ["ip", "id"],
+					"validation_mode": "id",
+					"reload_interval": 5,
+					"force_reload_interval": 50,
+					"max_retries": 5
+				},
+				"bug-report": {
+					"extension": "bug-report",
+					"log_level": "FULL",
+					"endpoint": {
+						"path": "/webpage_accessor/bug-report.php",
+						"protocol": "http"
+					}
+				}
+			}
+		},
+		"other-actions": {
+			"enabled": true,
+			"actions": {
+				"electron-api": {
+					"enabled": true,
+					"extension": "electronAPI"
+				},
+				"startup-actions": {},
+				"keys-checker": {
+					"enabled": true,
+					"extension": "keys-checker",
+					"custom_id": false,
+					"structure_id": [1, 2, 3, 4]
+				},
+				"autostart": {
+					"extension": "autostart"
+				}
+			}
+		}
+	},
+
+	"default_data": {
+		"fullscreen": false,
+		"autostart": true,
+		"autorestart": false,
+		"autoreload": false,
+		"allow_navigation": true,
+		"webpages": [
+			{
+				"pathname": "pms.parchotels.dev",
+				"protocol": "https"
+			}
+		],
+		"terminal_id": 6967420,
+		"window_title": "\"Parchotels\"",
+		"id": "leo"
+	}
+}

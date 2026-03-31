@@ -1,2 +1,9 @@
 node_modules
 .vscode
+out/
+dist
+extensions_conf
+github_token
+.stfolder
+.stignore
+.env

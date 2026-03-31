@@ -1,0 +1,300 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>My Electron Tab Manager</title>
+		<style>
+			body {
+				--bg-color: color-mix(in srgb, black, white 80%);
+				background-color: color-mix(in srgb, var(--bg-color), black 5%);
+			}
+			#tabBar {
+				display: flex;
+				overflow-x: scroll;
+				background-color: color-mix(in srgb, var(--bg-color), white 5%);
+				padding: 4px;
+
+				user-select: none;
+			}
+			#tabBar::-webkit-scrollbar {
+				display: none;
+			}
+			.tab {
+				margin-right: 4px;
+				background: color-mix(in srgb, var(--bg-color), black 10%);
+				border-radius: 4px 4px 0 0;
+				cursor: pointer;
+				position: relative;
+
+				flex-shrink: 1;
+				flex-grow: 1;
+
+				max-width: 100px; /* limit tab width */
+				min-width: 10px; /* limit tab width */
+				white-space: nowrap; /* prevent wrapping */
+				overflow: hidden; /* hide overflow */
+				text-overflow: ellipsis; /* show "..." for long text */
+
+				user-select: none;
+			}
+			.tab span {
+				color: white;
+				mix-blend-mode: difference;
+				font-weight: 500;
+			}
+			.tab-icon {
+				height: 20px;
+				flex-shrink: 1; /* Ensures the icon stays a square */
+				position: absolute;
+				left: 3px;
+				top: 3px;
+				margin-right: 10px;
+
+				user-select: none;
+			}
+			.tab.active {
+				text-overflow: ellipsis; /* show "..." for long text */
+				background-color: color-mix(in srgb, var(--bg-color), white 15%);
+
+				flex-shrink: 0;
+				flex-grow: 0;
+
+				border-bottom: 3px solid #666;
+				min-width: 100px; /* limit tab width */
+				max-width: 200px; /* limit tab width */
+			}
+			.tab .close {
+				position: absolute;
+				right: 2px;
+				top: 0px;
+				font-size: 12px;
+				cursor: pointer;
+			}
+			.button-close {
+				font-size: 12px;
+				white-space: nowrap;
+				overflow: hidden;
+
+				flex-shrink: 0;
+
+				user-select: none;
+			}
+			#viewContainer {
+				position: absolute;
+				top: 40px; /* adjust as needed */
+				bottom: 0;
+				left: 0;
+				right: 0;
+
+				user-select: none;
+			}
+			webview {
+				width: 100%;
+				height: 100%;
+				display: none;
+			}
+			webview.active {
+				display: block;
+			}
+			:root {
+				--hover-color: #35363a;
+				--shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+			}
+
+			#add-page-btn {
+				flex-shrink: 0;
+				width: 25px;
+				height: 25px;
+				border-radius: 50%;
+				background-color: color-mix(in srgb, var(--bg-color), white 20%);
+				border: none;
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				box-shadow: var(--shadow);
+				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+				position: relative;
+				outline: none;
+			}
+
+			/* Hover and Active states */
+			#add-page-btn:hover {
+				background-color: color-mix(in srgb, var(--bg-color), black 20%);
+				transform: translateY(-2px);
+				box-shadow:
+					0 7px 14px rgba(0, 0, 0, 0.12),
+					0 3px 6px rgba(0, 0, 0, 0.1);
+			}
+
+			#add-page-btn:active {
+				transform: translateY(0);
+				background-color: color-mix(in srgb, var(--bg-color), white 10%);
+			}
+
+			/* The Plus Sign using Pseudo-elements */
+			.plus-icon {
+				position: relative;
+				width: 8px;
+				height: 2px;
+				background-color: black;
+				border-radius: 1px;
+			}
+
+			.plus-icon::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 8px;
+				height: 2px;
+				background-color: black;
+				transform: rotate(90deg);
+				border-radius: 1px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="tabBar" , class="nonselectable">
+			<!-- tabs will be injected here -->
+			<button id="add-page-btn" aria-label="Add New Page"><span class="plus-icon"></span></button>
+		</div>
+		<div id="viewContainer" , class="nonselectable"></div>
+
+		<script>
+			window?.manage_tabs.onDoCreateTab(createTab);
+			window?.manage_tabs.onDoCloseTab(closeTabId);
+			window?.manage_tabs.onRenameTab(renameTab);
+			window?.manage_tabs.onBackgroundColorUpdated(updateBGColor);
+
+			const tabBar = document.getElementById('tabBar');
+			const viewContainer = document.getElementById('viewContainer');
+			const newTabBtn = document.getElementById('add-page-btn');
+
+			let tabs = [];
+			let activeTab = null;
+			let tabCount = 0;
+
+			function newTabFunction() {
+				console.log('new tab requested');
+				requestNewTab('This should never display and should never influence anything');
+			}
+
+			newTabBtn.addEventListener('click', newTabFunction, { once: true });
+
+			async function requestNewTab(content) {
+				createTab(await window?.manage_tabs.createdTab(content));
+
+				newTabBtn.removeEventListener('click', newTabFunction); // for safety
+				newTabBtn.addEventListener('click', newTabFunction, { once: true });
+			}
+
+			async function updateTabIcon(tabEl, host) {
+				const favico_url = await window?.manage_tabs.getFavicoUrl(host);
+				console.log('UPDATING ICON:', favico_url);
+				if (!favico_url) {
+					tabEl.style.padding = '4px 8px';
+					cosole.log('No icon');
+					return;
+				}
+				tabEl.icon.src = favico_url;
+				tabEl.style.padding = '4px 30px';
+			}
+
+			async function createTab({ title, success, id, host }) {
+				// create tab element
+				if (success != true) return console.log('page creation not succesful');
+				const tabEl = document.createElement('div');
+				tabEl.classList.add('tab');
+				tabEl.id = id;
+				tabEl.dataset.index = tabCount++;
+
+				// title text inside a span for better management
+				tabEl.textSpan = document.createElement('span');
+				tabEl.textSpan.textContent = title;
+				tabEl.append(tabEl.textSpan);
+
+				// create close button element
+				tabEl.closeBtnEl = document.createElement('span');
+				tabEl.closeBtnEl.textContent = 'x';
+				tabEl.closeBtnEl.classList.add('close');
+				tabEl.append(tabEl.closeBtnEl);
+
+				// icon init
+				tabEl.icon = document.createElement('img');
+				tabEl.icon.alt = '';
+				tabEl.icon.classList.add('tab-icon');
+				tabEl.prepend(tabEl.icon);
+				tabEl.icon.onerror = () => {
+					updateTabIcon(tabEl, '');
+				};
+				updateTabIcon(tabEl, host);
+
+				// event handlers
+				tabEl.addEventListener('click', () => {
+					activateTab(tabEl);
+				});
+				tabEl.closeBtnEl.addEventListener('click', (e) => {
+					e.stopPropagation();
+					closeTab(tabEl);
+				});
+
+				// add it to list
+				tabs.push(tabEl);
+
+				// insert it in the tab bar
+				tabBar.insertBefore(tabEl, newTabBtn);
+
+				// activate it
+				activateTab(tabEl);
+			}
+
+			async function renameTab({ id, new_title, host }) {
+				tabs.forEach((tabEl) => {
+					if (tabEl.id === id && tabEl) {
+						tabEl.textSpan.textContent = new_title;
+						updateTabIcon(tabEl, host);
+					}
+				});
+			}
+
+			function updateBGColor({ bg_color }) {
+				console.log(bg_color);
+				document.body.style.setProperty('--bg-color', bg_color);
+			}
+
+			async function activateTab(tabEl) {
+				console.log('switching to', parseInt(tabEl.dataset.index));
+				window?.manage_tabs.switchTab(parseInt(tabEl.dataset.index));
+				activeTab?.classList.remove('active');
+				tabEl.classList.add('active');
+				activeTab = tabEl;
+			}
+
+			function closeTabId(tabId) {
+				console.log('requested to close tab', tabId);
+				tabs.forEach((tab) => {
+					if (tab.dataset.index === tabId) removeTab(tab);
+				});
+			}
+
+			function removeTab(tabEl) {
+				console.log('ALL TABS:', tabs);
+				tabs = tabs.filter((tab) => tab.dataset.index !== tabEl.dataset.index);
+				console.log('ALL TABS:', tabs);
+				const next = tabEl.nextElementSibling;
+				const prev = tabEl.previousElementSibling;
+				console.log('next:', next, '; prev:', prev);
+				tabEl.remove();
+				if (tabs.length != 0) activateTab(prev?.dataset?.index ? prev : next);
+				else requestNewTab({ title: 'asdasdasd', success: 'true' });
+			}
+
+			function closeTab(tabEl) {
+				console.log('closing tab', tabEl.dataset.index);
+				window?.manage_tabs.closeTab(tabEl.dataset.index);
+				removeTab(tabEl);
+			}
+		</script>
+	</body>
+</html>

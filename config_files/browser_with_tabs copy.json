@@ -1,0 +1,151 @@
+{
+	"app_info":
+	{
+		"author":
+		{
+			"name": "Leonardo Pollini",
+			"email": "leopollinik@gmail.com"
+		},
+		"version": "0.0.21",
+		"autoupdate": false,
+		"electron_package": "package.json",
+		"app_name": "Webpage Accessor",
+		"app_executable": "webpage_accessor"
+	},
+
+	"log":
+	{
+		"log_level": "WARNING",
+		"log_file": "log.log",
+		"actions":
+		{
+			"theese are just some examples": "I cannot use comments in json :(",
+			"send_mail": {},
+			"end_session": {}
+		}
+	},
+
+	"configuration":
+	{
+		"touchscreen_config":
+		{
+			"enabled": false,
+			"remap_to_pointeraction": true,
+			"disable_physical_keyboard": false,
+			"disable_virtual_keyboard": false,
+			"actions":
+			{
+				"enlarged_doubleclick":
+				{
+					"enabled": true,
+					"doubleclick_sqr_radius": 1600,
+					"doubleclick_max_delay": 500,
+					"actions":
+					{
+						"lel": {"enabled": true, "extension": "touch-utils"}
+					}
+				},
+				"keyboard_config":
+				{
+					"enabled": false,
+					"whitelist": false,
+					"blacklist": [],
+					"extension": "keyboard-config"
+				},
+				"mouse_config": {},
+				"splashscreen":
+				{
+					"enabled": false,
+					"extension": "splashscreen",
+					"splash_timeout": 5,
+					"splash_url":
+					{
+						"pathname": "google.com",
+						"protocol": "https"
+					}
+				}
+			}
+		},
+		"other_actions":
+		{
+			"enabled": true,
+			"actions":
+			{
+				"webpage_filter":
+				{
+					"enabled": false,
+					"hosts_whitelist": ["google"],
+					"hosts_blacklist": [],
+					"webpages_whitelist": [],
+					"webpages_blacklist": [],
+					"allow_navigation": true,
+					"extension": "webpage-filter"
+				},
+				"toolbar":
+				{
+					"enabled": true,
+					"hidden": true,
+					"toolbar_width": 50,
+					"toolbar_html": "toolbar.html",
+					"extension": "toolbar",
+					"allow_target_blank": true,
+					"default_url":
+					{
+						"pathname": "streaming-community.golf",
+						"protocol": "https"
+					},
+					"create_on_open": true
+				},
+				"electron-api":
+				{
+					"enabled": true,
+					"extension": "electronAPI"
+				},
+				"window-utils":
+				{
+					"enable_shortcuts": true,
+					"hide_toolbar": true,
+					"start_with_dev_tools": true,
+					"extension": "window-events"
+				},
+				"startup_actions": {},
+				"keys-checker":
+				{
+					"enabled": true,
+					"extension": "keys-checker",
+  					"custom_id": false,
+					"structure_id": [1,2,3,4]
+				},
+				"autostart":
+				{
+					"desktop_filename": "webpage_accessor.desktop",
+					"extension": "autostart"
+				},
+				"autoupdate":
+				{
+					"enabled": true,
+					"extension": "autoupdate",
+					"auto_download": false,
+					"check_update_on_start": false,
+					"update_mode":
+					{
+						"mode": "long_press",
+						"duration": 5
+					}
+				}
+			}
+		}
+	},
+
+	"default_data":
+	{
+		"fullscreen": false,
+		"autostart": false,
+		"autorestart": false,
+		"autoreload": false,
+		"allow_navigation": true,
+		"webpages":
+		[
+		]
+	}
+}

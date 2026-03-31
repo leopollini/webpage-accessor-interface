@@ -1,0 +1,121 @@
+const { dialog, app } = require('electron');
+const { autoUpdater } = require('electron-updater');
+const ipcChannel = require('../../lib/icpChannel');
+const Env = require('../../env');
+const BaseModule = require('../../lib/BaseModule');
+const fs = require('fs');
+const path = require('../../lib/path2');
+const ServerRequester = require('../server-requester/main');
+
+module.exports = class Autoupdate extends BaseModule {
+	MODULE_NAME = 'autoupdate';
+	EXECUTABLE_NAME = '';
+	DOWNLOAD_PATH = '';
+	track_active_tab = false;
+
+	setup() {
+		this.updateFunction = () => {
+			if (!Env.DEBUG_MODE) dialog.showErrorBox('Autoupdater not available', ':(');
+			this.warn('Autoupdater not available :(');
+		};
+
+		this.EXECUTABLE_NAME = app.app_info.app_executable | 'webpage-accessor';
+		this.DOWNLOAD_PATH = app.getPath('downloads');
+
+		// You can control this behavior:
+		autoUpdater.autoDownload = this.getAppData().auto_downalod == true; // ask first
+		autoUpdater.autoInstallOnAppQuit = true; // install after app closes
+		autoUpdater.allowDowngrade = true;
+
+		ipcChannel.newMainHandler('usr-check-for-updates', () => this.tryUpdate());
+
+		if (!Env.IS_EXECUTABLE) {
+			throw new BaseModule.LoadError('this is app is not packaged!');
+		}
+		this.log('Starting update checks');
+
+		this.updateFunction = async () => {
+			if (this.__conf.provider == 'server')
+				new ServerRequester().getState().then((state) => {
+					if (!state.path) {
+						throw new BaseModule.ModuleError('Could not fetch update version');
+					}
+					autoUpdater.setFeedURL(state.path);
+					autoUpdater.checkForUpdates();
+				});
+			else {
+				if (this.__conf.provider) autoUpdater.setFeedURL(this.__conf.provider);
+				autoUpdater.checkForUpdates();
+			} // if provider is not specified do nothing since GitHub is the default provider
+		};
+
+		autoUpdater.on('update-available', (info) => {
+			this.log(`Update available: ${info.version}`);
+			if (!this.__conf.silent)
+				dialog
+					.showMessageBox(this.window, {
+						type: 'info',
+						title: 'Update Available',
+						message: `Version ${info.version} is available. Download now?`,
+						buttons: ['Later', 'Yes'],
+					})
+					.then((result) => {
+						if (result.response === 1) {
+							try {
+								fs.rmdirSync(path.joinAppData('builds'));
+							} catch (e) {
+								// clean build so next run is built
+							}
+							autoUpdater.downloadUpdate();
+						} else this.warn('User refused to update');
+					});
+			else if (this.__conf.auto_download === true) {
+				autoUpdater.downloadUpdate();
+				dialog.showErrorBox('App update', 'The app will be restarted for an incoming update.');
+			}
+		});
+		autoUpdater.on('download-progress', (progressObj) => {
+			const logMsg = `Download speed: ${progressObj.bytesPerSecond} - ${progressObj.percent.toFixed(2)}%`;
+			this.log(logMsg);
+			this.window?.setTitle(`Downloading update... ${progressObj.percent.toFixed(0)}%`);
+		});
+
+		autoUpdater.on('update-downloaded', (info) => {
+			this.log('Linking executable...');
+
+			// Remove build folder for clean reinstall
+			if (fs.existsSync(path.joinAppData('builds')))
+				fs.rmSync(path.joinAppData('builds'), { recursive: true, force: true });
+
+			this.log('Installing');
+
+			autoUpdater.quitAndInstall(false, true);
+		});
+
+		autoUpdater.on('update-not-available', () => {
+			this.log('No updates available.');
+			if (!this.__conf.silent && this.__conf.inform_noupdates)
+				dialog.showErrorBox('No updates available', `Check again later :)`);
+		});
+
+		autoUpdater.on('error', (err) => {
+			this.err('Updater error:', err);
+			if (!this.__conf.silent)
+				dialog.showErrorBox('Update Error', err == null ? 'unknown' : (err.stack || err).toString());
+			this.fail_reason = err.toString();
+		});
+	}
+
+	setup_windows() {}
+
+	late_setup() {
+		if (this.__conf.check_update_on_start != false) {
+			this.log('Checking for updates...');
+			this.tryUpdate();
+		}
+	}
+
+	async tryUpdate() {
+		await this.updateFunction().catch(this.failed);
+	}
+};
